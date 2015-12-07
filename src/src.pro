@@ -23,7 +23,7 @@ SOURCES += main.cpp\
     songdatabase.cpp \
     playerlyricstext.cpp \
     karaokefile.cpp \
-    lyrictextline.cpp
+    playerlyrictext_line.cpp
 
 HEADERS  += mainwindow.h \
     playerwidget.h \
@@ -37,7 +37,7 @@ HEADERS  += mainwindow.h \
     songdatabase.h \
     playerlyricstext.h \
     karaokefile.h \
-    lyrictextline.h
+    playerlyrictext_line.h
 
 FORMS    += mainwindow.ui
 INCLUDEPATH += ..

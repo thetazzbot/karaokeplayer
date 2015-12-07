@@ -4,8 +4,10 @@
 #include <QFont>
 #include <QString>
 #include <QSize>
+#include <QList>
 
 #include "playerlyrics.h"
+#include "playerlyrictext_line.h"
 #include "libkaraokelyrics/lyricsloader.h"
 
 // This class encapsulates all possible text formats
@@ -35,11 +37,15 @@ class PlayerLyricsText : public PlayerLyrics
 
     private:
         LyricsLoader::Properties    m_properties;
-        LyricsLoader::Container     m_lyrics;
 
+        // Lyric lines
+        QList<PlayerLyricTextLine>  m_lines;
 
-        // The current lyric sentence (start offset)
-        int                         m_currentSentence;
+        // The current lyric line played
+        int                         m_currentLine;
+
+        // The longest lyric sentence (which generated the widest rendering)
+        int                         m_longestLine;
 
         // Time when the next lyric to be played
         qint64                      m_nextLyricTime;
@@ -49,9 +55,6 @@ class PlayerLyricsText : public PlayerLyrics
 
         // The font size is calculated for this image size
         QSize                       m_usedImageSize;
-
-        // This is the longest line from the lyrics when rendered using this font
-        QString                     m_longestLyricLine;
 };
 
 #endif // PLAYERLYRICSTEXT_H

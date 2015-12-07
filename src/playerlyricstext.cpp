@@ -9,15 +9,17 @@
 
 PlayerLyricsText::PlayerLyricsText()
 {
-    m_currentSentence = 0;
     m_nextLyricTime = 0;
+    m_currentLine = 0;
+    m_longestLine = 0;
 
     m_renderFont = Settings::g()->playerLyricsFont;
 }
 
 bool PlayerLyricsText::load( QIODevice &file, const QString& filename )
 {
-    LyricsLoader loader( m_properties, m_lyrics );
+    LyricsLoader::Container lyrics;
+    LyricsLoader loader( m_properties, lyrics );
 
     if ( !loader.parse( filename, file ) )
     {
@@ -25,31 +27,60 @@ bool PlayerLyricsText::load( QIODevice &file, const QString& filename )
         return false;
     }
 
-    // Find the longest lyrics line when rendered by a lyric font
+    // Convert them into sentences, and find the longest lyrics line when rendered by a lyric font
     QFontMetrics fm( m_renderFont );
-    QString line;
-    int maxvalue = 0;
+    int maxwidthvalue = 0;
+    int linestartidx = -1;
 
-    foreach ( const Lyric& l, m_lyrics )
+    for ( int i = 0; i < lyrics.size(); i++ )
     {
-        if ( l.text.isEmpty() )
+        qDebug("i %d, %s", i, qPrintable(lyrics[i].text));
+        if ( lyrics[i].text.isEmpty() )
         {
-            if ( !line.isEmpty() && fm.width( line ) > maxvalue )
+            // If the first lyric is empty (weird), ignore it
+            if ( i == 0 )
+                continue;
+
+            // If the empty lines follow, just add them as-is
+            if ( linestartidx == -1  )
             {
-                maxvalue = fm.width( line );
-                m_longestLyricLine = line;
+                m_lines.push_back( PlayerLyricTextLine() );
+                continue;
             }
 
-            line.clear();
+            // Add the lyric line data
+            m_lines.push_back( PlayerLyricTextLine( lyrics.mid( linestartidx, i - linestartidx ) ) );
+
+            // And calculate the rendering width
+            int render_width = m_lines.last().screenWidth( fm );
+
+            if ( render_width > maxwidthvalue )
+            {
+                maxwidthvalue = render_width;
+                m_longestLine = m_lines.size() - 1;
+            }
+
+            linestartidx = -1;
         }
         else
-            line.append( l.text );
+        {
+            if ( linestartidx == -1 )
+                linestartidx = i;
+        }
     }
 
-    m_nextLyricTime = m_lyrics[0].start;
+    // Trim the empty values at the end, if any
+    while ( m_lines.last().isEmpty() )
+        m_lines.takeLast();
 
-    //qDebug("Longest line for rendering is '%s'", qPrintable( m_longestLyricLine ) );
-    //loader.dump( m_lyrics );
+    m_nextLyricTime = m_lines[0].startTime();
+
+    foreach ( const PlayerLyricTextLine& t, m_lines )
+        t.dump();
+
+    qDebug("Longest line for rendering is %d", m_longestLine );
+    m_lines[m_longestLine].dump();
+
     return true;
 }
 
@@ -65,7 +96,7 @@ bool PlayerLyricsText::render(qint64 timems, QImage &image)
         m_usedImageSize = image.size();
         calculateFontSize();
     }
-
+/*
     // FIXME: end animation
     if ( m_currentSentence >= m_lyrics.size() )
         return true;
@@ -80,12 +111,10 @@ bool PlayerLyricsText::render(qint64 timems, QImage &image)
 
     while ( yoffset > ybottom )
     {
-
-
         yoffset += ybottom;
     }
 
-
+*/
 
     return true;
 }
@@ -105,7 +134,7 @@ void PlayerLyricsText::calculateFontSize()
         QFontMetrics fm( testfont );
         //qDebug("%d-%d: trying font size %d to draw on %d: width %d", minsize, maxsize, cursize, drawing_width, fm.width(m_longestLyricLine) );
 
-        if ( fm.width( m_longestLyricLine ) < drawing_width  )
+        if ( m_lines[m_longestLine].screenWidth( fm ) < drawing_width  )
             minsize = cursize;
         else
             maxsize = cursize;

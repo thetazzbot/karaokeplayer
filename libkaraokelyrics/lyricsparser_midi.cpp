@@ -425,7 +425,7 @@ void LyricsParser_MIDI::parse(QIODevice &file, LyricsLoader::Container &output, 
         if ( lyrics_timing < firstNoteTime )
             continue;
 
-        unsigned int mstime = (unsigned int)ceil( (lyrics_timing - firstNoteTime) / 100);
+        unsigned int mstime = (unsigned int)ceil( (lyrics_timing - firstNoteTime));
         output.push_back( Lyric( mstime, tc->toUnicode( lyrics[i].text ) ) );
     }
 }
