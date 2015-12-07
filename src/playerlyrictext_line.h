@@ -2,7 +2,7 @@
 #define PLAYERLYRICTEXTLINE_H
 
 #include <QFont>
-#include <QImage>
+#include <QPainter>
 #include <QFontMetrics>
 
 #include "libkaraokelyrics/lyricsloader.h"
@@ -18,10 +18,14 @@ class PlayerLyricTextLine
 
         // When is the next time something needs to be (re)drawn assuming no FF/RW
         qint64  startTime() const;
+        qint64  endTime() const;
 
         // Draw the lyrics according to time. Returns next time when the lyrics need
         // to be updated
-        qint64  draw( qint64 time, int yoffset, const QFont& font, QImage& image );
+        qint64  draw(qint64 time, int width, int yoffset, QPainter& p);
+
+        // Draw the disappearing animation with specific percentage(0-100)
+        void    drawDisappear( int percentage, int width, int yoffset, QPainter& p );
 
         // Empty set means screen space, and will not have draw/nextTime called
         bool    isEmpty() const { return m_line.empty(); }
@@ -35,6 +39,9 @@ class PlayerLyricTextLine
 
     private:
         LyricsLoader::Container     m_line;
+
+        QString                     m_text;
+
 
 };
 

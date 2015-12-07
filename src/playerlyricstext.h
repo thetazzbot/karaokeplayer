@@ -18,6 +18,8 @@ class PlayerLyricsText : public PlayerLyrics
         {
             PADDING_LEFTRIGHT_PERCENTAGE = 10,
             PADDING_TOPBOTTOM_PERCENTAGE = 5,
+
+            MAX_DISAPPEARING_TIME_MS = 1000,
         };
         PlayerLyricsText();
 

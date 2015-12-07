@@ -15,4 +15,7 @@ Settings::Settings()
 {
     playerBackgroundColor = QColor( Qt::black );
     playerLyricsFont = QFont("arial");
+    playerLyricsTextBeforeColor = QColor( Qt::red );
+    playerLyricsTextAfterColor = QColor( Qt::blue );
+    playerLyricsTextEachCharacter = true;
 }

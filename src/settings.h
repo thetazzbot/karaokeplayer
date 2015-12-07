@@ -11,7 +11,10 @@ class Settings
 
     public:
         QColor  playerBackgroundColor;
+        QColor  playerLyricsTextBeforeColor;
+        QColor  playerLyricsTextAfterColor;
         QFont   playerLyricsFont;
+        bool    playerLyricsTextEachCharacter;
 
     private:
         Settings();
