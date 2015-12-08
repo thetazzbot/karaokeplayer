@@ -1,8 +1,10 @@
 #include <QPainter>
 
+#include "karaokepainter.h"
 #include "playerlyrics.h"
 #include "playerbackground.h"
 #include "playerwidget.h"
+
 
 PlayerWidget::PlayerWidget( PlayerLyrics * lyricRenderer, PlayerBackground  * bgRenderer, QWidget *parent )
     : QWidget(parent), m_image( 800, 600, QImage::Format_ARGB32 )
@@ -23,8 +25,10 @@ void PlayerWidget::updateLyrics(qint64 time)
 
 void PlayerWidget::redrawLyrics()
 {
-    m_backgroundRenderer->draw( m_lastRedrawTime, m_image );
-    m_lyricRenderer->draw( m_lastRedrawTime, m_image );
+    KaraokePainter p( KaraokePainter::AREA_MAIN_SCREEN, m_lastRedrawTime, m_image );
+
+    m_backgroundRenderer->draw( p );
+    m_lyricRenderer->draw( p );
 
     m_nextRedrawTime = m_lyricRenderer->nextUpdate();
     update();

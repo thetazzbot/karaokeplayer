@@ -1,4 +1,6 @@
 #include "playerlyrics.h"
+#include "karaokepainter.h"
+
 
 PlayerLyrics::PlayerLyrics()
 {
@@ -8,11 +10,13 @@ PlayerLyrics::~PlayerLyrics()
 {
 }
 
-bool PlayerLyrics::draw(qint64 time, QImage &target)
+bool PlayerLyrics::draw(KaraokePainter &p)
 {
-    if ( !render( time, target) )
+    p.setTextLyricsMode();
+
+    if ( !render( p ) )
         return false;
 
-    m_lastRenderedTime = time;
+    m_lastRenderedTime = p.time();
     return true;
 }

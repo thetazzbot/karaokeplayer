@@ -4,6 +4,7 @@
 
 #include "playerlyricstext.h"
 #include "settings.h"
+#include "karaokepainter.h"
 #include "libkaraokelyrics/lyricsloader.h"
 
 
@@ -105,64 +106,21 @@ qint64 PlayerLyricsText::nextUpdate() const
     return m_nextUpdateTime;
 }
 
-int PlayerLyricsText::largetsFontSize( const QSize& size, const QString& text )
-{
-    int maxsize = 128;
-    int minsize = 8;
-    int cursize;
-    QFont testfont( Settings::g()->playerLyricsFont );
-
-    // We are trying to find the maximum font size which fits by doing the binary search
-    while ( maxsize - minsize > 1 )
-    {
-        cursize = minsize + (maxsize - minsize) / 2;
-        testfont.setPointSize( cursize );
-        QFontMetrics fm( testfont );
-        //qDebug("%d-%d: trying font size %d to draw on %d: width %d", minsize, maxsize, cursize, drawing_width, fm.width(m_longestLyricLine) );
-
-        if ( fm.width( text )< size.width() )
-            minsize = cursize;
-        else
-            maxsize = cursize;
-    }
-
-    return cursize;
-}
 
 void PlayerLyricsText::calculateFontSize()
 {
-    int maxsize = 128;
-    int minsize = 8;
-    int drawing_width = m_usedImageSize.width() - (m_usedImageSize.width() * PADDING_LEFTRIGHT_PERCENTAGE * 2) / 100;
-    QFont testfont( Settings::g()->playerLyricsFont );
+    int fontsize = KaraokePainter::largetsFontSize( Settings::g()->playerLyricsFont,
+                                                    m_usedImageSize.width(),
+                                                    m_lines[m_longestLine].fullLine() );
 
-    // We are trying to find the maximum font size which fits by doing the binary search
-    while ( maxsize - minsize > 1 )
-    {
-        int cursize = minsize + (maxsize - minsize) / 2;
-        testfont.setPointSize( cursize );
-        QFontMetrics fm( testfont );
-        //qDebug("%d-%d: trying font size %d to draw on %d: width %d", minsize, maxsize, cursize, drawing_width, fm.width(m_longestLyricLine) );
-
-        if ( m_lines[m_longestLine].screenWidth( fm ) < drawing_width  )
-            minsize = cursize;
-        else
-            maxsize = cursize;
-    }
-
-    //qDebug("Chosen minimum size: %d", minsize );
-    m_renderFont.setPointSize( minsize );
+    //qDebug("Chosen minimum size: %d", fontsize );
+    m_renderFont.setPointSize( fontsize );
 }
 
-void PlayerLyricsText::renderTitle(qint64 timeleft, QImage &image)
+void PlayerLyricsText::renderTitle( KaraokePainter &p )
 {
-    int drawing_width = image.size().width() - (image.size().width() * PADDING_LEFTRIGHT_PERCENTAGE * 2) / 100;
-    QSize size( drawing_width, image.height() );
-
-    int fs_artist = largetsFontSize( size, m_artist );
-    int fs_title = largetsFontSize( size, m_title );
-
-    QPainter p( &image );
+    int fs_artist = p.largetsFontSize( m_artist );
+    int fs_title = p.largetsFontSize( m_title );
 
     // Use the smallest size so we can fit for sure
     m_renderFont.setPointSize( qMin( fs_artist, fs_title ) );
@@ -170,14 +128,14 @@ void PlayerLyricsText::renderTitle(qint64 timeleft, QImage &image)
 
     QColor color( Qt::white );
 
-    if ( timeleft < TITLE_FADEOUT_TIME )
+    if ( m_showTitleTime - p.time() < TITLE_FADEOUT_TIME )
     {
-        color.setAlpha( timeleft * 255 / TITLE_FADEOUT_TIME );
+        color.setAlpha( (m_showTitleTime - p.time() ) * 255 / TITLE_FADEOUT_TIME );
         m_nextUpdateTime = 0;
     }
 
-    PlayerLyricTextLine::drawOutlineText( p, image.size(), 10, color, m_artist );
-    PlayerLyricTextLine::drawOutlineText( p, image.size(), 60, color, m_title );
+    p.drawCenteredOutlineText( 10, color, m_artist );
+    p.drawCenteredOutlineText( 60, color, m_title );
 }
 
 qint64 PlayerLyricsText::firstLyricStart() const
@@ -185,27 +143,27 @@ qint64 PlayerLyricsText::firstLyricStart() const
     return m_lines.first().startTime();
 }
 
-void PlayerLyricsText::drawNotification(QPainter &p, qint64 timeleft)
+void PlayerLyricsText::drawNotification(KaraokePainter &p, qint64 timeleft)
 {
-    int drawing_width = m_usedImageSize.width() - (m_usedImageSize.width() * PADDING_LEFTRIGHT_PERCENTAGE * 2) / 100;
-
     p.setBrush( Qt::white );
-    p.drawRect( PADDING_LEFTRIGHT_PERCENTAGE, 20, timeleft * drawing_width / MAX_NOTIFICATION_DURATION, 40 );
+    p.drawRect( 0, 20, timeleft * p.rect().width() / MAX_NOTIFICATION_DURATION, 40 );
 }
 
 
-bool PlayerLyricsText::render(qint64 timems, QImage &image)
+bool PlayerLyricsText::render(KaraokePainter &p)
 {
+    qint64 timems = p.time();
+
     // Title time?
     if ( m_showTitleTime > 0 && timems < m_showTitleTime )
     {
-        renderTitle( m_showTitleTime - timems, image );
+        renderTitle( p );
         return true;
     }
 
-    if ( image.size() != m_usedImageSize )
+    if ( p.rect() != m_usedImageSize )
     {
-        m_usedImageSize = image.size();
+        m_usedImageSize = p.rect();
         calculateFontSize();
     }
 
@@ -219,7 +177,7 @@ bool PlayerLyricsText::render(qint64 timems, QImage &image)
             continue;
 
         // Line ended already
-        if ( m_lines[current].endTime() < timems )
+        if ( m_lines[current].endTime() < p.time() )
             continue;
 
         // We found it
@@ -228,12 +186,11 @@ bool PlayerLyricsText::render(qint64 timems, QImage &image)
 
     // Draw until we have screen space
     QFontMetrics fm( m_renderFont );
-    QPainter p( &image );
     p.setFont( m_renderFont );
 
     // Draw current line(s)
-    int yoffset = (m_usedImageSize.height() * PADDING_TOPBOTTOM_PERCENTAGE) / 100;
-    int ybottom = m_usedImageSize.height() - yoffset;
+    int yoffset = 0;
+    int ybottom = p.rect().height() - yoffset;
     yoffset += + fm.height();
 
     int scroll_passed = 0, scroll_total = 0;
@@ -243,7 +200,7 @@ bool PlayerLyricsText::render(qint64 timems, QImage &image)
     if ( current > 0 )
     {
         // Should we scroll?
-        if ( timems > m_lines[current].startTime() )
+        if ( p.time() > m_lines[current].startTime() )
         {
             scroll_total = m_lines[current].endTime() - m_lines[current].startTime();
             scroll_passed = timems - m_lines[current].startTime();
@@ -268,12 +225,12 @@ bool PlayerLyricsText::render(qint64 timems, QImage &image)
             {
                 // Animate out the first line
                 int percentage = (100 * scroll_passed) / scroll_total;
-                m_lines[current].drawDisappear( percentage, image.width(), yoffset, p );
+                m_lines[current].drawDisappear( p, percentage, yoffset );
                 scroll_total = 0;
             }
             else
             {
-                m_lines[current].draw( timems, image.width(), yoffset, p );
+                m_lines[current].draw( p, yoffset );
             }
         }
 

@@ -2,10 +2,11 @@
 #define LYRICSRENDERER_H
 
 #include <QString>
-#include <QPainter>
 #include <QColor>
 #include <QIODevice>
 
+
+class KaraokePainter;
 
 //
 // This class is a base class for the lyric renderer of all kind (text and graphics, in future maybe video too)
@@ -30,7 +31,7 @@ class PlayerLyrics
         virtual qint64  nextUpdate() const = 0;
 
         // Render the lyrics; also sets the m_lastRenderedTime
-        bool    draw( qint64 time, QImage& target );
+        bool    draw( KaraokePainter& p );
 
         // Error message
         QString errorMsg() const { return m_errorMsg; }
@@ -38,7 +39,7 @@ class PlayerLyrics
     protected:
         // Render lyrics for current timestamp into the QImage provided. Must "render over",
         // and not mess up with the rest of the screen. True on success, false + m_errorMsg on error.
-        virtual bool    render( qint64 timems, QImage& image ) = 0;
+        virtual bool    render( KaraokePainter& p ) = 0;
 
     protected:
         // Any error should set this member
@@ -46,7 +47,6 @@ class PlayerLyrics
 
         // Last time lyrics renderer was called (in ms)
         qint64          m_lastRenderedTime;
-
 };
 
 #endif // LYRICSRENDERER_H

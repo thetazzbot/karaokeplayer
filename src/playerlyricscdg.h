@@ -1,10 +1,13 @@
 #ifndef PLAYERLYRICSCDG_H
 #define PLAYERLYRICSCDG_H
 
+#include <QImage>
 #include <QVector>
 
 #include "cdg.h"
 #include "playerlyrics.h"
+
+class KaraokePainter;
 
 //
 // This class implements loader and player for CD+G lyrics format
@@ -25,7 +28,7 @@ class PlayerLyricsCDG : public PlayerLyrics
     private:
         // Render lyrics for current timestamp into the QImage provided. Must "render over",
         // and not mess up with the rest of the screen. True on success, false + m_errorMsg on error.
-        virtual bool    render( qint64 timems, QImage& image );
+        virtual bool    render( KaraokePainter& p );
 
     private:
         typedef struct

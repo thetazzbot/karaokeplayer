@@ -1,8 +1,9 @@
 #ifndef PLAYERBACKGROUND_H
 #define PLAYERBACKGROUND_H
 
-#include <QImage>
 #include <QIODevice>
+
+class KaraokePainter;
 
 // An abstract background renderer class
 class PlayerBackground
@@ -28,7 +29,7 @@ class PlayerBackground
 
         // Draws the background on the image; the prior content of the image is undefined. If false is returned,
         // it is considered an error, and the whole playing process is aborted - use wisely
-        virtual bool    draw( qint64 time, QImage& target ) = 0;
+        virtual bool    draw( KaraokePainter& p ) = 0;
 };
 
 

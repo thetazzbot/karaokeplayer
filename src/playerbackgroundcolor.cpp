@@ -1,5 +1,6 @@
 #include "playerbackgroundcolor.h"
 #include "settings.h"
+#include "karaokepainter.h"
 
 PlayerBackgroundColor::PlayerBackgroundColor()
     : PlayerBackground()
@@ -16,8 +17,8 @@ bool PlayerBackgroundColor::initFromSettings(const QString &param)
     return m_color.isValid();
 }
 
-bool PlayerBackgroundColor::draw( qint64 time, QImage& target )
+bool PlayerBackgroundColor::draw(KaraokePainter &p)
 {
-    target.fill( m_color );
+    p.fillRect( p.rect(), m_color );
     return true;
 }

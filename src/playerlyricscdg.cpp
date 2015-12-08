@@ -2,6 +2,7 @@
 #include <QImage>
 
 #include "playerlyricscdg.h"
+#include "karaokepainter.h"
 
 //#define DEBUG_CDG_PARSER
 
@@ -554,7 +555,7 @@ void PlayerLyricsCDG::dumpPacket( PlayerLyricsCDG::CDGPacket * packet )
 }
 #endif
 
-bool PlayerLyricsCDG::render(qint64 timems, QImage &image)
+bool PlayerLyricsCDG::render(KaraokePainter &p)
 {
     // Are we done already?
     if ( m_cdgStreamIndex >= m_cdgStream.size() )
@@ -562,16 +563,16 @@ bool PlayerLyricsCDG::render(qint64 timems, QImage &image)
 
     // Was the stream position reversed? In this case we have to "replay" the whole stream
     // as the screen is a state machine, and "clear" may not be there.
-    if ( m_cdgStreamIndex > 0 && m_cdgStream[ m_cdgStreamIndex-1 ].timing > timems )
+    if ( m_cdgStreamIndex > 0 && m_cdgStream[ m_cdgStreamIndex-1 ].timing > p.time() )
     {
-        qDebug( "PlayerLyricsCDG: packet number changed backward (%ld played, %ld asked", (long) m_cdgStream[ m_cdgStreamIndex-1 ].timing, (long) timems );
+        qDebug( "PlayerLyricsCDG: packet number changed backward (%ld played, %ld asked", (long) m_cdgStream[ m_cdgStreamIndex-1 ].timing, (long) p.time() );
         m_cdgStreamIndex = 0;
     }
 
     // Process all the packets already due and see if we got something to redraw
     bool redraw_image = false;
 
-    while ( m_cdgStream[ m_cdgStreamIndex ].timing <= timems )
+    while ( m_cdgStream[ m_cdgStreamIndex ].timing <= p.time() )
     {
         SubCode& sc = m_cdgStream[ m_cdgStreamIndex ].subcode;
 
@@ -659,6 +660,6 @@ bool PlayerLyricsCDG::render(qint64 timems, QImage &image)
         }
     }
 
-    image = m_renderedCdg.scaled( image.size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
+    p.drawImage( p.rect(), m_renderedCdg, m_renderedCdg.rect() );
     return true;
 }

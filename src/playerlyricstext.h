@@ -10,15 +10,14 @@
 #include "playerlyrictext_line.h"
 #include "libkaraokelyrics/lyricsloader.h"
 
+class KaraokePainter;
+
 // This class encapsulates all possible text formats
 class PlayerLyricsText : public PlayerLyrics
 {
     public:
         enum
         {
-            PADDING_LEFTRIGHT_PERCENTAGE = 10,
-            PADDING_TOPBOTTOM_PERCENTAGE = 5,
-
             MAX_DISAPPEARING_TIME_MS = 1000,
 
             MIN_DURATION_TITLE = 1000,
@@ -43,14 +42,14 @@ class PlayerLyricsText : public PlayerLyrics
     protected:
         // Render lyrics for current timestamp into the QImage provided. Must "render over",
         // and not mess up with the rest of the screen. True on success, false + m_errorMsg on error.
-        virtual bool    render( qint64 timems, QImage& image );
+        virtual bool    render( KaraokePainter& p );
 
         void    calculateFontSize();
         int     largetsFontSize( const QSize& size, const QString& text );
-        void    renderTitle( qint64 timeleft, QImage& image );
+        void    renderTitle(KaraokePainter &p );
         qint64  firstLyricStart() const;
 
-        void    drawNotification(QPainter& p, qint64 timeleft);
+        void    drawNotification( KaraokePainter &p, qint64 timeleft);
 
     private:
         // Lyric lines
@@ -69,7 +68,7 @@ class PlayerLyricsText : public PlayerLyrics
         QFont                       m_renderFont;
 
         // The font size is calculated for this image size
-        QSize                       m_usedImageSize;
+        QRect                       m_usedImageSize;
 
         // Current song artist and title
         QString                     m_artist;

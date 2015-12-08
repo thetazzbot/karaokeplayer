@@ -29,7 +29,7 @@ class PlayerBackgroundColor : public PlayerBackground
 
         // Draws the background on the image; the prior content of the image is undefined. If false is returned,
         // it is considered an error, and the whole playing process is aborted - use wisely
-        bool    draw( qint64 time, QImage& target );
+        bool    draw( KaraokePainter& p );
 
     private:
         QColor  m_color;

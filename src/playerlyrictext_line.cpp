@@ -1,6 +1,7 @@
 #include "libkaraokelyrics/lyricsparser.h"
 #include "playerlyrictext_line.h"
 #include "settings.h"
+#include "karaokepainter.h"
 
 PlayerLyricTextLine::PlayerLyricTextLine()
 {
@@ -43,20 +44,21 @@ qint64 PlayerLyricTextLine::endTime() const
     return m_line.last().start + m_line.last().duration;
 }
 
-qint64 PlayerLyricTextLine::draw(qint64 time, int width, int yoffset, QPainter &p)
+qint64 PlayerLyricTextLine::draw( KaraokePainter& p, int yoffset )
 {
     if ( m_line.isEmpty() )
         return 0;
 
-    int x = (width - p.fontMetrics().boundingRect( m_text ).width()) / 2;
+    int x = (p.rect().width() - p.fontMetrics().boundingRect( m_text ).width()) / 2;
 \
     // Draw the text string
     for ( int i = 0; i < m_line.size(); i++ )
     {
-        drawOutlineText( p, x, yoffset,
-                         m_line[i].start < time ? Settings::g()->playerLyricsTextAfterColor
+        p.drawOutlineText( x,
+                           yoffset,
+                           m_line[i].start < p.time() ? Settings::g()->playerLyricsTextAfterColor
                                                 : Settings::g()->playerLyricsTextBeforeColor,
-                         m_line[i].text );
+                           m_line[i].text );
 
         x += p.fontMetrics().width( m_line[i].text );
     }
@@ -64,7 +66,7 @@ qint64 PlayerLyricTextLine::draw(qint64 time, int width, int yoffset, QPainter &
     return 0;
 }
 
-void PlayerLyricTextLine::drawDisappear(int percentage, int width, int yoffset, QPainter &p)
+void PlayerLyricTextLine::drawDisappear(KaraokePainter& p, int percentage, int yoffset)
 {
     if ( m_line.isEmpty() )
         return;
@@ -74,12 +76,12 @@ void PlayerLyricTextLine::drawDisappear(int percentage, int width, int yoffset, 
     p.save();
     p.scale( scale_level, scale_level );
 
-    int x = (width - p.fontMetrics().boundingRect( m_text ).width()) / 2;
+    int x = (p.rect().width() - p.fontMetrics().boundingRect( m_text ).width()) / 2;
 
     // Draw the text string
     for ( int i = 0; i < m_line.size(); i++ )
     {
-        drawOutlineText( p, x, yoffset, Settings::g()->playerLyricsTextAfterColor, m_line[i].text );
+        p.drawOutlineText( x, yoffset, Settings::g()->playerLyricsTextAfterColor, m_line[i].text );
         x += p.fontMetrics().width( m_line[i].text );
     }
 
@@ -101,24 +103,4 @@ void PlayerLyricTextLine::dump(qint64) const
                m_line[i].duration == -1 ? "?" : qPrintable( LyricsParser::timeAsText( m_line[i].start + m_line[i].duration ) ),
                qPrintable( m_line[i].text ) );
     }
-}
-
-void PlayerLyricTextLine::drawOutlineText(QPainter &p, int x, int y, const QColor &color, const QString &text)
-{
-    p.setPen( Qt::black );
-    p.drawText( x - 1, y - 1, text );
-    p.drawText( x + 1, y - 1, text );
-    p.drawText( x - 1, y + 1, text );
-    p.drawText( x + 1, y + 1, text );
-
-    p.setPen( color );
-    p.drawText( x, y, text );
-}
-
-void PlayerLyricTextLine::drawOutlineText(QPainter &p, const QSize &size, int ypercentage, const QColor &color, const QString &text)
-{
-    int x = (size.width() - p.fontMetrics().width( text ) ) / 2;
-    int y = (size.height() * ypercentage / 100 ) + p.fontMetrics().height();
-
-    drawOutlineText( p, x, y, color, text );
 }

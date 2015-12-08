@@ -7,6 +7,8 @@
 
 #include "libkaraokelyrics/lyricsloader.h"
 
+class KaraokePainter;
+
 // Encapsulates a single lyric text line, together with duration, timing and pitch info
 // Draws inself in certain state depending on time (not yet, current, disappearing)
 class PlayerLyricTextLine
@@ -22,10 +24,10 @@ class PlayerLyricTextLine
 
         // Draw the lyrics according to time. Returns next time when the lyrics need
         // to be updated
-        qint64  draw(qint64 time, int width, int yoffset, QPainter& p);
+        qint64  draw( KaraokePainter& p, int yoffset );
 
         // Draw the disappearing animation with specific percentage(0-100)
-        void    drawDisappear( int percentage, int width, int yoffset, QPainter& p );
+        void    drawDisappear( KaraokePainter& p, int percentage, int yoffset );
 
         // Empty set means screen space, and will not have draw/nextTime called
         bool    isEmpty() const { return m_line.empty(); }
@@ -37,8 +39,7 @@ class PlayerLyricTextLine
         // Dump the text line, optionally with the time marker
         void    dump( qint64 time = -1 ) const;
 
-        static void drawOutlineText( QPainter& p, int x, int y, const QColor& color, const QString& text );
-        static void drawOutlineText( QPainter& p, const QSize& size, int ypercentage, const QColor& color, const QString& text );
+        const QString& fullLine() const { return m_text; }
 
     private:
         LyricsLoader::Container     m_line;
