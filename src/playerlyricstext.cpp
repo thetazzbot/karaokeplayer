@@ -9,7 +9,7 @@
 
 PlayerLyricsText::PlayerLyricsText()
 {
-    m_nextLyricTime = 0;
+    m_nextUpdateTime = 0;
     m_currentLine = 0;
     m_longestLine = 0;
 
@@ -19,7 +19,9 @@ PlayerLyricsText::PlayerLyricsText()
 bool PlayerLyricsText::load( QIODevice &file, const QString& filename )
 {
     LyricsLoader::Container lyrics;
-    LyricsLoader loader( m_properties, lyrics );
+    LyricsLoader::Properties properties;
+
+    LyricsLoader loader( properties, lyrics );
 
     if ( !loader.parse( filename, file ) )
     {
@@ -72,7 +74,22 @@ bool PlayerLyricsText::load( QIODevice &file, const QString& filename )
     while ( m_lines.last().isEmpty() )
         m_lines.takeLast();
 
-    m_nextLyricTime = m_lines[0].startTime();
+    m_nextUpdateTime = m_lines.first().startTime();
+    m_showTitleTime = 0;
+
+    //TODO: the rest of metadata
+    if ( properties.contains( LyricsLoader::PROP_ARTIST ) && properties.contains( LyricsLoader::PROP_TITLE ) )
+    {
+        m_artist = properties[ LyricsLoader::PROP_ARTIST ];
+        m_title = properties[ LyricsLoader::PROP_TITLE ];
+
+        if ( firstLyricStart() > MIN_INTERVAL_AFTER_TITLE + MIN_DURATION_TITLE )
+        {
+            m_nextUpdateTime = 0;
+            m_showTitleTime = qMin( firstLyricStart() - MIN_INTERVAL_AFTER_TITLE, (qint64) MAX_DURATION_TITLE );
+        }
+    }
+
 
     //foreach ( const PlayerLyricTextLine& t, m_lines )
     //    t.dump();
@@ -85,7 +102,31 @@ bool PlayerLyricsText::load( QIODevice &file, const QString& filename )
 
 qint64 PlayerLyricsText::nextUpdate() const
 {
-    return m_nextLyricTime;
+    return m_nextUpdateTime;
+}
+
+int PlayerLyricsText::largetsFontSize( const QSize& size, const QString& text )
+{
+    int maxsize = 128;
+    int minsize = 8;
+    int cursize;
+    QFont testfont( Settings::g()->playerLyricsFont );
+
+    // We are trying to find the maximum font size which fits by doing the binary search
+    while ( maxsize - minsize > 1 )
+    {
+        cursize = minsize + (maxsize - minsize) / 2;
+        testfont.setPointSize( cursize );
+        QFontMetrics fm( testfont );
+        //qDebug("%d-%d: trying font size %d to draw on %d: width %d", minsize, maxsize, cursize, drawing_width, fm.width(m_longestLyricLine) );
+
+        if ( fm.width( text )< size.width() )
+            minsize = cursize;
+        else
+            maxsize = cursize;
+    }
+
+    return cursize;
 }
 
 void PlayerLyricsText::calculateFontSize()
@@ -99,7 +140,7 @@ void PlayerLyricsText::calculateFontSize()
     while ( maxsize - minsize > 1 )
     {
         int cursize = minsize + (maxsize - minsize) / 2;
-        testfont.setPixelSize( cursize );
+        testfont.setPointSize( cursize );
         QFontMetrics fm( testfont );
         //qDebug("%d-%d: trying font size %d to draw on %d: width %d", minsize, maxsize, cursize, drawing_width, fm.width(m_longestLyricLine) );
 
@@ -109,13 +150,59 @@ void PlayerLyricsText::calculateFontSize()
             maxsize = cursize;
     }
 
-    qDebug("Chosen minimum size: %d", minsize );
-    m_renderFont.setPixelSize( minsize );
+    //qDebug("Chosen minimum size: %d", minsize );
+    m_renderFont.setPointSize( minsize );
+}
+
+void PlayerLyricsText::renderTitle(qint64 timeleft, QImage &image)
+{
+    int drawing_width = image.size().width() - (image.size().width() * PADDING_LEFTRIGHT_PERCENTAGE * 2) / 100;
+    QSize size( drawing_width, image.height() );
+
+    int fs_artist = largetsFontSize( size, m_artist );
+    int fs_title = largetsFontSize( size, m_title );
+
+    QPainter p( &image );
+
+    // Use the smallest size so we can fit for sure
+    m_renderFont.setPointSize( qMin( fs_artist, fs_title ) );
+    p.setFont( m_renderFont );
+
+    QColor color( Qt::white );
+
+    if ( timeleft < TITLE_FADEOUT_TIME )
+    {
+        color.setAlpha( timeleft * 255 / TITLE_FADEOUT_TIME );
+        m_nextUpdateTime = 0;
+    }
+
+    PlayerLyricTextLine::drawOutlineText( p, image.size(), 10, color, m_artist );
+    PlayerLyricTextLine::drawOutlineText( p, image.size(), 60, color, m_title );
+}
+
+qint64 PlayerLyricsText::firstLyricStart() const
+{
+    return m_lines.first().startTime();
+}
+
+void PlayerLyricsText::drawNotification(QPainter &p, qint64 timeleft)
+{
+    int drawing_width = m_usedImageSize.width() - (m_usedImageSize.width() * PADDING_LEFTRIGHT_PERCENTAGE * 2) / 100;
+
+    p.setBrush( Qt::white );
+    p.drawRect( PADDING_LEFTRIGHT_PERCENTAGE, 20, timeleft * drawing_width / MAX_NOTIFICATION_DURATION, 40 );
 }
 
 
 bool PlayerLyricsText::render(qint64 timems, QImage &image)
 {
+    // Title time?
+    if ( m_showTitleTime > 0 && timems < m_showTitleTime )
+    {
+        renderTitle( m_showTitleTime - timems, image );
+        return true;
+    }
+
     if ( image.size() != m_usedImageSize )
     {
         m_usedImageSize = image.size();
@@ -165,6 +252,12 @@ bool PlayerLyricsText::render(qint64 timems, QImage &image)
 
         // Draw one more line in front (so our line is always the second one)
         current--;
+    }
+    else
+    {
+        // First line, so we almost always draw the notification when it is time
+        if ( timems < firstLyricStart() && firstLyricStart() - timems <= MAX_NOTIFICATION_DURATION )
+            drawNotification( p, firstLyricStart() - timems );
     }
 
     while ( yoffset < ybottom && current < m_lines.size() )

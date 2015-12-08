@@ -20,7 +20,17 @@ class PlayerLyricsText : public PlayerLyrics
             PADDING_TOPBOTTOM_PERCENTAGE = 5,
 
             MAX_DISAPPEARING_TIME_MS = 1000,
+
+            MIN_DURATION_TITLE = 1000,
+            MAX_DURATION_TITLE = 10000,
+            TITLE_FADEOUT_TIME = 500,
+            MIN_INTERVAL_AFTER_TITLE = 2000,
+
+            // Notification parameters
+            MIN_NOTIFICATION_PAUSE = 8000,
+            MAX_NOTIFICATION_DURATION = 5000,
         };
+
         PlayerLyricsText();
 
         // Load the lyrics from the QIODevice (which could be an original file or an archive entry)
@@ -36,10 +46,13 @@ class PlayerLyricsText : public PlayerLyrics
         virtual bool    render( qint64 timems, QImage& image );
 
         void    calculateFontSize();
+        int     largetsFontSize( const QSize& size, const QString& text );
+        void    renderTitle( qint64 timeleft, QImage& image );
+        qint64  firstLyricStart() const;
+
+        void    drawNotification(QPainter& p, qint64 timeleft);
 
     private:
-        LyricsLoader::Properties    m_properties;
-
         // Lyric lines
         QList<PlayerLyricTextLine>  m_lines;
 
@@ -49,14 +62,19 @@ class PlayerLyricsText : public PlayerLyrics
         // The longest lyric sentence (which generated the widest rendering)
         int                         m_longestLine;
 
-        // Time when the next lyric to be played
-        qint64                      m_nextLyricTime;
+        // Time when the next display update is required
+        qint64                      m_nextUpdateTime;
 
         // Rendering font - family is from settings, but size is autocalculated.
         QFont                       m_renderFont;
 
         // The font size is calculated for this image size
         QSize                       m_usedImageSize;
+
+        // Current song artist and title
+        QString                     m_artist;
+        QString                     m_title;
+        qint64                      m_showTitleTime;
 };
 
 #endif // PLAYERLYRICSTEXT_H

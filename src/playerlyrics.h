@@ -2,6 +2,8 @@
 #define LYRICSRENDERER_H
 
 #include <QString>
+#include <QPainter>
+#include <QColor>
 #include <QIODevice>
 
 
@@ -44,6 +46,7 @@ class PlayerLyrics
 
         // Last time lyrics renderer was called (in ms)
         qint64          m_lastRenderedTime;
+
 };
 
 #endif // LYRICSRENDERER_H

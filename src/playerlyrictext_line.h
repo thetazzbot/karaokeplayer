@@ -37,6 +37,9 @@ class PlayerLyricTextLine
         // Dump the text line, optionally with the time marker
         void    dump( qint64 time = -1 ) const;
 
+        static void drawOutlineText( QPainter& p, int x, int y, const QColor& color, const QString& text );
+        static void drawOutlineText( QPainter& p, const QSize& size, int ypercentage, const QColor& color, const QString& text );
+
     private:
         LyricsLoader::Container     m_line;
 
