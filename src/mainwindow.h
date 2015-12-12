@@ -35,6 +35,7 @@
 #include "player.h"
 
 class PlayerWidget;
+class KaraokeFile;
 
 class MainWindow : public QMainWindow, public Ui::MainWindow
 {
@@ -48,7 +49,11 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
         void    menuOpenFile();
         void    playEnded();
 
+    private slots:
+        void    conversionFinished(int code);
+
     private:
+        KaraokeFile  *  m_karfile;
         Player          m_player;
         PlayerWidget *  m_widget;
         QStackedWidget* m_widgetStack;

@@ -46,7 +46,7 @@ class PlayerLyricsText : public PlayerLyrics
 
         void    calculateFontSize();
         int     largetsFontSize( const QSize& size, const QString& text );
-        void    renderTitle(KaraokePainter &p );
+        void    renderTitle( KaraokePainter &p );
         qint64  firstLyricStart() const;
 
         void    drawNotification( KaraokePainter &p, qint64 timeleft);

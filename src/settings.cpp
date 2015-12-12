@@ -18,4 +18,6 @@ Settings::Settings()
     playerLyricsTextBeforeColor = QColor( Qt::red );
     playerLyricsTextAfterColor = QColor( Qt::blue );
     playerLyricsTextEachCharacter = true;
+    cacheDir = "/home/tim/work/my/karaokeplayer/test/cache";
+    convertMidiFiles = true;
 }

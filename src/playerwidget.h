@@ -21,6 +21,7 @@ class PlayerWidget : public QWidget
     signals:
 
     public slots:
+        void    showCustomText( const QString& text );
         void    updateLyrics( qint64 time );
         void    redrawLyrics();
 
@@ -39,6 +40,9 @@ class PlayerWidget : public QWidget
         // Next redraw time
         qint64      m_lastRedrawTime;
         qint64      m_nextRedrawTime;
+
+        // Custom text to show instead of lyrics
+        QString     m_customText;
 };
 
 #endif // PLAYERWIDGET_H

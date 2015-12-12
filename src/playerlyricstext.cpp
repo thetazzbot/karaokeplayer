@@ -146,7 +146,7 @@ qint64 PlayerLyricsText::firstLyricStart() const
 void PlayerLyricsText::drawNotification(KaraokePainter &p, qint64 timeleft)
 {
     p.setBrush( Qt::white );
-    p.drawRect( 0, 20, timeleft * p.rect().width() / MAX_NOTIFICATION_DURATION, 40 );
+    p.drawRect( 0, 0, timeleft * p.rect().width() / MAX_NOTIFICATION_DURATION, 10 );
 }
 
 
@@ -197,7 +197,7 @@ bool PlayerLyricsText::render(KaraokePainter &p)
 
     // If we're playing after the first line, start scrolling it so for the moment the next line it is due
     // it would be at the position of the second line.
-    if ( current > 0 )
+    if ( current > 0 && current < m_lines.size() )
     {
         // Should we scroll?
         if ( p.time() > m_lines[current].startTime() )

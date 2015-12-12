@@ -70,8 +70,8 @@ bool LyricsLoader::isSupportedFile(const QString &file)
 {
     static const char * extlist[] = { ".mid", ".midi", ".kar", ".txt", ".lrc", ".kok", ".kfn", 0 };
 
-    for ( const char * ext = extlist[0]; *ext; ext += strlen(ext) + 1 )
-        if ( file.endsWith( ext, Qt::CaseInsensitive ) )
+    for ( int i = 0; extlist[i]; i++ )
+        if ( file.endsWith( extlist[i], Qt::CaseInsensitive ) )
             return true;
 
     return false;

@@ -12,6 +12,13 @@ PlayerWidget::PlayerWidget( PlayerLyrics * lyricRenderer, PlayerBackground  * bg
     m_lyricRenderer = lyricRenderer;
     m_backgroundRenderer = bgRenderer;
     m_nextRedrawTime = -1;
+    m_image.fill( Qt::black );
+}
+
+void PlayerWidget::showCustomText(const QString &text)
+{
+    m_customText = text;
+    redrawLyrics();
 }
 
 void PlayerWidget::updateLyrics(qint64 time)
@@ -27,10 +34,18 @@ void PlayerWidget::redrawLyrics()
 {
     KaraokePainter p( KaraokePainter::AREA_MAIN_SCREEN, m_lastRedrawTime, m_image );
 
-    m_backgroundRenderer->draw( p );
-    m_lyricRenderer->draw( p );
+    if ( m_customText.isEmpty() )
+    {
+        m_backgroundRenderer->draw( p );
+        m_lyricRenderer->draw( p );
 
-    m_nextRedrawTime = m_lyricRenderer->nextUpdate();
+        m_nextRedrawTime = m_lyricRenderer->nextUpdate();
+    }
+    else
+    {
+        p.drawCenteredOutlineText( 50, Qt::white, m_customText );
+    }
+
     update();
 }
 

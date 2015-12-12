@@ -10,11 +10,13 @@ class Settings
         static Settings * g();
 
     public:
+        QString cacheDir;
         QColor  playerBackgroundColor;
         QColor  playerLyricsTextBeforeColor;
         QColor  playerLyricsTextAfterColor;
         QFont   playerLyricsFont;
         bool    playerLyricsTextEachCharacter;
+        bool    convertMidiFiles;
 
     private:
         Settings();
