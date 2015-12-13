@@ -25,6 +25,7 @@ KaraokeFile::KaraokeFile(Player *plr, PlayerWidget *w)
     m_lyrics = 0;
     m_background = 0;
     m_convProcess = 0;
+    m_playState = STATE_RESET;
 
     m_nextRedrawTime = -1;
     m_lastRedrawTime = -1;
@@ -163,6 +164,7 @@ bool KaraokeFile::open(const QString &filename)
     m_background = new PlayerBackgroundVideo();
     m_background->initFromSettings();
 
+    m_playState = STATE_READY;
     return true;
 }
 
@@ -171,8 +173,10 @@ void KaraokeFile::start()
     // If no conversion is in progress, start the player and rendering thread
     if ( !m_convProcess )
     {
+        m_playState = STATE_PLAYING;
         m_continue.store( 1 );
-        m_player->start();
+        m_background->start();
+        m_player->play();
         QThread::start();
     }
     else
@@ -182,10 +186,20 @@ void KaraokeFile::start()
     }
 }
 
-void KaraokeFile::stop()
+void KaraokeFile::pause()
 {
-    m_continue.store( 0 );
-    wait();
+    if ( m_playState == STATE_PLAYING )
+    {
+        m_playState = STATE_PAUSED;
+        m_player->pause();
+        m_background->pause( true );
+    }
+    else
+    {
+        m_playState = STATE_PLAYING;
+        m_player->play();
+        m_background->pause( false );
+    }
 }
 
 void KaraokeFile::convError(QProcess::ProcessError error)
@@ -233,6 +247,12 @@ void KaraokeFile::loadMusicFile()
         throw QString( "Cannot play file %1: %2") .arg( m_musicFileName ) .arg( m_player->errorMsg() );
 
     m_musicFile = mf;
+}
+
+void KaraokeFile::quit()
+{
+    m_continue.store( 0 );
+    wait();
 }
 
 void KaraokeFile::run()

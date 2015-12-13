@@ -17,8 +17,8 @@ bool PlayerBackgroundColor::initFromSettings(const QString &param)
     return m_color.isValid();
 }
 
-bool PlayerBackgroundColor::draw(KaraokePainter &p)
+qint64 PlayerBackgroundColor::draw(KaraokePainter &p)
 {
     p.fillRect( p.rect(), m_color );
-    return true;
+    return -1;
 }

@@ -28,6 +28,12 @@ bool Player::load( QIODevice * musicfile )
 
 void Player::stop()
 {
+    m_audioPlayer->stop();
+}
+
+void Player::pause()
+{
+    m_audioPlayer->pause();
 }
 
 qint64 Player::position()
@@ -54,7 +60,7 @@ void Player::slotMediaChanged(const QMediaContent &media)
     qDebug() << "slotMediaChanged" << media.canonicalUrl();
 }
 
-bool Player::start()
+bool Player::play()
 {
     //m_audioPlayer->setPosition( 270000 );
 

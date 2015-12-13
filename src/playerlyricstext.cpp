@@ -173,7 +173,7 @@ bool PlayerLyricsText::render(KaraokePainter &p)
     // Current lyric lookup:
     for ( current = 0; current < m_lines.size(); current++ )
     {
-        // Empty lines do not count
+        // For empty lines we look up for the next time
         if ( m_lines[current].isEmpty() )
             continue;
 
@@ -217,6 +217,10 @@ bool PlayerLyricsText::render(KaraokePainter &p)
         if ( timems < firstLyricStart() && firstLyricStart() - timems <= MAX_NOTIFICATION_DURATION )
             drawNotification( p, firstLyricStart() - timems );
     }
+
+    // If a current line is empty, track down once
+    if ( m_lines[current].isEmpty() )
+        current--;
 
     while ( yoffset < ybottom && current < m_lines.size() )
     {

@@ -68,12 +68,8 @@ void MainWindow::menuOpenFile()
 
 void MainWindow::playEnded()
 {
-    m_karfile->stop();
-
-    m_widgetStack->removeWidget( m_widget );
-    m_widget->close();
-    delete m_widget;
-    m_widget = 0;
+    delete m_karfile;
+    m_karfile = 0;
 
     menuOpenFile();
 }

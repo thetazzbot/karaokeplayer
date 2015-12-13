@@ -1,6 +1,8 @@
 #ifndef PLAYERBACKGROUNDVIDEO_H
 #define PLAYERBACKGROUNDVIDEO_H
 
+#include <QMutex>
+#include <QImage>
 #include <QMediaPlayer>
 #include <QAbstractVideoSurface>
 
@@ -19,18 +21,14 @@ class PlayerBackgroundVideo : public PlayerBackground, public QAbstractVideoSurf
         virtual bool    initFromSettings( const QString& param = "" );
         virtual bool    initFromFile( QIODevice& file );
 
-        // Returns true if the background is static (draw function will only be called when lyrics change),
-        // false if the background is dynamic (so lyrics would have to be re-rendered each time background changes)
-        virtual bool    isStatic() const { return false; }
-
-        // For dynamic background, must return true if the background changed since the last call and draw must be called.
-        // If the background did not change AND lyrics did not change, the renderer will just reuse the last image
-        // Static background must always return false here.
-        virtual bool    needUpdate() const;
-
         // Draws the background on the image; the prior content of the image is undefined. If false is returned,
         // it is considered an error, and the whole playing process is aborted - use wisely
-        virtual bool    draw( KaraokePainter& p );
+        virtual qint64  draw( KaraokePainter& p );
+
+        // Current state notifications, may be reimplemented. Default implementation does nothing.
+        virtual void    start();
+        virtual void    pause( bool resuming );
+
 
         //
         // QAbstractVideoSurface
@@ -41,7 +39,10 @@ class PlayerBackgroundVideo : public PlayerBackground, public QAbstractVideoSurf
     private:
         QMediaPlayer        m_player;
 
-        QVideoFrame         m_currentFrame;
+        QImage::Format      m_frameFormat;
+
+        QImage              m_lastFrame;
+        QMutex              m_mutex;
 
 };
 

@@ -34,16 +34,26 @@ class KaraokeFile : public QThread
         bool    open( const QString& filename );
 
         void    start();
-        void    stop();
+        void    pause();
 
     private slots:
         void	convError( QProcess::ProcessError error );
         void	convFinished( int exitCode, QProcess::ExitStatus exitStatus );
 
     protected:
+        enum State
+        {
+            STATE_RESET,
+            STATE_READY,
+            STATE_PLAYING,
+            STATE_PAUSED
+        };
+
         // Convert the src to the m_musicFileName
         void    startConversion( const QString& src );
         void    loadMusicFile();
+
+        void    quit();
 
         // Rendering thread
         void    run();
@@ -57,12 +67,14 @@ class KaraokeFile : public QThread
         QProcess         *  m_convProcess;
 
         // Player and rendering widget
-        //AudioPlayer_FFmpeg* m_player;
         Player           *  m_player;
         PlayerWidget     *  m_widget;
 
         // Renderer
         QAtomicInt          m_continue;
+
+        // Play state tracker
+        State               m_playState;
 
         // Custom message
         QString             m_customMessage;

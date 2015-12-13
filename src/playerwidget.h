@@ -3,7 +3,6 @@
 
 #include <QWidget>
 #include <QMutex>
-#include <QTime>
 
 // This class shows lyrics and background (video, pictures). It gets notifications from the player
 // when timing changes, and calls the background and lyrics renderer.
@@ -20,6 +19,7 @@ class PlayerWidget : public QWidget
     public:
         explicit PlayerWidget( QWidget *parent = 0 );
 
+        // Called from the renderer, must be synced
         bool    setImage( QImage &img );
 
     public slots:
@@ -27,7 +27,6 @@ class PlayerWidget : public QWidget
 
     protected:
         void    paintEvent(QPaintEvent * event);
-        void    resizeEvent(QResizeEvent * event);
 
     private:
         // This image is being redrawn here
@@ -35,9 +34,6 @@ class PlayerWidget : public QWidget
 
         // Prevents simultaneous access to image
         mutable QMutex m_mutex;
-
-        // Tracking widget resizing
-        QTime       m_lastResize;
 };
 
 #endif // PLAYERWIDGET_H

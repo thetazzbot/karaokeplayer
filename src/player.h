@@ -20,7 +20,7 @@ class Player : public QObject
         // - A compound file such as KFN;
         bool    load( QIODevice * musicfile );
 
-        bool    start();
+        bool    play();
 
         void    stop();
         void    pause();

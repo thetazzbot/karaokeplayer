@@ -12,19 +12,6 @@ PlayerWidget::PlayerWidget( QWidget *parent )
 
 bool PlayerWidget::setImage( QImage &img )
 {
-    /*
-    if ( !m_lastResize.isNull() && m_lastResize.elapsed() > 1000 )
-    {
-        m_lastResize = QTime();
-
-        if ( m_image.size() != size() )
-        {
-            m_mutex.lock();
-            m_image = QImage( size(), QImage::Format_ARGB32 );
-            m_mutex.unlock();
-        }
-    }
-*/
     if ( size() != img.size() )
     {
         img = QImage( size(), QImage::Format_ARGB32 );
@@ -53,11 +40,4 @@ void PlayerWidget::paintEvent(QPaintEvent *)
     m_mutex.lock();
     p.drawImage( prect, m_image );
     m_mutex.unlock();
-}
-
-void PlayerWidget::resizeEvent(QResizeEvent *event)
-{
-    QWidget::resizeEvent( event );
-
-    m_lastResize = QTime::currentTime();
 }
