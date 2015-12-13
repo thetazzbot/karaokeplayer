@@ -1,5 +1,7 @@
 #include <unistd.h>
 
+#include <QDebug>
+#include <QMovie>
 #include <QLayout>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -29,6 +31,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_widgetStack->setCurrentWidget( m_widget );
     m_widget->show();
 
+    qDebug() << QMovie::supportedFormats();
     menuOpenFile();
 }
 

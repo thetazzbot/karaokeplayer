@@ -32,8 +32,8 @@
 #include <QStackedWidget>
 
 #include "ui_mainwindow.h"
-//#include "player.h"
-#include "audioplayer_ffmpeg.h"
+#include "player.h"
+//#include "audioplayer_ffmpeg.h"
 
 class PlayerWidget;
 class KaraokeFile;
@@ -52,7 +52,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 
     private:
         KaraokeFile  *  m_karfile;
-        AudioPlayer_FFmpeg  m_player;
+        //AudioPlayer_FFmpeg  m_player;
+        Player          m_player;
         PlayerWidget *  m_widget;
         QStackedWidget* m_widgetStack;
 };

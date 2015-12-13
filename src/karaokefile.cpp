@@ -8,14 +8,15 @@
 #include "playerwidget.h"
 #include "playerlyricscdg.h"
 #include "playerlyricstext.h"
-#include "playerbackground.h"
 #include "playerbackgroundcolor.h"
+#include "playerbackgroundvideo.h"
 #include "karaokepainter.h"
 
 #include "libkaraokelyrics/lyricsloader.h"
 
 
-KaraokeFile::KaraokeFile(AudioPlayer_FFmpeg *plr, PlayerWidget *w)
+//KaraokeFile::KaraokeFile(AudioPlayer_FFmpeg *plr, PlayerWidget *w)
+KaraokeFile::KaraokeFile(Player *plr, PlayerWidget *w)
 {
     m_widget = w;
     m_player = plr;
@@ -158,7 +159,8 @@ bool KaraokeFile::open(const QString &filename)
     if ( !m_lyrics->load( *lyricFileRead, lyricFile ) )
         throw( QObject::tr("Can't load lyrics file %1: %2") .arg( lyricFile ) .arg( m_lyrics->errorMsg() ) );
 
-    m_background = new PlayerBackgroundColor();
+    //m_background = new PlayerBackgroundColor();
+    m_background = new PlayerBackgroundVideo();
     m_background->initFromSettings();
 
     return true;
@@ -227,7 +229,7 @@ void KaraokeFile::loadMusicFile()
         throw QString("Cannot open music file %1: %2").arg( m_musicFileName ) .arg(err);
     }
 
-    if ( !m_player->load( m_musicFileName ) )
+    if ( !m_player->load( mf ) )
         throw QString( "Cannot play file %1: %2") .arg( m_musicFileName ) .arg( m_player->errorMsg() );
 
     m_musicFile = mf;
@@ -239,16 +241,19 @@ void KaraokeFile::run()
     // We do not need fast rendering, and need constant FPS, so 2nd solution works well
 
     // This assumes 25 FPS, so we have 1000/25ms per cycle
-    static const unsigned int MS_PER_CYCLE = 1000 / 25;
+    static const unsigned int MS_PER_CYCLE = 1000 / 20;
+    QTime next_cycle;
+    QImage renderimage( 800, 600, QImage::Format_ARGB32 );
 
     while ( m_continue )
     {
         qint64 time = m_player->position();
-        QTime next_cycle = QTime::currentTime().addMSecs( MS_PER_CYCLE );
-        QImage& image = m_widget->acquireImage();
+        next_cycle = QTime::currentTime().addMSecs( MS_PER_CYCLE );
+
+        renderimage.fill( Qt::black );
 
         // Redraw main screen
-        KaraokePainter p( KaraokePainter::AREA_MAIN_SCREEN, time, image );
+        KaraokePainter p( KaraokePainter::AREA_MAIN_SCREEN, time, renderimage );
 
         // Background is always on
         m_background->draw( p );
@@ -264,14 +269,16 @@ void KaraokeFile::run()
             p.drawCenteredOutlineText( 50, Qt::white, m_customMessage );
         }
 
-        m_widget->releaseImage();
+        p.end();
+
+        if ( !m_widget->setImage( renderimage ) )
+            continue; // rerender
+
         QMetaObject::invokeMethod( m_widget, "refresh", Qt::QueuedConnection );
 
         // When should we have next tick?
-        int remainingms = QTime::currentTime().msecsTo( next_cycle );
-
-        if ( remainingms > 0 )
-            msleep( remainingms );
+        int remainingms = qMax( QTime::currentTime().msecsTo( next_cycle ), 5 );
+        msleep( remainingms );
     }
 }
 

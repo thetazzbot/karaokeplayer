@@ -28,7 +28,8 @@ SOURCES += main.cpp\
     playerlyrictext_line.cpp \
     karaokepainter.cpp \
     audioplayer_ffmpeg.cpp \
-    ffmpeg_headers.cpp
+    ffmpeg_headers.cpp \
+    playerbackgroundvideo.cpp
 
 HEADERS  += mainwindow.h \
     playerwidget.h \
@@ -45,7 +46,8 @@ HEADERS  += mainwindow.h \
     playerlyrictext_line.h \
     karaokepainter.h \
     audioplayer_ffmpeg.h \
-    ffmpeg_headers.h
+    ffmpeg_headers.h \
+    playerbackgroundvideo.h
 
 FORMS    += mainwindow.ui
 INCLUDEPATH += ..

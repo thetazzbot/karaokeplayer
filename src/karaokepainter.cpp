@@ -73,14 +73,15 @@ int KaraokePainter::largetsFontSize( const QString &textline )
 
 void KaraokePainter::drawOutlineText(int x, int y, const QColor &color, const QString &text)
 {
-    setPen( Qt::black );
-    drawText( x - 1, y - 1, text );
-    drawText( x + 1, y - 1, text );
-    drawText( x - 1, y + 1, text );
-    drawText( x + 1, y + 1, text );
+    QPainterPath path;
 
-    setPen( color );
-    drawText( x, y, text );
+    path.addText( x, y, font(), text );
+
+    fillPath( path, QBrush(color) );
+    QPen strokepen( Qt::black );
+    strokepen.setWidth( 2 );
+
+    strokePath( path, strokepen );
 }
 
 void KaraokePainter::drawCenteredOutlineText(int ypercentage, const QColor &color, const QString &text)

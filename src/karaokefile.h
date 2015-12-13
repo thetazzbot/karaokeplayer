@@ -5,11 +5,11 @@
 #include <QProcess>
 #include <QThread>
 
-#include "audioplayer_ffmpeg.h"
+//#include "audioplayer_ffmpeg.h"
 #include "playerlyrics.h"
 #include "playerbackground.h"
 
-//class Player;
+class Player;
 class PlayerWidget;
 
 // Represents a playable Karaoke file. It may be one of the following:
@@ -25,7 +25,9 @@ class KaraokeFile : public QThread
     Q_OBJECT
 
     public:
-        KaraokeFile( AudioPlayer_FFmpeg * plr, PlayerWidget * w );
+        //KaraokeFile( AudioPlayer_FFmpeg * plr, PlayerWidget * w );
+        KaraokeFile( Player * plr, PlayerWidget * w );
+
         ~KaraokeFile();
 
         // open - a music file, a lyrics file, a combined file (KFN) or a ZIP archive
@@ -55,7 +57,8 @@ class KaraokeFile : public QThread
         QProcess         *  m_convProcess;
 
         // Player and rendering widget
-        AudioPlayer_FFmpeg* m_player;
+        //AudioPlayer_FFmpeg* m_player;
+        Player           *  m_player;
         PlayerWidget     *  m_widget;
 
         // Renderer
