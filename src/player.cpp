@@ -8,10 +8,8 @@ Player::Player()
     : QObject()
 {
     m_audioPlayer = new QMediaPlayer();
-    m_audioPlayer->setNotifyInterval( 100 );
 
     connect( m_audioPlayer, SIGNAL(error(QMediaPlayer::Error)), this, SLOT(slotError(QMediaPlayer::Error)) );
-    connect( m_audioPlayer, SIGNAL(positionChanged(qint64)), this, SIGNAL(musicTick(qint64)) );
     connect( m_audioPlayer, SIGNAL(mediaStatusChanged(QMediaPlayer::MediaStatus)), this, SLOT(slotMediaStatusChanged(QMediaPlayer::MediaStatus)) );
     connect( m_audioPlayer, SIGNAL(mediaChanged(QMediaContent)), this, SLOT(slotMediaChanged(QMediaContent)) );
 }
@@ -59,6 +57,7 @@ void Player::slotMediaChanged(const QMediaContent &media)
 bool Player::start()
 {
     //m_audioPlayer->setPosition( 270000 );
+
     m_audioPlayer->play();
     return true;
 }

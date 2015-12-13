@@ -1,21 +1,32 @@
 #include <QDir>
+#include <QTime>
 #include <QCryptographicHash>
 
+#include "player.h"
 #include "settings.h"
 #include "karaokefile.h"
+#include "playerwidget.h"
 #include "playerlyricscdg.h"
 #include "playerlyricstext.h"
 #include "playerbackground.h"
 #include "playerbackgroundcolor.h"
+#include "karaokepainter.h"
+
 #include "libkaraokelyrics/lyricsloader.h"
 
 
-KaraokeFile::KaraokeFile()
+KaraokeFile::KaraokeFile(AudioPlayer_FFmpeg *plr, PlayerWidget *w)
 {
+    m_widget = w;
+    m_player = plr;
+
     m_musicFile = 0;
     m_lyrics = 0;
     m_background = 0;
     m_convProcess = 0;
+
+    m_nextRedrawTime = -1;
+    m_lastRedrawTime = -1;
 }
 
 KaraokeFile::~KaraokeFile()
@@ -114,25 +125,18 @@ bool KaraokeFile::open(const QString &filename)
                     musicFile = test;
                 else
                 {
-                    m_musicFileName = musicFile;
-                    m_cachedFileName = test;
+                    // Start conversion right away
+                    m_musicFileName = test;
+                    startConversion( musicFile );
                 }
             }
         }
 
-        if ( !needsConversion() )
+        // If we started a process, the conversion is in progress
+        if ( !m_convProcess )
         {
-            QFile * mf = new QFile( musicFile );
-
-            if ( !mf->open( QIODevice::ReadOnly ) )
-            {
-                QString err = mf->errorString();
-                delete mf;
-                throw QString("Cannot open music file %1: %2").arg( musicFile ) .arg(err);
-            }
-
             m_musicFileName = musicFile;
-            m_musicFile = mf;
+            loadMusicFile();
         }
         else
             m_musicFile = 0;
@@ -160,40 +164,115 @@ bool KaraokeFile::open(const QString &filename)
     return true;
 }
 
-void KaraokeFile::startConversion()
+void KaraokeFile::start()
 {
-    qDebug("started conversion of %s to %s", qPrintable(m_musicFileName), qPrintable(m_cachedFileName) );
+    // If no conversion is in progress, start the player and rendering thread
+    if ( !m_convProcess )
+    {
+        m_continue.store( 1 );
+        m_player->start();
+        QThread::start();
+    }
+    else
+    {
+       // Else we ignore it and wait until conversion is done
+        m_customMessage = "MIDI conversion in progress";
+    }
+}
 
-    QProcess * convProcess = new QProcess( this );
-    connect( convProcess, SIGNAL(error(QProcess::ProcessError)), this, SLOT(convError(QProcess::ProcessError)) );
-    connect( convProcess, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(convFinished(int,QProcess::ExitStatus)) );
-
-    QStringList args;
-    args << "-Ow" << m_musicFileName << "-o" << m_cachedFileName;
-    convProcess->start( "timidity", args );
+void KaraokeFile::stop()
+{
+    m_continue.store( 0 );
+    wait();
 }
 
 void KaraokeFile::convError(QProcess::ProcessError error)
 {
-    emit conversionFinished( 255 );
-
+    m_customMessage = "MIDI conversion failed";
 }
 
 void KaraokeFile::convFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
     // FIXME: copy?
-    QFile * mf = new QFile( m_cachedFileName );
+
+    // Do not delete the object when we're in its slot!
+    m_convProcess->deleteLater();
+    m_convProcess = 0;
+
+    m_customMessage.clear();
+    start();
+}
+
+void KaraokeFile::startConversion(const QString &src)
+{
+    // Using Timidity
+    QProcess * convProcess = new QProcess( this );
+    connect( convProcess, SIGNAL(error(QProcess::ProcessError)), this, SLOT(convError(QProcess::ProcessError)) );
+    connect( convProcess, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(convFinished(int,QProcess::ExitStatus)) );
+
+    QStringList args;
+    args << "-Ow" << src << "-o" << m_musicFileName;
+
+    convProcess->start( "timidity", args );
+}
+
+void KaraokeFile::loadMusicFile()
+{
+    QFile * mf = new QFile( m_musicFileName );
 
     if ( !mf->open( QIODevice::ReadOnly ) )
     {
-        emit conversionFinished( 255 );
-        return;
+        QString err = mf->errorString();
+        delete mf;
+        throw QString("Cannot open music file %1: %2").arg( m_musicFileName ) .arg(err);
     }
 
-    m_musicFileName = m_cachedFileName;
-    m_musicFile = mf;
+    if ( !m_player->load( m_musicFileName ) )
+        throw QString( "Cannot play file %1: %2") .arg( m_musicFileName ) .arg( m_player->errorMsg() );
 
-    emit conversionFinished( exitCode );
+    m_musicFile = mf;
+}
+
+void KaraokeFile::run()
+{
+    // from http://www.koonsolo.com/news/dewitters-gameloop/
+    // We do not need fast rendering, and need constant FPS, so 2nd solution works well
+
+    // This assumes 25 FPS, so we have 1000/25ms per cycle
+    static const unsigned int MS_PER_CYCLE = 1000 / 25;
+
+    while ( m_continue )
+    {
+        qint64 time = m_player->position();
+        QTime next_cycle = QTime::currentTime().addMSecs( MS_PER_CYCLE );
+        QImage& image = m_widget->acquireImage();
+
+        // Redraw main screen
+        KaraokePainter p( KaraokePainter::AREA_MAIN_SCREEN, time, image );
+
+        // Background is always on
+        m_background->draw( p );
+
+        // But lyrics are only on if the text is not set
+        if ( m_customMessage.isEmpty() )
+        {
+            m_lyrics->draw( p );
+            m_nextRedrawTime = m_lyrics->nextUpdate();
+        }
+        else
+        {
+            p.drawCenteredOutlineText( 50, Qt::white, m_customMessage );
+        }
+
+        m_widget->releaseImage();
+        QMetaObject::invokeMethod( m_widget, "refresh", Qt::QueuedConnection );
+
+        // When should we have next tick?
+        int remainingms = QTime::currentTime().msecsTo( next_cycle );
+
+        if ( remainingms > 0 )
+            msleep( remainingms );
+    }
 }
 
 bool KaraokeFile::isMidiFile(const QString &filename)

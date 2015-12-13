@@ -32,7 +32,6 @@ class Player : public QObject
 
     signals:
         void    musicEnded();
-        void    musicTick( qint64 timems );
 
     private slots:
         void	slotError(QMediaPlayer::Error error);

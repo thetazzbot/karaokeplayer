@@ -9,6 +9,8 @@ QT       += core gui multimedia widgets
 TARGET = karaokeplayer
 TEMPLATE = app
 
+CONFIG += link_pkgconfig
+PKGCONFIG += libavformat libavcodec libswscale  libavresample libavutil
 
 SOURCES += main.cpp\
         mainwindow.cpp \
@@ -24,7 +26,9 @@ SOURCES += main.cpp\
     playerlyricstext.cpp \
     karaokefile.cpp \
     playerlyrictext_line.cpp \
-    karaokepainter.cpp
+    karaokepainter.cpp \
+    audioplayer_ffmpeg.cpp \
+    ffmpeg_headers.cpp
 
 HEADERS  += mainwindow.h \
     playerwidget.h \
@@ -39,7 +43,9 @@ HEADERS  += mainwindow.h \
     playerlyricstext.h \
     karaokefile.h \
     playerlyrictext_line.h \
-    karaokepainter.h
+    karaokepainter.h \
+    audioplayer_ffmpeg.h \
+    ffmpeg_headers.h
 
 FORMS    += mainwindow.ui
 INCLUDEPATH += ..

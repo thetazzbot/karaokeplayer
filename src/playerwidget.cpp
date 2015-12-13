@@ -1,26 +1,32 @@
 #include <QPainter>
+#include <QThread>
 
-#include "karaokepainter.h"
-#include "playerlyrics.h"
-#include "playerbackground.h"
 #include "playerwidget.h"
 
 
-PlayerWidget::PlayerWidget( PlayerLyrics * lyricRenderer, PlayerBackground  * bgRenderer, QWidget *parent )
-    : QWidget(parent), m_image( 800, 600, QImage::Format_ARGB32 )
+PlayerWidget::PlayerWidget( QWidget *parent )
+    : QWidget(parent), m_image( 800, 600, QImage::Format_ARGB32 ), m_mutex( QMutex::Recursive )
 {
-    m_lyricRenderer = lyricRenderer;
-    m_backgroundRenderer = bgRenderer;
-    m_nextRedrawTime = -1;
     m_image.fill( Qt::black );
 }
 
-void PlayerWidget::showCustomText(const QString &text)
+QImage &PlayerWidget::acquireImage()
 {
-    m_customText = text;
-    redrawLyrics();
+    m_mutex.lock();
+    return m_image;
 }
 
+void PlayerWidget::releaseImage() const
+{
+    m_mutex.unlock();
+}
+
+void PlayerWidget::refresh()
+{
+    update();
+}
+
+/*
 void PlayerWidget::updateLyrics(qint64 time)
 {
     if ( m_nextRedrawTime != -1 && time < m_nextRedrawTime )
@@ -48,7 +54,7 @@ void PlayerWidget::redrawLyrics()
 
     update();
 }
-
+*/
 void PlayerWidget::paintEvent(QPaintEvent *)
 {
     QPainter p( this );
@@ -56,16 +62,21 @@ void PlayerWidget::paintEvent(QPaintEvent *)
 
     p.fillRect( prect, Qt::black );
 
+    m_mutex.lock();
+ //  QThread::sleep(1);
     p.drawImage( prect, m_image );
+    m_mutex.unlock();
 }
-
+/*
 void PlayerWidget::resizeEvent(QResizeEvent *event)
 {
     QWidget::resizeEvent( event );
 
+    m_mutex.lock();
+
     if ( m_image.size() != size() )
-    {
-        m_image = QImage( size(), QImage::Format_ARGB32 );
-        redrawLyrics();
-    }
+        m_image = m_image.scaled( size() );
+
+    m_mutex.unlock();
 }
+*/
