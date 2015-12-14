@@ -1,6 +1,7 @@
 #include <QPainter>
 #include <QThread>
 
+#include "eventcontroller.h"
 #include "playerwidget.h"
 
 
@@ -44,5 +45,5 @@ void PlayerWidget::paintEvent(QPaintEvent *)
 
 void PlayerWidget::keyPressEvent(QKeyEvent *event)
 {
-
+    pController->keyEvent( event );
 }

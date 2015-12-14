@@ -31,6 +31,8 @@ MainWindow::MainWindow(QWidget *parent) :
     m_widgetStack->setCurrentWidget( m_widget );
     m_widget->show();
 
+    connect( pController, SIGNAL(playerStop()), this, SLOT(queueStop()) );
+
     menuOpenFile();
 }
 
@@ -66,44 +68,33 @@ void MainWindow::menuOpenFile()
     m_karfile->start();
 }
 
-void MainWindow::playEnded()
+void MainWindow::queueStop()
 {
+    if ( !m_karfile )
+        return;
+
+    m_karfile->stop();
     delete m_karfile;
     m_karfile = 0;
-
-    menuOpenFile();
 }
 
-void MainWindow::cmdStop()
+void MainWindow::queueNext()
 {
-    if ( m_karfile )
+    queueStop();
+}
+
+void MainWindow::queuePrevious()
+{
+    if ( m_karfile && m_karfile->position() < 10000 )
     {
-        delete m_karfile;
-        m_karfile = 0;
+        m_karfile->seekBackward();
+        return;
     }
+
+    queueStop();
 }
 
-void MainWindow::cmdPause()
+void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-    m_karfile->pause();
-}
-
-void MainWindow::cmdQueuePrevious()
-{
-
-}
-
-void MainWindow::cmdQueueNext()
-{
-
-}
-
-void MainWindow::cmdSeekForward()
-{
-
-}
-
-void MainWindow::cmdSeekBackward()
-{
-
+    pController->keyEvent( event );
 }

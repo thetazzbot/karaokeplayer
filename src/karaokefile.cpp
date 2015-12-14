@@ -11,6 +11,7 @@
 #include "playerbackgroundcolor.h"
 #include "playerbackgroundvideo.h"
 #include "karaokepainter.h"
+#include "eventcontroller.h"
 
 #include "libkaraokelyrics/lyricsloader.h"
 
@@ -28,6 +29,11 @@ KaraokeFile::KaraokeFile( PlayerWidget *w )
 
     m_nextRedrawTime = -1;
     m_lastRedrawTime = -1;
+
+    connect( &m_player, SIGNAL(musicEnded()), pController, SLOT(playerSongFinished() ) );
+    connect( pController, SIGNAL( playerPauseResume()), this, SLOT(pause()) );
+    connect( pController, SIGNAL( playerForward()), this, SLOT(seekForward()) );
+    connect( pController, SIGNAL( playerBackward()), this, SLOT(seekBackward()) );
 }
 
 KaraokeFile::~KaraokeFile()
@@ -207,9 +213,19 @@ void KaraokeFile::pause()
     }
 }
 
+void KaraokeFile::seekForward()
+{
+    seekTo( qMin( duration() - 10000, position() + 10000 ) );
+}
+
+void KaraokeFile::seekBackward()
+{
+    seekTo( qMax( position() - 10000, 0LL ) );
+}
+
 void KaraokeFile::seekTo(qint64 timing)
 {
-
+    m_player.seekTo( timing );
 }
 
 qint64 KaraokeFile::duration()
@@ -269,10 +285,13 @@ void KaraokeFile::loadMusicFile()
     m_musicFile = mf;
 }
 
-void KaraokeFile::quit()
+void KaraokeFile::stop()
 {
-    m_continue.store( 0 );
-    wait();
+    if ( m_continue )
+    {
+        m_continue.store( 0 );
+        wait();
+    }
 }
 
 void KaraokeFile::run()

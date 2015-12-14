@@ -28,7 +28,6 @@ SOURCES += main.cpp\
     playerlyrictext_line.cpp \
     karaokepainter.cpp \
     playerbackgroundvideo.cpp \
-    controlevent.cpp \
     eventcontroller.cpp \
     eventcontroller_dbus.cpp
 
@@ -47,7 +46,6 @@ HEADERS  += mainwindow.h \
     playerlyrictext_line.h \
     karaokepainter.h \
     playerbackgroundvideo.h \
-    controlevent.h \
     eventcontroller.h \
     eventcontroller_dbus.h
 

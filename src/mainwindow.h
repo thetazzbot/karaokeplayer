@@ -46,15 +46,12 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 
     public slots:
         void    menuOpenFile();
-        void    playEnded();
+        void    queueStop();
+        void    queueNext();
+        void    queuePrevious();
 
-        void    cmdStop();
-        void    cmdPause();
-        void    cmdQueuePrevious();
-        void    cmdQueueNext();
-        void    cmdSeekForward();
-        void    cmdSeekBackward();
-
+    private:
+        void    keyPressEvent(QKeyEvent * event);
 
     private:
         KaraokeFile  *  m_karfile;

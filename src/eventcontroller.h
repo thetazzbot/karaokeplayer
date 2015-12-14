@@ -20,7 +20,7 @@ class EventController : public QObject
         void    playerStop();
         void    playerPauseResume();
         void    playerForward();
-        void    playerRewind();
+        void    playerBackward();
 
         // Events for queue manager
         void    queueAdd( QString songpath, QString singer );
@@ -30,8 +30,8 @@ class EventController : public QObject
 
     public slots:
         // Events from player
-        void    playerSongFinished( QString fileName );
-        void    playerSongFailed( QString fileName );
+        void    playerSongFinished();
+        void    playerSongFailed();
 
         // EVents from different sources
         void    keyEvent( QKeyEvent * event );

@@ -33,11 +33,16 @@ class KaraokeFile : public QThread
         // open - a music file, a lyrics file, a combined file (KFN) or a ZIP archive
         bool    open( const QString& filename );
 
-        void    start();
-        void    pause();
-        void    seekTo( qint64 timing );
         qint64  duration();
         qint64  position();
+
+    public slots:
+        void    start();
+        void    pause();
+        void    seekForward();
+        void    seekBackward();
+        void    seekTo( qint64 timing );
+        void    stop();
 
     private slots:
         void	convError( QProcess::ProcessError error );
@@ -55,8 +60,6 @@ class KaraokeFile : public QThread
         // Convert the src to the m_musicFileName
         void    startConversion( const QString& src );
         void    loadMusicFile();
-
-        void    quit();
 
         // Rendering thread
         void    run();

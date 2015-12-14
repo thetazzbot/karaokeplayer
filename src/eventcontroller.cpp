@@ -20,19 +20,46 @@ EventController::~EventController()
 {
 }
 
-void EventController::playerSongFinished(QString fileName)
+void EventController::playerSongFinished()
 {
-
+    emit queueNext();
 }
 
-void EventController::playerSongFailed(QString fileName)
+void EventController::playerSongFailed()
 {
-
+    emit queueNext();
 }
 
 void EventController::keyEvent(QKeyEvent *event)
 {
+    if ( event->key() == Qt::Key_Space )
+        emit playerPauseResume();
 
+    if ( event->key() == Qt::Key_Escape )
+        emit playerStop();
+
+    if ( event->key() == Qt::Key_Enter )
+        emit playerStart();
+
+    if ( event->key() == Qt::Key_Left )
+        emit playerBackward();
+
+    if ( event->key() == Qt::Key_Right )
+        emit playerForward();
+
+    if ( event->key() == Qt::Key_O )
+    {
+        //emit queueAdd( QString songpath, QString singer );
+    }
+
+    if ( event->key() == Qt::Key_N || event->key() == Qt::Key_Up )
+        emit queueNext();
+
+    if ( event->key() == Qt::Key_P || event->key() == Qt::Key_Down )
+        emit queuePrevious();
+
+    if ( event->key() == Qt::Key_Z )
+        emit queueClear();
 }
 
 void EventController::lircEvent(QString event)
