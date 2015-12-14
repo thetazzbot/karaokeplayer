@@ -16,10 +16,9 @@
 
 
 //KaraokeFile::KaraokeFile(AudioPlayer_FFmpeg *plr, PlayerWidget *w)
-KaraokeFile::KaraokeFile(Player *plr, PlayerWidget *w)
+KaraokeFile::KaraokeFile( PlayerWidget *w )
 {
     m_widget = w;
-    m_player = plr;
 
     m_musicFile = 0;
     m_lyrics = 0;
@@ -33,6 +32,12 @@ KaraokeFile::KaraokeFile(Player *plr, PlayerWidget *w)
 
 KaraokeFile::~KaraokeFile()
 {
+    if ( m_continue )
+    {
+        m_continue.store( 0 );
+        wait();
+    }
+
     delete m_musicFile;
     delete m_lyrics;
     delete m_background;
@@ -176,7 +181,7 @@ void KaraokeFile::start()
         m_playState = STATE_PLAYING;
         m_continue.store( 1 );
         m_background->start();
-        m_player->play();
+        m_player.play();
         QThread::start();
     }
     else
@@ -191,15 +196,30 @@ void KaraokeFile::pause()
     if ( m_playState == STATE_PLAYING )
     {
         m_playState = STATE_PAUSED;
-        m_player->pause();
+        m_player.pause();
         m_background->pause( true );
     }
     else
     {
         m_playState = STATE_PLAYING;
-        m_player->play();
+        m_player.play();
         m_background->pause( false );
     }
+}
+
+void KaraokeFile::seekTo(qint64 timing)
+{
+
+}
+
+qint64 KaraokeFile::duration()
+{
+    return m_player.duration();
+}
+
+qint64 KaraokeFile::position()
+{
+    return m_player.position();
 }
 
 void KaraokeFile::convError(QProcess::ProcessError error)
@@ -243,8 +263,8 @@ void KaraokeFile::loadMusicFile()
         throw QString("Cannot open music file %1: %2").arg( m_musicFileName ) .arg(err);
     }
 
-    if ( !m_player->load( mf ) )
-        throw QString( "Cannot play file %1: %2") .arg( m_musicFileName ) .arg( m_player->errorMsg() );
+    if ( !m_player.load( mf ) )
+        throw QString( "Cannot play file %1: %2") .arg( m_musicFileName ) .arg( m_player.errorMsg() );
 
     m_musicFile = mf;
 }
@@ -267,7 +287,7 @@ void KaraokeFile::run()
 
     while ( m_continue )
     {
-        qint64 time = m_player->position();
+        qint64 time = m_player.position();
         next_cycle = QTime::currentTime().addMSecs( MS_PER_CYCLE );
 
         renderimage.fill( Qt::black );

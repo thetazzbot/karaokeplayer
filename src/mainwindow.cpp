@@ -1,7 +1,6 @@
 #include <unistd.h>
 
 #include <QDebug>
-#include <QMovie>
 #include <QLayout>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -10,6 +9,7 @@
 #include "mainwindow.h"
 #include "playerwidget.h"
 #include "karaokefile.h"
+#include "eventcontroller.h"
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -17,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     setupUi( this );
 
-    connect( &m_player, SIGNAL(musicEnded()), this, SLOT(playEnded()) );
+    pController = new EventController();
 
     m_karfile = 0;
     m_widget = 0;
@@ -31,12 +31,12 @@ MainWindow::MainWindow(QWidget *parent) :
     m_widgetStack->setCurrentWidget( m_widget );
     m_widget->show();
 
-    qDebug() << QMovie::supportedFormats();
     menuOpenFile();
 }
 
 MainWindow::~MainWindow()
 {
+    delete m_karfile;
 }
 
 void MainWindow::menuOpenFile()
@@ -46,7 +46,7 @@ void MainWindow::menuOpenFile()
     if ( file.isEmpty() )
         exit( 1 );
 
-    m_karfile = new KaraokeFile( &m_player, m_widget );
+    m_karfile = new KaraokeFile( m_widget );
 
     try
     {
@@ -72,4 +72,38 @@ void MainWindow::playEnded()
     m_karfile = 0;
 
     menuOpenFile();
+}
+
+void MainWindow::cmdStop()
+{
+    if ( m_karfile )
+    {
+        delete m_karfile;
+        m_karfile = 0;
+    }
+}
+
+void MainWindow::cmdPause()
+{
+    m_karfile->pause();
+}
+
+void MainWindow::cmdQueuePrevious()
+{
+
+}
+
+void MainWindow::cmdQueueNext()
+{
+
+}
+
+void MainWindow::cmdSeekForward()
+{
+
+}
+
+void MainWindow::cmdSeekBackward()
+{
+
 }

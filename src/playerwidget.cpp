@@ -41,3 +41,8 @@ void PlayerWidget::paintEvent(QPaintEvent *)
     p.drawImage( prect, m_image );
     m_mutex.unlock();
 }
+
+void PlayerWidget::keyPressEvent(QKeyEvent *event)
+{
+
+}

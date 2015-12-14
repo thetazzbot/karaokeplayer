@@ -4,13 +4,13 @@
 #
 #-------------------------------------------------
 
-QT       += core gui multimedia widgets
+QT       += core gui multimedia widgets dbus
 
 TARGET = karaokeplayer
 TEMPLATE = app
 
-CONFIG += link_pkgconfig
-PKGCONFIG += libavformat libavcodec libswscale  libavresample libavutil
+#CONFIG += link_pkgconfig
+#PKGCONFIG += libavformat libavcodec libswscale  libavresample libavutil
 
 SOURCES += main.cpp\
         mainwindow.cpp \
@@ -27,9 +27,10 @@ SOURCES += main.cpp\
     karaokefile.cpp \
     playerlyrictext_line.cpp \
     karaokepainter.cpp \
-    audioplayer_ffmpeg.cpp \
-    ffmpeg_headers.cpp \
-    playerbackgroundvideo.cpp
+    playerbackgroundvideo.cpp \
+    controlevent.cpp \
+    eventcontroller.cpp \
+    eventcontroller_dbus.cpp
 
 HEADERS  += mainwindow.h \
     playerwidget.h \
@@ -45,9 +46,10 @@ HEADERS  += mainwindow.h \
     karaokefile.h \
     playerlyrictext_line.h \
     karaokepainter.h \
-    audioplayer_ffmpeg.h \
-    ffmpeg_headers.h \
-    playerbackgroundvideo.h
+    playerbackgroundvideo.h \
+    controlevent.h \
+    eventcontroller.h \
+    eventcontroller_dbus.h
 
 FORMS    += mainwindow.ui
 INCLUDEPATH += ..

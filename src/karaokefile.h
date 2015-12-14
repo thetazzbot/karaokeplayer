@@ -5,7 +5,7 @@
 #include <QProcess>
 #include <QThread>
 
-//#include "audioplayer_ffmpeg.h"
+#include "player.h"
 #include "playerlyrics.h"
 #include "playerbackground.h"
 
@@ -26,7 +26,7 @@ class KaraokeFile : public QThread
 
     public:
         //KaraokeFile( AudioPlayer_FFmpeg * plr, PlayerWidget * w );
-        KaraokeFile( Player * plr, PlayerWidget * w );
+        KaraokeFile( PlayerWidget * w );
 
         ~KaraokeFile();
 
@@ -35,6 +35,9 @@ class KaraokeFile : public QThread
 
         void    start();
         void    pause();
+        void    seekTo( qint64 timing );
+        qint64  duration();
+        qint64  position();
 
     private slots:
         void	convError( QProcess::ProcessError error );
@@ -67,7 +70,7 @@ class KaraokeFile : public QThread
         QProcess         *  m_convProcess;
 
         // Player and rendering widget
-        Player           *  m_player;
+        Player              m_player;
         PlayerWidget     *  m_widget;
 
         // Renderer
@@ -82,7 +85,6 @@ class KaraokeFile : public QThread
         // Next redraw time
         qint64              m_lastRedrawTime;
         qint64              m_nextRedrawTime;
-
 
         static bool isMidiFile( const QString& filename );
         static bool isSupportedMusicFile( const QString& filename );

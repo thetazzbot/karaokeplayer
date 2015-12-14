@@ -27,6 +27,7 @@ class PlayerWidget : public QWidget
 
     protected:
         void    paintEvent(QPaintEvent * event);
+        void    keyPressEvent(QKeyEvent * event);
 
     private:
         // This image is being redrawn here

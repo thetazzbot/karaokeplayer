@@ -47,7 +47,7 @@ int KaraokePainter::largetsFontSize(const QFont &font, int width, const QString 
     int maxsize = 128;
     int minsize = 8;
     int cursize;
-    QFont testfont( Settings::g()->playerLyricsFont );
+    QFont testfont( font );
 
     // We are trying to find the maximum font size which fits by doing the binary search
     while ( maxsize - minsize > 1 )
@@ -79,7 +79,7 @@ void KaraokePainter::drawOutlineText(int x, int y, const QColor &color, const QS
 
     fillPath( path, QBrush(color) );
     QPen strokepen( Qt::black );
-    strokepen.setWidth( 2 );
+    strokepen.setWidth( font().pointSize() > 32 ? 2 : 1 );
 
     strokePath( path, strokepen );
 }

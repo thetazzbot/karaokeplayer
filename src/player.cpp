@@ -36,9 +36,19 @@ void Player::pause()
     m_audioPlayer->pause();
 }
 
+void Player::seekTo(qint64 time)
+{
+    m_audioPlayer->setPosition( time );
+}
+
 qint64 Player::position()
 {
     return m_audioPlayer->position();
+}
+
+qint64 Player::duration()
+{
+    return m_audioPlayer->duration();
 }
 
 void Player::slotError(QMediaPlayer::Error error)

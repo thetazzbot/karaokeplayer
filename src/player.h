@@ -24,9 +24,10 @@ class Player : public QObject
 
         void    stop();
         void    pause();
-        void    seekPercentage( unsigned int percentage );
+        void    seekTo( qint64 time );
 
         qint64  position();
+        qint64  duration();
 
         QString errorMsg() const { return m_errorMsg; }
 
