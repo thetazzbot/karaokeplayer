@@ -29,7 +29,9 @@ SOURCES += main.cpp\
     karaokepainter.cpp \
     playerbackgroundvideo.cpp \
     eventcontroller.cpp \
-    eventcontroller_dbus.cpp
+    eventcontroller_dbus.cpp \
+    songenqueuedialog.cpp \
+    playernotification.cpp
 
 HEADERS  += mainwindow.h \
     playerwidget.h \
@@ -47,9 +49,12 @@ HEADERS  += mainwindow.h \
     karaokepainter.h \
     playerbackgroundvideo.h \
     eventcontroller.h \
-    eventcontroller_dbus.h
+    eventcontroller_dbus.h \
+    songenqueuedialog.h \
+    playernotification.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    songenqueuedialog.ui
 INCLUDEPATH += ..
 LIBS += -L ../libkaraokelyrics -lkaraokelyrics
 POST_TARGETDEPS += ../libkaraokelyrics/libkaraokelyrics.a

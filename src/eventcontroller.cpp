@@ -4,6 +4,7 @@
 
 #include "eventcontroller.h"
 #include "eventcontroller_dbus.h"
+#include "songenqueuedialog.h"
 
 EventController * pController;
 
@@ -49,7 +50,10 @@ void EventController::keyEvent(QKeyEvent *event)
 
     if ( event->key() == Qt::Key_O )
     {
-        //emit queueAdd( QString songpath, QString singer );
+        SongEnqueueDialog dlg;
+
+        if ( dlg.exec() == QDialog::Accepted )
+            emit queueAdd( dlg.leFile->text(), dlg.leSinger->text() );
     }
 
     if ( event->key() == Qt::Key_N || event->key() == Qt::Key_Up )

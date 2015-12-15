@@ -218,6 +218,9 @@ bool PlayerLyricsText::render(KaraokePainter &p)
             drawNotification( p, firstLyricStart() - timems );
     }
 
+    if ( current == m_lines.size() )
+        return true;
+
     // If a current line is empty, track down once
     if ( m_lines[current].isEmpty() )
         current--;
@@ -243,6 +246,5 @@ bool PlayerLyricsText::render(KaraokePainter &p)
         yoffset += fm.height();
     }
 
-    // Draw disappearing lyrics
     return true;
 }

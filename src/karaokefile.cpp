@@ -12,6 +12,7 @@
 #include "playerbackgroundvideo.h"
 #include "karaokepainter.h"
 #include "eventcontroller.h"
+#include "playernotification.h"
 
 #include "libkaraokelyrics/lyricsloader.h"
 
@@ -292,6 +293,8 @@ void KaraokeFile::stop()
         m_continue.store( 0 );
         wait();
     }
+
+    m_player.stop();
 }
 
 void KaraokeFile::run()
@@ -312,7 +315,7 @@ void KaraokeFile::run()
         renderimage.fill( Qt::black );
 
         // Redraw main screen
-        KaraokePainter p( KaraokePainter::AREA_MAIN_SCREEN, time, renderimage );
+        KaraokePainter p( KaraokePainter::AREA_MAIN_SCREEN, time, m_player.duration(), renderimage );
 
         // Background is always on
         m_background->draw( p );
@@ -327,6 +330,9 @@ void KaraokeFile::run()
         {
             p.drawCenteredOutlineText( 50, Qt::white, m_customMessage );
         }
+
+        p.switchArea( KaraokePainter::AREA_TOP );
+        pNotification->draw( p );
 
         p.end();
 

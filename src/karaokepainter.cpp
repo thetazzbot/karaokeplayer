@@ -9,25 +9,18 @@ static const unsigned int TEXTLYRICS_SPACING_LEFTRIGHT = 5;
 static const unsigned int TEXTLYRICS_SPACING_TOPBOTTOM = 3;
 
 
-KaraokePainter::KaraokePainter(KaraokePainter::Area area, qint64 timems, QImage &img)
+KaraokePainter::KaraokePainter(KaraokePainter::Area area, qint64 pos, qint64 duration, QImage &img)
     : QPainter( &img )
 {
-    m_time = timems;
+    m_time = pos;
+    m_duration = duration;
 
-    int toparea = (img.height() * TOP_SCREEN_RESERVED_STATUS) / 100;
+    m_origTransform = transform();
+    m_origSize = img.size();
 
-    if ( area == AREA_MAIN_SCREEN )
-    {
-        // Keep the top off the renderer
-        m_rect = QRect( 0, 0, img.width(), img.height() - toparea );
-        translate( 0, toparea );
-    }
-    else
-    {
-        // Allow the top
-        m_rect = QRect( 0, 0, img.width(), toparea );
-    }
+    switchArea( area );
 }
+
 
 void KaraokePainter::setTextLyricsMode()
 {
@@ -40,6 +33,25 @@ void KaraokePainter::setTextLyricsMode()
 
     m_rect = QRect( 0, 0, textwidth, textheight );
     translate( xspacing, yspacing );
+}
+
+void KaraokePainter::switchArea(KaraokePainter::Area area)
+{
+    setTransform( m_origTransform );
+
+    int toparea = (m_origSize.height() * TOP_SCREEN_RESERVED_STATUS) / 100;
+
+    if ( area == AREA_MAIN_SCREEN )
+    {
+        // Keep the top off the renderer
+        m_rect = QRect( 0, 0, m_origSize.width(), m_origSize.height() - toparea );
+        translate( 0, toparea );
+    }
+    else
+    {
+        // Allow the top
+        m_rect = QRect( 0, 0, m_origSize.width(), toparea );
+    }
 }
 
 int KaraokePainter::largetsFontSize(const QFont &font, int width, const QString &textline)
@@ -66,6 +78,29 @@ int KaraokePainter::largetsFontSize(const QFont &font, int width, const QString 
     return cursize;
 }
 
+int KaraokePainter::tallestFontSize( QFont &font, int height )
+{
+    int maxsize = 128;
+    int minsize = 8;
+    int cursize;
+
+    // We are trying to find the maximum font size which fits by doing the binary search
+    while ( maxsize - minsize > 1 )
+    {
+        cursize = minsize + (maxsize - minsize) / 2;
+        font.setPointSize( cursize );
+        QFontMetrics fm( font );
+        //qDebug("%d-%d: trying font size %d to draw on %d: width %d", minsize, maxsize, cursize, drawing_width, fm.width(m_longestLyricLine) );
+
+        if ( fm.height() < height )
+            minsize = cursize;
+        else
+            maxsize = cursize;
+    }
+
+    return cursize;
+}
+
 int KaraokePainter::largetsFontSize( const QString &textline )
 {
     return largetsFontSize( font(), m_rect.width(), textline );
@@ -73,7 +108,7 @@ int KaraokePainter::largetsFontSize( const QString &textline )
 
 void KaraokePainter::drawOutlineText(int x, int y, const QColor &color, const QString &text)
 {
-    QPainterPath path;
+    /*QPainterPath path;
 
     path.addText( x, y, font(), text );
 
@@ -81,7 +116,15 @@ void KaraokePainter::drawOutlineText(int x, int y, const QColor &color, const QS
     QPen strokepen( Qt::black );
     strokepen.setWidth( font().pointSize() > 32 ? 2 : 1 );
 
-    strokePath( path, strokepen );
+    strokePath( path, strokepen );*/
+    setPen( Qt::black );
+    drawText( x-1, y-1, text );
+    drawText( x-1, y+1, text );
+    drawText( x+1, y-1, text );
+    drawText( x+1, y+1, text );
+
+    setPen( color );
+    drawText( x, y, text );
 }
 
 void KaraokePainter::drawCenteredOutlineText(int ypercentage, const QColor &color, const QString &text)

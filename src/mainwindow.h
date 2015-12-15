@@ -35,6 +35,7 @@
 
 class PlayerWidget;
 class KaraokeFile;
+class SongQueue;
 
 class MainWindow : public QMainWindow, public Ui::MainWindow
 {
@@ -45,12 +46,13 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
         ~MainWindow();
 
     public slots:
-        void    menuOpenFile();
+        void    queueAdd( QString file, QString singer );
         void    queueStop();
         void    queueNext();
         void    queuePrevious();
 
     private:
+        void    playCurrentItem();
         void    keyPressEvent(QKeyEvent * event);
 
     private:
