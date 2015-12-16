@@ -113,7 +113,7 @@ bool KaraokeFile::open(const QString &filename)
         qDebug( "Found music file %s, lyric file %s", qPrintable(musicFile), qPrintable(lyricFile) );
 
         // Open the music file as we need QIODevice
-        if ( isMidiFile( musicFile ) && Settings::g()->convertMidiFiles )
+        if ( isMidiFile( musicFile ) && pSettings->convertMidiFiles )
         {
             // Do we have it cached?
             QFileInfo finfo( musicFile );
@@ -133,7 +133,7 @@ bool KaraokeFile::open(const QString &filename)
                 }
 
                 hash.addData( &file );
-                test = Settings::g()->cacheDir + QDir::separator() + hash.result().toHex() + ".wav";
+                test = pSettings->cacheDir + QDir::separator() + hash.result().toHex() + ".wav";
 
                 if (  QFile::exists( test ) )
                     musicFile = test;

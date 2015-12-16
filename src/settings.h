@@ -7,9 +7,8 @@
 class Settings
 {
     public:
-        static Settings * g();
+        Settings();
 
-    public:
         QString cacheDir;
         QColor  playerBackgroundColor;
         QColor  playerLyricsTextBeforeColor;
@@ -17,9 +16,10 @@ class Settings
         QFont   playerLyricsFont;
         bool    playerLyricsTextEachCharacter;
         bool    convertMidiFiles;
-
-    private:
-        Settings();
+        bool    playerCDGbackgroundTransparent;
 };
+
+extern Settings * pSettings;
+
 
 #endif // SETTINGS_H

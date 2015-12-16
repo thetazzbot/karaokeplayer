@@ -14,7 +14,7 @@ PlayerLyricsText::PlayerLyricsText()
     m_currentLine = 0;
     m_longestLine = 0;
 
-    m_renderFont = Settings::g()->playerLyricsFont;
+    m_renderFont = pSettings->playerLyricsFont;
 }
 
 bool PlayerLyricsText::load( QIODevice &file, const QString& filename )
@@ -109,7 +109,7 @@ qint64 PlayerLyricsText::nextUpdate() const
 
 void PlayerLyricsText::calculateFontSize()
 {
-    int fontsize = KaraokePainter::largetsFontSize( Settings::g()->playerLyricsFont,
+    int fontsize = KaraokePainter::largetsFontSize( pSettings->playerLyricsFont,
                                                     m_usedImageSize.width(),
                                                     m_lines[m_longestLine].fullLine() );
 

@@ -10,7 +10,7 @@ PlayerBackgroundColor::PlayerBackgroundColor()
 bool PlayerBackgroundColor::initFromSettings(const QString &param)
 {
     if ( param.isEmpty() )
-        m_color = Settings::g()->playerBackgroundColor;
+        m_color = pSettings->playerBackgroundColor;
     else
         m_color = QColor( param );
 

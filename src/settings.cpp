@@ -1,14 +1,6 @@
 #include "settings.h"
 
-Settings *Settings::g()
-{
-    static Settings * d;
-
-    if ( d == 0 )
-        d = new Settings();
-
-    return d;
-}
+Settings * pSettings;
 
 
 Settings::Settings()
@@ -20,4 +12,5 @@ Settings::Settings()
     playerLyricsTextEachCharacter = true;
     cacheDir = "/home/tim/work/my/karaokeplayer/test/cache";
     convertMidiFiles = true;
+    playerCDGbackgroundTransparent = true;
 }

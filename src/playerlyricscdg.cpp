@@ -1,6 +1,7 @@
 #include <QFile>
 #include <QImage>
 
+#include "settings.h"
 #include "playerlyricscdg.h"
 #include "karaokepainter.h"
 
@@ -649,8 +650,8 @@ bool PlayerLyricsCDG::render(KaraokePainter &p)
                 if ( TexColor != 0xFFFFFFFF )
                 {
                     // Uncomment this to make background colors transparent
-                    //if ( colorindex != m_bgColor )
-                    TexColor |= 0xFF000000; // color table has 0x00 alpha
+                    if ( !pSettings->playerCDGbackgroundTransparent || colorindex != m_bgColor )
+                        TexColor |= 0xFF000000; // color table has 0x00 alpha
                 }
                 else
                     TexColor = 0x00000000;

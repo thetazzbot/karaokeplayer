@@ -10,7 +10,7 @@ PlayerLyricTextLine::PlayerLyricTextLine()
 
 PlayerLyricTextLine::PlayerLyricTextLine(const LyricsLoader::Container &line)
 {
-    if ( Settings::g()->playerLyricsTextEachCharacter )
+    if ( pSettings->playerLyricsTextEachCharacter )
     {
         // Split it per-character
         foreach ( Lyric l, line )
@@ -56,8 +56,8 @@ qint64 PlayerLyricTextLine::draw( KaraokePainter& p, int yoffset )
     {
         p.drawOutlineText( x,
                            yoffset,
-                           m_line[i].start < p.time() ? Settings::g()->playerLyricsTextAfterColor
-                                                : Settings::g()->playerLyricsTextBeforeColor,
+                           m_line[i].start < p.time() ? pSettings->playerLyricsTextAfterColor
+                                                : pSettings->playerLyricsTextBeforeColor,
                            m_line[i].text );
 
         x += p.fontMetrics().width( m_line[i].text );
@@ -81,7 +81,7 @@ void PlayerLyricTextLine::drawDisappear(KaraokePainter& p, int percentage, int y
     // Draw the text string
     for ( int i = 0; i < m_line.size(); i++ )
     {
-        p.drawOutlineText( x, yoffset, Settings::g()->playerLyricsTextAfterColor, m_line[i].text );
+        p.drawOutlineText( x, yoffset, pSettings->playerLyricsTextAfterColor, m_line[i].text );
         x += p.fontMetrics().width( m_line[i].text );
     }
 

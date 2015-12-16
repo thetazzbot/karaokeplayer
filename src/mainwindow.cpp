@@ -6,6 +6,7 @@
 #include <QMessageBox>
 #include <QDialog>
 
+#include "settings.h"
 #include "mainwindow.h"
 #include "playerwidget.h"
 #include "karaokefile.h"
@@ -19,6 +20,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     setupUi( this );
 
+    pSettings = new Settings();
     pController = new EventController();
     pSongQueue = new SongQueue( this );
     pNotification = new PlayerNotification( this );
