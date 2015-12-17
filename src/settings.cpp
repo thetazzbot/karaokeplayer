@@ -19,4 +19,7 @@ Settings::Settings()
     cacheDir = "/home/tim/work/my/karaokeplayer/test/cache";
     convertMidiFiles = true;
     playerCDGbackgroundTransparent = true;
+
+    queueAddNewSingersNext = false;
+    queueFilename = "/home/tim/work/my/karaokeplayer/test/queue.dat";
 }

@@ -7,7 +7,7 @@
 
 
 PlayerBackgroundVideo::PlayerBackgroundVideo()
-    : PlayerBackground(), QAbstractVideoSurface(), m_player( this, QMediaPlayer::VideoSurface )
+    : QAbstractVideoSurface(), PlayerBackground(), m_player( this, QMediaPlayer::VideoSurface )
 {
     m_frameFormat = QImage::Format_Invalid;
     m_valid = 0;
@@ -106,7 +106,7 @@ void PlayerBackgroundVideo::slotMediaStatusChanged(QMediaPlayer::MediaStatus sta
     {
         pSettings->m_playerBackgroundLastObject++;
 
-        if ( pSettings->m_playerBackgroundLastObject >= pSettings->playerBackgroundObjects.size() )
+        if ( (int) pSettings->m_playerBackgroundLastObject >= pSettings->playerBackgroundObjects.size() )
             pSettings->m_playerBackgroundLastObject = 0;
 
         pSettings->m_playerBackgroundLastVideoTime = 0;

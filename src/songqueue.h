@@ -47,6 +47,10 @@ class SongQueue : public QObject
         void    queueChanged();
 
     private:
+        // Internal function which saves queue to disk and calls the signals
+        void    queueUpdated();
+        void    save();
+        void    load();
 
         // Queue of songs. Works as following:
         //

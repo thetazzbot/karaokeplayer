@@ -31,6 +31,11 @@ void EventController::playerSongFailed()
     emit queueNext();
 }
 
+void EventController::error(QString message)
+{
+
+}
+
 void EventController::keyEvent(QKeyEvent *event)
 {
     if ( event->key() == Qt::Key_Space )

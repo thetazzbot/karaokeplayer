@@ -33,6 +33,9 @@ class EventController : public QObject
         void    playerSongFinished();
         void    playerSongFailed();
 
+        // Reports an error
+        void    error( QString message );
+
         // EVents from different sources
         void    keyEvent( QKeyEvent * event );
         void    lircEvent( QString event );

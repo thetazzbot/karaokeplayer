@@ -18,12 +18,18 @@ class Settings
 
         QString cacheDir;
 
-        QColor  playerLyricsTextBeforeColor;
-        QColor  playerLyricsTextAfterColor;
-        QFont   playerLyricsFont;
-        bool    playerLyricsTextEachCharacter;
-        bool    convertMidiFiles;
-        bool    playerCDGbackgroundTransparent;
+        // Player parameters
+        QColor      playerLyricsTextBeforeColor;
+        QColor      playerLyricsTextAfterColor;
+        QFont       playerLyricsFont;
+        bool        playerLyricsTextEachCharacter;
+        bool        convertMidiFiles;
+        bool        playerCDGbackgroundTransparent;
+
+        // Queue parameters
+        bool        queueAddNewSingersNext; // if true, new singers are added right after the current singer; otherwise at the end.
+        QString     queueFilename;  // if defined, we save queue into file
+
 
         // Player background
         BackgroundType  playerBackgroundType;

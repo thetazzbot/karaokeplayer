@@ -1,7 +1,11 @@
+#include <QFile>
+#include <QDataStream>
 #include <QDebug>
 #include <QFileInfo>
 
+#include "settings.h"
 #include "songqueue.h"
+#include "eventcontroller.h"
 
 SongQueue * pSongQueue;
 
@@ -9,6 +13,12 @@ SongQueue::SongQueue(QObject *parent)
     : QObject( parent )
 {
     m_currentSong = 0;
+
+    if ( !pSettings->queueFilename.isEmpty() )
+        load();
+
+//    addSong( "/home/tim/work/my/karaokeplayer/test/Krematoriy - Rimsky Bluz.mp3", "George" );
+//    addSong( "/home/tim/work/my/karaokeplayer/test/Il tempo se ne va.mp3", "Arslan" );
 /*
     addSong( "file1", "Vasya" );
     addSong( "file2", "Vasya" );
@@ -20,8 +30,8 @@ SongQueue::SongQueue(QObject *parent)
     addSong( "file8", "Igor" );
     m_currentSong = 1;
     addSong( "file9", "Vasya" );
-    addSong( "file10", "John" );
-    */
+    addSong( "file10", "John" );*/
+
 }
 
 void SongQueue::addSong(const QString &file, const QString &singer)
@@ -33,7 +43,12 @@ void SongQueue::addSong(const QString &file, const QString &singer)
         singeridx = qMax( m_singers.indexOf( m_queue[m_currentSong].singer ), 0 );
 
     if ( m_singers.indexOf( singer ) == -1 )
-        m_singers.insert( singeridx + 1, singer );
+    {
+        if ( pSettings->queueAddNewSingersNext )
+            m_singers.insert( singeridx + 1, singer );
+        else
+            m_singers.append( singer );
+    }
 
     // Add to the end now
     Song song;
@@ -62,7 +77,7 @@ void SongQueue::addSong(const QString &file, const QString &singer)
     while ( songidx < m_queue.size() )
     {
         // This song should be sung by singeridx
-        qDebug("%d: should be next singer %s", songidx, qPrintable( m_singers[singeridx] ));
+//        qDebug("%d: should be next singer %s", songidx, qPrintable( m_singers[singeridx] ));
 
         if ( m_queue[songidx].singer != m_singers[singeridx] )
         {
@@ -94,13 +109,13 @@ void SongQueue::addSong(const QString &file, const QString &singer)
             singeridx = 0;
     }
 
-/*    // Dump the queue
-    qDebug( ">>> Queue after sort:" );
+    // Dump the queue
+    qDebug() << "Queue after adding song" << file << "by" << singer;
 
     for ( int i = 0; i < m_queue.size(); i++ )
         qDebug() << "Queue " << i << ": " << m_queue[i].file << " " << m_queue[i].singer;
-*/
-    emit queueChanged();
+
+    queueUpdated();
 }
 
 SongQueue::Song SongQueue::current() const
@@ -114,7 +129,7 @@ bool SongQueue::prev()
         return false;
 
     m_currentSong--;
-    emit queueChanged();
+    queueUpdated();
     return true;
 }
 
@@ -124,7 +139,7 @@ bool SongQueue::next()
         return false;
 
     m_currentSong++;
-    emit queueChanged();
+    queueUpdated();
     return true;
 }
 
@@ -148,4 +163,74 @@ QString SongQueue::filenameToTitle(const QString &file)
     QFileInfo finfo( file );
 
     return finfo.baseName();
+}
+
+void SongQueue::queueUpdated()
+{
+    if ( !pSettings->queueFilename.isEmpty() )
+        save();
+
+    emit queueChanged();
+}
+
+void SongQueue::save()
+{
+    QFile fout( pSettings->queueFilename );
+
+    if ( !fout.open( QIODevice::WriteOnly ) )
+    {
+        pController->error( "Cannot store queue: " + fout.errorString() );
+        return;
+    }
+
+    QDataStream dts( &fout );
+    dts << QString("KARAOKEQUEUE");
+    dts << (int) 1;
+    dts << m_currentSong;
+    dts << m_singers;
+    dts << m_queue.size();
+
+    foreach ( const Song& s, m_queue )
+    {
+        dts << s.file;
+        dts << s.title;
+        dts << s.singer;
+    }
+}
+
+void SongQueue::load()
+{
+    QFile fout( pSettings->queueFilename );
+
+    if ( !fout.open( QIODevice::ReadOnly ) )
+        return;
+
+    QDataStream dts( &fout );
+    QString header;
+    int version;
+
+    dts >> header;
+
+    if ( header != "KARAOKEQUEUE" )
+        return;
+
+    dts >> version;
+
+    if ( version != 1 )
+        return;
+
+    dts >> m_currentSong;
+    dts >> m_singers;
+    dts >> version;
+
+    for ( int i = 0; i < version; i++ )
+    {
+        Song s;
+
+        dts >> s.file;
+        dts >> s.title;
+        dts >> s.singer;
+
+        m_queue.append( s );
+    }
 }
