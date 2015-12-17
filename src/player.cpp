@@ -7,48 +7,43 @@
 Player::Player()
     : QObject()
 {
-    m_audioPlayer = new QMediaPlayer();
+    m_player = new QMediaPlayer();
 
-    connect( m_audioPlayer, SIGNAL(error(QMediaPlayer::Error)), this, SLOT(slotError(QMediaPlayer::Error)) );
-    connect( m_audioPlayer, SIGNAL(mediaStatusChanged(QMediaPlayer::MediaStatus)), this, SLOT(slotMediaStatusChanged(QMediaPlayer::MediaStatus)) );
-    connect( m_audioPlayer, SIGNAL(mediaChanged(QMediaContent)), this, SLOT(slotMediaChanged(QMediaContent)) );
+    connect( m_player, SIGNAL(error(QMediaPlayer::Error)), this, SLOT(slotError(QMediaPlayer::Error)) );
+    connect( m_player, SIGNAL(mediaStatusChanged(QMediaPlayer::MediaStatus)), this, SLOT(slotMediaStatusChanged(QMediaPlayer::MediaStatus)) );
+    connect( m_player, SIGNAL(mediaChanged(QMediaContent)), this, SLOT(slotMediaChanged(QMediaContent)) );
 }
 
 
-bool Player::load( QIODevice * musicfile )
+void Player::load( QIODevice * musicfile )
 {
-    //if ( m_audioPlayer )
-    //    stop();
-
     // We don't know if this succeeded or not until start() is called
-    m_audioPlayer->setMedia(QMediaContent(), musicfile );
-
-    return true;
+    m_player->setMedia(QMediaContent(), musicfile );
 }
 
 void Player::stop()
 {
-    m_audioPlayer->stop();
+    m_player->stop();
 }
 
 void Player::pause()
 {
-    m_audioPlayer->pause();
+    m_player->pause();
 }
 
 void Player::seekTo(qint64 time)
 {
-    m_audioPlayer->setPosition( time );
+    m_player->setPosition( time );
 }
 
 qint64 Player::position()
 {
-    return m_audioPlayer->position();
+    return m_player->position();
 }
 
 qint64 Player::duration()
 {
-    return m_audioPlayer->duration();
+    return m_player->duration();
 }
 
 void Player::slotError(QMediaPlayer::Error error)
@@ -60,7 +55,7 @@ void Player::slotError(QMediaPlayer::Error error)
 void Player::slotMediaStatusChanged(QMediaPlayer::MediaStatus status)
 {
     if ( status == QMediaPlayer::EndOfMedia )
-        emit musicEnded();
+        emit finished();
 
     qDebug() << "slotMediaStatusChanged" << status;
 }
@@ -72,8 +67,6 @@ void Player::slotMediaChanged(const QMediaContent &media)
 
 bool Player::play()
 {
-    //m_audioPlayer->setPosition( 270000 );
-
-    m_audioPlayer->play();
+    m_player->play();
     return true;
 }

@@ -23,8 +23,9 @@ class PlayerBackground
         virtual qint64  draw( KaraokePainter& p ) = 0;
 
         // Current state notifications, may be reimplemented. Default implementation does nothing.
-        virtual void    start() { };
-        virtual void    pause( bool resuming ) { };
+        virtual void    start();
+        virtual void    pause( bool resuming );
+        virtual void    stop();
 };
 
 

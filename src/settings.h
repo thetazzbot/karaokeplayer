@@ -9,14 +9,29 @@ class Settings
     public:
         Settings();
 
+        enum BackgroundType
+        {
+            BACKGROUND_TYPE_COLOR,
+            BACKGROUND_TYPE_IMAGE,
+            BACKGROUND_TYPE_VIDEO
+        };
+
         QString cacheDir;
-        QColor  playerBackgroundColor;
+
         QColor  playerLyricsTextBeforeColor;
         QColor  playerLyricsTextAfterColor;
         QFont   playerLyricsFont;
         bool    playerLyricsTextEachCharacter;
         bool    convertMidiFiles;
         bool    playerCDGbackgroundTransparent;
+
+        // Player background
+        BackgroundType  playerBackgroundType;
+        QColor          playerBackgroundColor;
+        QStringList     playerBackgroundObjects;    // images or videos
+
+        unsigned int    m_playerBackgroundLastObject; // last shown image, or last played video
+        qint64          m_playerBackgroundLastVideoTime;  // for video only
 };
 
 extern Settings * pSettings;

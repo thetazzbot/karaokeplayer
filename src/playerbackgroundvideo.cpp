@@ -1,17 +1,27 @@
-#include <QVideoSurfaceFormat>
+#include <QDebug>
 
+#include "settings.h"
 #include "karaokepainter.h"
+#include "eventcontroller.h"
 #include "playerbackgroundvideo.h"
 
+
 PlayerBackgroundVideo::PlayerBackgroundVideo()
-    : PlayerBackground()
+    : PlayerBackground(), QAbstractVideoSurface(), m_player( this, QMediaPlayer::VideoSurface )
 {
     m_frameFormat = QImage::Format_Invalid;
+    m_valid = 0;
+    m_startPlaying = false;
+
+    m_player.setVideoOutput( this );
+    m_player.setMuted( true );
+
+    connect( &m_player, SIGNAL(error(QMediaPlayer::Error)), this, SLOT(slotError(QMediaPlayer::Error)) );
+    connect( &m_player, SIGNAL(mediaStatusChanged(QMediaPlayer::MediaStatus)), this, SLOT(slotMediaStatusChanged(QMediaPlayer::MediaStatus)) );
 }
 
 PlayerBackgroundVideo::~PlayerBackgroundVideo()
 {
-
 }
 
 bool PlayerBackgroundVideo::initFromFile(QIODevice &file)
@@ -32,86 +42,122 @@ void PlayerBackgroundVideo::pause(bool resuming)
         m_player.pause();
 }
 
-bool PlayerBackgroundVideo::initFromSettings(const QString &param)
+void PlayerBackgroundVideo::stop()
 {
-    m_player.setMedia( QMediaContent( QUrl::fromLocalFile("/home/tim/work/my/karaokeplayer/test/bg.avi")) );
-    m_player.setMuted( true );
-    m_player.setVideoOutput( this );
+    // Store the current video position so next song could resume video
+    pSettings->m_playerBackgroundLastVideoTime = m_player.position();
 
-    return true;
+    m_player.stop();
 }
 
-qint64 PlayerBackgroundVideo::draw(KaraokePainter &p)
+bool PlayerBackgroundVideo::start(const QVideoSurfaceFormat &format)
 {
-    /*
     m_mutex.lock();
-    if ( m_currentFrame.map(QAbstractVideoBuffer::ReadOnly) )
-    {
-        const QTransform oldTransform = p.transform();
 
-        if ( surfaceFormat().scanLineDirection() == QVideoSurfaceFormat::BottomToTop )
-        {
-           p.scale(1, -1);
-           p.translate(0, -p.size().height());
-        }
+    m_flipped = ( format.scanLineDirection() == QVideoSurfaceFormat::BottomToTop );
+    m_frameFormat = QVideoFrame::imageFormatFromPixelFormat( format.pixelFormat() );
+    m_viewport = format.viewport();
+    m_valid = 1;
 
-        p.drawImage( p.rect(), image, surfaceFormat().viewport() );
-        p.setTransform(oldTransform);
-
-        m_currentFrame.unmap();
-    }
-    m_mutex.unlock();
-    */
-
-
-    m_mutex.lock();
-    p.drawImage( p.rect(), m_lastFrame, surfaceFormat().viewport() );
+    // We want to unlock it before calling the parent function, which may call present() and deadlock
     m_mutex.unlock();
 
-    // Assume 25fps
-    return p.time() + 40;
+    return QAbstractVideoSurface::start( format );
 }
 
 bool PlayerBackgroundVideo::present(const QVideoFrame &frame)
 {
-    QVideoFrame f = frame;
-    if ( f.map(QAbstractVideoBuffer::ReadOnly) )
-    {
-/*        const QTransform oldTransform = p.transform();
-
-        if ( surfaceFormat().scanLineDirection() == QVideoSurfaceFormat::BottomToTop )
-        {
-           p.scale(1, -1);
-           p.translate(0, -p.size().height());
-        }
-*/
-        if ( m_frameFormat == QImage::Format_Invalid )
-            m_frameFormat = QVideoFrame::imageFormatFromPixelFormat( surfaceFormat().pixelFormat() );
-
-        m_mutex.lock();
-        m_lastFrame = QImage( f.bits(), f.width(), f.height(), f.bytesPerLine(), m_frameFormat );
-        m_mutex.unlock();
-
-//        p.drawImage( p.rect(), image, surfaceFormat().viewport() );
-//        p.setTransform(oldTransform);
-
-        f.unmap();
-    }
+    QMutexLocker m( &m_mutex );
+    m_lastFrame = frame;
 
     return true;
 }
 
 QList<QVideoFrame::PixelFormat> PlayerBackgroundVideo::supportedPixelFormats(QAbstractVideoBuffer::HandleType handleType) const
 {
-    if (handleType == QAbstractVideoBuffer::NoHandle) {
+    if ( handleType == QAbstractVideoBuffer::NoHandle )
+    {
         return QList<QVideoFrame::PixelFormat>()
                 << QVideoFrame::Format_RGB32
                 << QVideoFrame::Format_ARGB32
                 << QVideoFrame::Format_ARGB32_Premultiplied
                 << QVideoFrame::Format_RGB565
                 << QVideoFrame::Format_RGB555;
-    } else {
+    }
+    else
+    {
         return QList<QVideoFrame::PixelFormat>();
     }
 }
 
+void PlayerBackgroundVideo::slotError(QMediaPlayer::Error error)
+{
+    qDebug() << "video" << error;
+}
+
+void PlayerBackgroundVideo::slotMediaStatusChanged(QMediaPlayer::MediaStatus status)
+{
+    qDebug() << "video" << status;
+
+    if ( status == QMediaPlayer::LoadedMedia )
+        m_player.play();
+
+    if ( status == QMediaPlayer::EndOfMedia )
+    {
+        pSettings->m_playerBackgroundLastObject++;
+
+        if ( pSettings->m_playerBackgroundLastObject >= pSettings->playerBackgroundObjects.size() )
+            pSettings->m_playerBackgroundLastObject = 0;
+
+        pSettings->m_playerBackgroundLastVideoTime = 0;
+
+        QString videofile = pSettings->playerBackgroundObjects[ pSettings->m_playerBackgroundLastObject ];
+        qDebug("Background video ended, switching to video %s", qPrintable(videofile) );
+
+        m_player.setMedia( QMediaContent( QUrl::fromLocalFile( videofile ) ) );
+        m_player.setVideoOutput( this );
+        m_player.setMuted( true );
+    }
+}
+
+bool PlayerBackgroundVideo::initFromSettings(const QString &)
+{
+    m_valid = 0;
+
+    QString videofile = pSettings->playerBackgroundObjects[ pSettings->m_playerBackgroundLastObject ];
+
+    m_player.setMedia( QMediaContent( QUrl::fromLocalFile( videofile ) ) );
+    m_player.setPosition( pSettings->m_playerBackgroundLastVideoTime );
+
+    return true;
+}
+
+qint64 PlayerBackgroundVideo::draw(KaraokePainter &p)
+{
+    if ( m_valid )
+    {
+        QMutexLocker m( &m_mutex );
+
+        if ( m_lastFrame.map(QAbstractVideoBuffer::ReadOnly) )
+        {
+            // This is an unlikely case, so we'd rather have two code blocks to exclude unnecessary operations
+            if ( m_flipped )
+            {
+                const QTransform oldTransform = p.transform();
+                p.scale(1, -1);
+                p.translate(0, -p.size().height());
+                p.drawImage( p.rect(), QImage( m_lastFrame.bits(), m_lastFrame.width(), m_lastFrame.height(), m_lastFrame.bytesPerLine(), m_frameFormat ), m_viewport );
+                p.setTransform(oldTransform);
+            }
+            else
+            {
+                p.drawImage( p.rect(), QImage( m_lastFrame.bits(), m_lastFrame.width(), m_lastFrame.height(), m_lastFrame.bytesPerLine(), m_frameFormat ), m_viewport );
+            }
+        }
+
+        m_lastFrame.unmap();
+    }
+
+    // Assume 25fps
+    return p.time() + 40;
+}

@@ -18,7 +18,9 @@ class Player : public QObject
         // - A music file (we need to find a matching lyrics file);
         // - A ZIP archive (we should extract both music and matching lyrics file from it);
         // - A compound file such as KFN;
-        bool    load( QIODevice * musicfile );
+        void    load( QIODevice * musicfile );
+
+        void    loadVideo( const QString& videofile, QAbstractVideoSurface *surface );
 
         bool    play();
 
@@ -32,18 +34,17 @@ class Player : public QObject
         QString errorMsg() const { return m_errorMsg; }
 
     signals:
-        void    musicEnded();
+        void    finished();
 
     private slots:
         void	slotError(QMediaPlayer::Error error);
-        //void	slotPositionChanged(qint64 position);
         void    slotMediaStatusChanged(QMediaPlayer::MediaStatus status);
         void    slotMediaChanged(const QMediaContent & media);
 
     private:
         QString         m_errorMsg;
 
-        QMediaPlayer  * m_audioPlayer;
+        QMediaPlayer  * m_player;
 };
 
 #endif // PLAYER_H

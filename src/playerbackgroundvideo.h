@@ -1,16 +1,22 @@
 #ifndef PLAYERBACKGROUNDVIDEO_H
 #define PLAYERBACKGROUNDVIDEO_H
 
-#include <QMutex>
 #include <QImage>
+#include <QMutex>
+#include <QAtomicInt>
 #include <QMediaPlayer>
+#include <QVideoSurfaceFormat>
+#include <QVideoFrame>
 #include <QAbstractVideoSurface>
 
+#include "player.h"
 #include "playerbackground.h"
 
 
-class PlayerBackgroundVideo : public PlayerBackground, public QAbstractVideoSurface
+class PlayerBackgroundVideo : public QAbstractVideoSurface, public PlayerBackground
 {
+    Q_OBJECT
+
     public:
         PlayerBackgroundVideo();
         virtual ~PlayerBackgroundVideo();
@@ -28,22 +34,31 @@ class PlayerBackgroundVideo : public PlayerBackground, public QAbstractVideoSurf
         // Current state notifications, may be reimplemented. Default implementation does nothing.
         virtual void    start();
         virtual void    pause( bool resuming );
+        virtual void    stop();
 
+        // This one is overridden from QAbstractVideoSurface
+        bool start(const QVideoSurfaceFormat & format);
 
-        //
-        // QAbstractVideoSurface
-        //
+        // This one is overridden from QAbstractVideoSurface
+        bool present(const QVideoFrame &frame);
+
+        // This one is overridden from QAbstractVideoSurface
         QList<QVideoFrame::PixelFormat> supportedPixelFormats(QAbstractVideoBuffer::HandleType handleType) const;
-        bool present( const QVideoFrame &frame );
+
+    private slots:
+        void	slotError(QMediaPlayer::Error error);
+        void    slotMediaStatusChanged(QMediaPlayer::MediaStatus status);
 
     private:
         QMediaPlayer        m_player;
-
         QImage::Format      m_frameFormat;
-
-        QImage              m_lastFrame;
+        QVideoFrame         m_lastFrame;
+        QRect               m_viewport;
         QMutex              m_mutex;
+        bool                m_flipped;
+        QAtomicInt          m_valid;
 
+        bool                m_startPlaying;
 };
 
 #endif // PLAYERBACKGROUNDVIDEO_H

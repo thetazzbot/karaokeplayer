@@ -17,7 +17,6 @@
 #include "libkaraokelyrics/lyricsloader.h"
 
 
-//KaraokeFile::KaraokeFile(AudioPlayer_FFmpeg *plr, PlayerWidget *w)
 KaraokeFile::KaraokeFile( PlayerWidget *w )
 {
     m_widget = w;
@@ -31,7 +30,7 @@ KaraokeFile::KaraokeFile( PlayerWidget *w )
     m_nextRedrawTime = -1;
     m_lastRedrawTime = -1;
 
-    connect( &m_player, SIGNAL(musicEnded()), pController, SLOT(playerSongFinished() ) );
+    connect( &m_player, SIGNAL( finished()), pController, SLOT(playerSongFinished() ) );
     connect( pController, SIGNAL( playerPauseResume()), this, SLOT(pause()) );
     connect( pController, SIGNAL( playerForward()), this, SLOT(seekForward()) );
     connect( pController, SIGNAL( playerBackward()), this, SLOT(seekBackward()) );
@@ -280,9 +279,7 @@ void KaraokeFile::loadMusicFile()
         throw QString("Cannot open music file %1: %2").arg( m_musicFileName ) .arg(err);
     }
 
-    if ( !m_player.load( mf ) )
-        throw QString( "Cannot play file %1: %2") .arg( m_musicFileName ) .arg( m_player.errorMsg() );
-
+    m_player.load( mf );
     m_musicFile = mf;
 }
 
