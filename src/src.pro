@@ -31,7 +31,8 @@ SOURCES += main.cpp\
     eventcontroller.cpp \
     eventcontroller_dbus.cpp \
     songenqueuedialog.cpp \
-    playernotification.cpp
+    playernotification.cpp \
+    playerrenderer.cpp
 
 HEADERS  += mainwindow.h \
     playerwidget.h \
@@ -51,7 +52,8 @@ HEADERS  += mainwindow.h \
     eventcontroller.h \
     eventcontroller_dbus.h \
     songenqueuedialog.h \
-    playernotification.h
+    playernotification.h \
+    playerrenderer.h
 
 FORMS    += mainwindow.ui \
     songenqueuedialog.ui

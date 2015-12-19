@@ -9,20 +9,36 @@ static const unsigned int TEXTLYRICS_SPACING_LEFTRIGHT = 5;
 static const unsigned int TEXTLYRICS_SPACING_TOPBOTTOM = 3;
 
 
-KaraokePainter::KaraokePainter(KaraokePainter::Area area, qint64 pos, qint64 duration, QImage &img)
-    : QPainter( &img )
+KaraokePainter::KaraokePainter(QImage *img)
+    : QPainter( img )
 {
-    m_time = pos;
-    m_duration = duration;
-
-    m_origTransform = transform();
-    m_origSize = img.size();
-
-    switchArea( area );
+    m_image = img;
+    m_rect = img->rect();
+    m_time = 0;
+    m_duration = 0;
 }
 
+void KaraokePainter::setTimes(qint64 position, qint64 duration)
+{
+    m_time = position;
+    m_duration = duration;
+}
 
-void KaraokePainter::setTextLyricsMode()
+QRect KaraokePainter::notificationRect() const
+{
+    int toparea = (m_image->height() * TOP_SCREEN_RESERVED_STATUS) / 100;
+    return QRect( 0, 0, m_image->width(), toparea );
+}
+
+void KaraokePainter::setClipAreaMain()
+{
+    // Keep the top off the renderer
+    int h = notificationRect().height();
+    m_rect = QRect( 0, 0, m_image->width(), m_image->height() - h );
+    translate( 0, h );
+}
+
+void KaraokePainter::setClipAreaText()
 {
     // More clipping
     int xspacing = (m_rect.width() * TEXTLYRICS_SPACING_LEFTRIGHT) / 100;
@@ -33,25 +49,6 @@ void KaraokePainter::setTextLyricsMode()
 
     m_rect = QRect( 0, 0, textwidth, textheight );
     translate( xspacing, yspacing );
-}
-
-void KaraokePainter::switchArea(KaraokePainter::Area area)
-{
-    setTransform( m_origTransform );
-
-    int toparea = (m_origSize.height() * TOP_SCREEN_RESERVED_STATUS) / 100;
-
-    if ( area == AREA_MAIN_SCREEN )
-    {
-        // Keep the top off the renderer
-        m_rect = QRect( 0, 0, m_origSize.width(), m_origSize.height() - toparea );
-        translate( 0, toparea );
-    }
-    else
-    {
-        // Allow the top
-        m_rect = QRect( 0, 0, m_origSize.width(), toparea );
-    }
 }
 
 int KaraokePainter::largetsFontSize(const QFont &font, int width, const QString &textline)

@@ -9,16 +9,16 @@ PlayerNotification::PlayerNotification(QObject *parent)
     m_lastScreenHeight = 0;
     m_notificationLine = m_firstItem = tr("Queue is empty");
 
+    m_customMessage = "Please select a song";
     reset();
 }
 
-qint64 PlayerNotification::draw(KaraokePainter &p)
+qint64 PlayerNotification::drawTop(KaraokePainter &p)
 {
     // If the height change, see how large the font we could fit height-wise
-    if ( m_lastScreenHeight != p.rect().height() )
+    if ( m_lastScreenHeight != p.notificationRect().height() )
     {
-        m_lastScreenHeight = p.rect().height();
-        p.tallestFontSize( m_font, m_lastScreenHeight );
+        m_lastScreenHeight = p.notificationRect().height();
         m_fontMetrics = QFontMetrics( m_font );
     }
 
@@ -44,6 +44,13 @@ qint64 PlayerNotification::draw(KaraokePainter &p)
         p.drawText( 0, m_fontMetrics.height(), m_firstItem );
 
     return p.time();
+}
+
+qint64 PlayerNotification::drawRegular(KaraokePainter &p)
+{
+    m_customFont.setPointSize( p.largetsFontSize( m_customFont, p.rect().width(), m_customMessage ));
+    p.setFont( m_customFont );
+    p.drawCenteredOutlineText( 50, Qt::white, m_customMessage );
 }
 
 void PlayerNotification::queueUpdated()
@@ -75,6 +82,18 @@ void PlayerNotification::queueUpdated()
     }
 
     reset();
+}
+
+void PlayerNotification::setMessage(const QString &message)
+{
+    QMutexLocker m( &m_mutex );
+    m_customMessage = message;
+}
+
+void PlayerNotification::clearMessage()
+{
+    QMutexLocker m( &m_mutex );
+    m_customMessage.clear();
 }
 
 void PlayerNotification::reset()

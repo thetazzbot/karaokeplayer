@@ -12,7 +12,6 @@
 #include "karaokefile.h"
 #include "songqueue.h"
 #include "eventcontroller.h"
-#include "playernotification.h"
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -23,9 +22,6 @@ MainWindow::MainWindow(QWidget *parent) :
     pSettings = new Settings();
     pController = new EventController();
     pSongQueue = new SongQueue( this );
-    pNotification = new PlayerNotification( this );
-
-    connect( pSongQueue, SIGNAL(queueChanged()), pNotification, SLOT(queueUpdated()) );
 
     m_karfile = 0;
     m_widget = 0;
@@ -47,25 +43,19 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    delete m_karfile;
 }
 
 void MainWindow::queueAdd(QString file, QString singer)
 {
     pSongQueue->addSong( file, singer );
 
-    if ( !m_karfile )
+    if ( m_widget->position() == -1 )
         playCurrentItem();
 }
 
 void MainWindow::queueStop()
 {
-    if ( !m_karfile )
-        return;
-
-    m_karfile->stop();
-    delete m_karfile;
-    m_karfile = 0;
+    m_widget->stopKaraoke();
 }
 
 void MainWindow::queueNext()
@@ -79,7 +69,7 @@ void MainWindow::queueNext()
 
 void MainWindow::queuePrevious()
 {
-    if ( m_karfile && m_karfile->position() > 10000 )
+    if ( m_widget->position() > 10000 )
     {
         m_karfile->seekBackward();
         return;
@@ -116,7 +106,7 @@ void MainWindow::playCurrentItem()
         return;
     }
 
-    m_karfile->start();
+    m_widget->startKaraoke( m_karfile );
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)

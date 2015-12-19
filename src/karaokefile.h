@@ -3,7 +3,6 @@
 
 #include <QIODevice>
 #include <QProcess>
-#include <QThread>
 
 #include "player.h"
 #include "playerlyrics.h"
@@ -20,7 +19,7 @@ class PlayerWidget;
 // All preparation (and conversion) happens in the main thread, without a new thread
 // being started. Then only when the player should be starting, the new thread
 // starts too
-class KaraokeFile : public QThread
+class KaraokeFile : public QObject
 {
     Q_OBJECT
 
@@ -35,6 +34,9 @@ class KaraokeFile : public QThread
 
         qint64  duration();
         qint64  position();
+
+        qint64  draw( KaraokePainter& p );
+
 
     public slots:
         void    start();
@@ -61,9 +63,6 @@ class KaraokeFile : public QThread
         void    startConversion( const QString& src );
         void    loadMusicFile();
 
-        // Rendering thread
-        void    run();
-
         QIODevice        *  m_musicFile;
         PlayerLyrics     *  m_lyrics;
         PlayerBackground *  m_background;
@@ -76,14 +75,8 @@ class KaraokeFile : public QThread
         Player              m_player;
         PlayerWidget     *  m_widget;
 
-        // Renderer
-        QAtomicInt          m_continue;
-
         // Play state tracker
         State               m_playState;
-
-        // Custom message
-        QString             m_customMessage;
 
         // Next redraw time
         qint64              m_lastRedrawTime;

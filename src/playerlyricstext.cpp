@@ -153,7 +153,8 @@ void PlayerLyricsText::drawNotification(KaraokePainter &p, qint64 timeleft)
 bool PlayerLyricsText::render(KaraokePainter &p)
 {
     qint64 timems = p.time();
-    p.setTextLyricsMode();
+
+    p.setClipAreaText();
 
     // Title time?
     if ( m_showTitleTime > 0 && timems < m_showTitleTime )

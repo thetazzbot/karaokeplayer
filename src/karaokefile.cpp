@@ -1,5 +1,4 @@
 #include <QDir>
-#include <QTime>
 #include <QCryptographicHash>
 
 #include "player.h"
@@ -38,12 +37,6 @@ KaraokeFile::KaraokeFile( PlayerWidget *w )
 
 KaraokeFile::~KaraokeFile()
 {
-    if ( m_continue )
-    {
-        m_continue.store( 0 );
-        wait();
-    }
-
     delete m_musicFile;
     delete m_lyrics;
     delete m_background;
@@ -185,15 +178,16 @@ void KaraokeFile::start()
     if ( !m_convProcess )
     {
         m_playState = STATE_PLAYING;
-        m_continue.store( 1 );
         m_background->start();
         m_player.play();
-        QThread::start();
+        pNotification->clearMessage();
+
+//        QThread::start();
     }
     else
     {
-       // Else we ignore it and wait until conversion is done
-        m_customMessage = "MIDI conversion in progress";
+        // Else we ignore it and wait until conversion is done
+        pNotification->setMessage( "MIDI conversion in progress" );
     }
 }
 
@@ -238,9 +232,18 @@ qint64 KaraokeFile::position()
     return m_player.position();
 }
 
+qint64 KaraokeFile::draw(KaraokePainter &p)
+{
+    // Background is always on
+    qint64 bgtime = m_background->draw( p );
+    m_lyrics->draw( p );
+
+    return m_lyrics->nextUpdate();
+}
+
 void KaraokeFile::convError(QProcess::ProcessError error)
 {
-    m_customMessage = "MIDI conversion failed";
+    pNotification->setMessage( "MIDI conversion failed" );
 }
 
 void KaraokeFile::convFinished(int exitCode, QProcess::ExitStatus exitStatus)
@@ -251,7 +254,7 @@ void KaraokeFile::convFinished(int exitCode, QProcess::ExitStatus exitStatus)
     m_convProcess->deleteLater();
     m_convProcess = 0;
 
-    m_customMessage.clear();
+    pNotification->clearMessage();
     start();
 }
 
@@ -285,15 +288,10 @@ void KaraokeFile::loadMusicFile()
 
 void KaraokeFile::stop()
 {
-    if ( m_continue )
-    {
-        m_continue.store( 0 );
-        wait();
-    }
-
     m_player.stop();
 }
 
+/*
 void KaraokeFile::run()
 {
     // from http://www.koonsolo.com/news/dewitters-gameloop/
@@ -343,7 +341,7 @@ void KaraokeFile::run()
         msleep( remainingms );
     }
 }
-
+*/
 bool KaraokeFile::isMidiFile(const QString &filename)
 {
     static const char * extlist[] = { ".kar", ".mid", ".midi", 0 };
