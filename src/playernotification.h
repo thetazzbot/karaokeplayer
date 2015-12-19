@@ -34,13 +34,14 @@ class PlayerNotification : public QObject
     private:
         QFont           m_font;
         QFontMetrics    m_fontMetrics;
-        unsigned int    m_lastScreenHeight;
+        int             m_lastScreenHeight;
 
         QString         m_firstItem;
         QString         m_notificationLine;
 
-        unsigned int    m_textOffset;
-        unsigned int    m_scrollOffset;
+        int             m_textOffset;
+        int             m_scrollOffset;
+        int             m_scrollStep;
 
         // Custom message
         QMutex          m_mutex;

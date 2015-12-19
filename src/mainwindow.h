@@ -55,6 +55,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
     private:
         void    playCurrentItem();
         void    keyPressEvent(QKeyEvent * event);
+        void    closeEvent(QCloseEvent * event);
 
     private:
         PlayerWidget *  m_widget;

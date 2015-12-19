@@ -236,17 +236,17 @@ qint64 KaraokeFile::draw(KaraokePainter &p)
 {
     // Background is always on
     qint64 bgtime = m_background->draw( p );
-    m_lyrics->draw( p );
+    qint64 lyrictime = m_lyrics->draw( p );
 
-    return m_lyrics->nextUpdate();
+    return qMin( bgtime, lyrictime );
 }
 
-void KaraokeFile::convError(QProcess::ProcessError error)
+void KaraokeFile::convError(QProcess::ProcessError )
 {
     pNotification->setMessage( "MIDI conversion failed" );
 }
 
-void KaraokeFile::convFinished(int exitCode, QProcess::ExitStatus exitStatus)
+void KaraokeFile::convFinished( int exitCode, QProcess::ExitStatus exitStatus )
 {
     // FIXME: copy?
 

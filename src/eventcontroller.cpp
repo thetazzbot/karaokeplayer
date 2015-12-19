@@ -11,10 +11,12 @@ EventController * pController;
 EventController::EventController()
     : QObject()
 {
+#if defined (HAS_DBUS_CONTROLLER)
     new EventController_DBus( this );
 
     if ( !QDBusConnection::sessionBus().registerObject( "/", this ) || !QDBusConnection::sessionBus().registerService( DBUS_SERVICE_NAME ) )
         qWarning("Cannot register dbus object");
+#endif
 }
 
 EventController::~EventController()

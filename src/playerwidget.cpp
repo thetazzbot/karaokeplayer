@@ -110,6 +110,8 @@ QImage *PlayerWidget::switchImages()
 
 void PlayerWidget::closeEvent(QCloseEvent *event)
 {
+    stopKaraoke();
+
     delete m_renderer;
     m_renderer = 0;
 

@@ -27,7 +27,7 @@ MainWindow::MainWindow(QWidget *parent) :
     pController = new EventController();
 
     // Then notification
-    pNotification = new PlayerNotification( this );
+    pNotification = new PlayerNotification( 0 );
 
     m_widgetStack = new QStackedWidget();
     setCentralWidget( m_widgetStack );
@@ -131,4 +131,9 @@ void MainWindow::playCurrentItem()
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
     pController->keyEvent( event );
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    m_widget->stopKaraoke();
 }

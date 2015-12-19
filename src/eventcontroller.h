@@ -4,7 +4,7 @@
 #include <QString>
 #include <QKeyEvent>
 
-class EventController_DBus;
+#define HAS_DBUS_CONTROLLER
 
 class EventController : public QObject
 {
@@ -57,9 +57,8 @@ class EventController : public QObject
         void    lircEvent( QString event );
         void    dbusEvent( QString event );
 
-
     private:
-        EventController_DBus *   m_dbusController;
+
 };
 
 extern EventController * pController;

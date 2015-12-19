@@ -6,6 +6,7 @@ PlayerNotification * pNotification;
 PlayerNotification::PlayerNotification(QObject *parent)
     : QObject( parent ), m_fontMetrics( m_font )
 {
+    m_scrollStep = 3;
     m_lastScreenHeight = 0;
     m_notificationLine = m_firstItem = tr("Queue is empty");
 
@@ -19,6 +20,7 @@ qint64 PlayerNotification::drawTop(KaraokePainter &p, qint64 remainingms)
     if ( m_lastScreenHeight != p.notificationRect().height() )
     {
         m_lastScreenHeight = p.notificationRect().height();
+        p.tallestFontSize( m_font, m_lastScreenHeight );
         m_fontMetrics = QFontMetrics( m_font );
     }
 
@@ -51,6 +53,7 @@ qint64 PlayerNotification::drawRegular(KaraokePainter &p)
     m_customFont.setPointSize( p.largetsFontSize( m_customFont, p.rect().width(), m_customMessage ));
     p.setFont( m_customFont );
     p.drawCenteredOutlineText( 50, Qt::white, m_customMessage );
+    return 0;
 }
 
 void PlayerNotification::queueUpdated()
