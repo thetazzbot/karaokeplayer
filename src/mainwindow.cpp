@@ -11,6 +11,7 @@
 #include "playerwidget.h"
 #include "karaokefile.h"
 #include "songqueue.h"
+#include "playernotification.h"
 #include "eventcontroller.h"
 
 
@@ -19,22 +20,32 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     setupUi( this );
 
+    // Settings should be created first
     pSettings = new Settings();
-    pController = new EventController();
-    pSongQueue = new SongQueue( this );
 
-    m_karfile = 0;
-    m_widget = 0;
+    // Controller the second
+    pController = new EventController();
+
+    // Then notification
+    pNotification = new PlayerNotification( this );
 
     m_widgetStack = new QStackedWidget();
     setCentralWidget( m_widgetStack );
 
-    // Lyrics window
+    // Lyrics window should be created
     m_widget = new PlayerWidget( this );
     m_widgetStack->addWidget( m_widget );
     m_widgetStack->setCurrentWidget( m_widget );
     m_widget->show();
 
+    // Song queue should be created last, as it emits signals intercepted by other modules
+    pSongQueue = new SongQueue( this );
+    connect( pSongQueue, SIGNAL(queueChanged()), pNotification, SLOT(queueUpdated()) );
+
+    // This may load the queue
+    pSongQueue->init();
+
+    connect( pController, SIGNAL(playerStart()), this, SLOT(queueStart()) );
     connect( pController, SIGNAL(playerStop()), this, SLOT(queueStop()) );
     connect( pController, SIGNAL(queueAdd(QString,QString)), this, SLOT(queueAdd(QString,QString)) );
     connect( pController, SIGNAL(queueNext()), this, SLOT(queueNext()) );
@@ -71,7 +82,7 @@ void MainWindow::queuePrevious()
 {
     if ( m_widget->position() > 10000 )
     {
-        m_karfile->seekBackward();
+        pController->cmdEvent( EventController::EVENT_PLAYER_BACKWARD );
         return;
     }
 
@@ -82,6 +93,12 @@ void MainWindow::queuePrevious()
     }
 }
 
+void MainWindow::queueStart()
+{
+    if ( m_widget->position() == -1 )
+        playCurrentItem();
+}
+
 void MainWindow::playCurrentItem()
 {
     if ( pSongQueue->isEmpty() )
@@ -89,24 +106,26 @@ void MainWindow::playCurrentItem()
 
     SongQueue::Song current = pSongQueue->current();
 
-    m_karfile = new KaraokeFile( m_widget );
+    KaraokeFile * karfile = new KaraokeFile( m_widget );
 
     try
     {
-        if ( !m_karfile->open( current.file ) )
+        if ( !karfile->open( current.file ) )
+        {
+            delete karfile;
             return;
+        }
     }
     catch ( const QString& ex )
     {
         QMessageBox::critical( 0,
                                "Cannot play file",
                                tr("Cannot play file %1:\n%2") .arg( current.file ) .arg( ex ) );
-        delete m_karfile;
-        m_karfile = 0;
+        delete karfile;
         return;
     }
 
-    m_widget->startKaraoke( m_karfile );
+    m_widget->startKaraoke( karfile );
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)

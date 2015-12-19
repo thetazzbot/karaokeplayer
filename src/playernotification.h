@@ -17,7 +17,7 @@ class PlayerNotification : public QObject
 
         // Draws the notification on the painter. Returns time for the next update
         // when the image will change.
-        qint64  drawTop( KaraokePainter& p );
+        qint64  drawTop( KaraokePainter& p, qint64 remainingms );
 
         qint64  drawRegular( KaraokePainter& p );
 

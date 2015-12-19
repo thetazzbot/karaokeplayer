@@ -25,8 +25,9 @@ class PlayerWidget : public QWidget
         void    startKaraoke( KaraokeFile * k );
         void    stopKaraoke();
 
-        // Current karaoke position
+        // Current karaoke position and duration. Both return -1 if nothing is played
         qint64  position() const;
+        qint64  duration() const;
 
     protected:
         void    closeEvent(QCloseEvent * event);

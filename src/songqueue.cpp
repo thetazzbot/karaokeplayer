@@ -14,11 +14,6 @@ SongQueue::SongQueue(QObject *parent)
 {
     m_currentSong = 0;
 
-    if ( !pSettings->queueFilename.isEmpty() )
-        load();
-
-//    addSong( "/home/tim/work/my/karaokeplayer/test/Krematoriy - Rimsky Bluz.mp3", "George" );
-//    addSong( "/home/tim/work/my/karaokeplayer/test/Il tempo se ne va.mp3", "Arslan" );
 /*
     addSong( "file1", "Vasya" );
     addSong( "file2", "Vasya" );
@@ -32,6 +27,12 @@ SongQueue::SongQueue(QObject *parent)
     addSong( "file9", "Vasya" );
     addSong( "file10", "John" );*/
 
+}
+
+void SongQueue::init()
+{
+    if ( !pSettings->queueFilename.isEmpty() )
+        load();
 }
 
 void SongQueue::addSong(const QString &file, const QString &singer)
@@ -233,4 +234,7 @@ void SongQueue::load()
 
         m_queue.append( s );
     }
+
+    if ( !m_queue.isEmpty() )
+        emit queueChanged();
 }

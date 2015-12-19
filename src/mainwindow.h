@@ -50,13 +50,13 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
         void    queueStop();
         void    queueNext();
         void    queuePrevious();
+        void    queueStart();
 
     private:
         void    playCurrentItem();
         void    keyPressEvent(QKeyEvent * event);
 
     private:
-        KaraokeFile  *  m_karfile;
         PlayerWidget *  m_widget;
         QStackedWidget* m_widgetStack;
 };

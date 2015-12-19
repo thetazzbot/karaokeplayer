@@ -36,22 +36,65 @@ void EventController::error(QString message)
 
 }
 
+bool EventController::cmdEvent( EventController::Event event )
+{
+    switch ( event )
+    {
+    case EVENT_PLAYER_START:
+        emit playerStart();
+        break;
+
+    case EVENT_PLAYER_PAUSERESUME:
+        emit playerPauseResume();
+        break;
+
+    case EVENT_PLAYER_STOP:
+        emit playerStop();
+        break;
+
+    case EVENT_PLAYER_BACKWARD:
+        emit playerBackward();
+        break;
+
+    case EVENT_PLAYER_FORWARD:
+        emit playerForward();
+        break;
+
+    case EVENT_QUEUE_NEXT:
+        emit queueNext();
+        break;
+
+    case EVENT_QUEUE_PREVIOUS:
+        emit queuePrevious();
+        break;
+
+    case EVENT_QUEUE_CLEAR:
+        emit queueClear();
+        break;
+
+    default:
+        return false;
+    }
+
+    return true;
+}
+
 void EventController::keyEvent(QKeyEvent *event)
 {
     if ( event->key() == Qt::Key_Space )
-        emit playerPauseResume();
+        cmdEvent( EVENT_PLAYER_PAUSERESUME );
 
     if ( event->key() == Qt::Key_Escape )
-        emit playerStop();
+        cmdEvent( EVENT_PLAYER_STOP );
 
-    if ( event->key() == Qt::Key_Enter )
-        emit playerStart();
+    if ( event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return )
+        cmdEvent( EVENT_PLAYER_START );
 
     if ( event->key() == Qt::Key_Left )
-        emit playerBackward();
+        cmdEvent( EVENT_PLAYER_BACKWARD );
 
     if ( event->key() == Qt::Key_Right )
-        emit playerForward();
+        cmdEvent( EVENT_PLAYER_FORWARD );
 
     if ( event->key() == Qt::Key_O )
     {
@@ -62,13 +105,14 @@ void EventController::keyEvent(QKeyEvent *event)
     }
 
     if ( event->key() == Qt::Key_N || event->key() == Qt::Key_Up )
-        emit queueNext();
+        cmdEvent( EVENT_QUEUE_NEXT );
 
     if ( event->key() == Qt::Key_P || event->key() == Qt::Key_Down )
-        emit queuePrevious();
+        cmdEvent( EVENT_QUEUE_PREVIOUS );
 
     if ( event->key() == Qt::Key_Z )
-        emit queueClear();
+        cmdEvent( EVENT_QUEUE_CLEAR );
+
 }
 
 void EventController::lircEvent(QString event)

@@ -13,7 +13,6 @@ PlayerWidget::PlayerWidget( QWidget *parent )
     : QWidget(parent)
 {
     m_karaoke = 0;
-    pNotification = new PlayerNotification( this );
 
     // 0 is set as draw image
     m_images[0] = new QImage(100, 100, QImage::Format_ARGB32);
@@ -24,8 +23,6 @@ PlayerWidget::PlayerWidget( QWidget *parent )
     m_images[1] = new QImage(100, 100, QImage::Format_ARGB32);
     m_renderer = new PlayerRenderer( pNotification, m_images[1], this );
     m_renderer->start();
-
-    connect( pSongQueue, SIGNAL(queueChanged()), pNotification, SLOT(queueUpdated()) );
 }
 
 PlayerWidget::~PlayerWidget()
@@ -57,6 +54,16 @@ void PlayerWidget::stopKaraoke()
 }
 
 qint64 PlayerWidget::position() const
+{
+    QMutexLocker m( &m_karaokeMutex );
+
+    if ( m_karaoke )
+        return m_karaoke->position();
+
+    return -1;
+}
+
+qint64 PlayerWidget::duration() const
 {
     QMutexLocker m( &m_karaokeMutex );
 

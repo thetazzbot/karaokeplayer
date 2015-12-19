@@ -34,6 +34,7 @@ void PlayerRenderer::run()
     // This assumes 25 FPS, so we have 1000/25ms per cycle
     static const unsigned int MS_PER_CYCLE = 1000 / RENDER_FPS;
     QTime next_cycle;
+    qint64 remainingms = -1;
 
     while ( m_continue )
     {
@@ -46,7 +47,7 @@ void PlayerRenderer::run()
         KaraokePainter p( m_renderImage );
 
         // Render the top area notification
-        m_notification->drawTop( p );
+        m_notification->drawTop( p, remainingms );
 
         // Switch the painter to main area
         p.setClipAreaMain();
@@ -59,10 +60,13 @@ void PlayerRenderer::run()
             // Set timing
             // FIXME
             p.setTimes( m_widget->m_karaoke->position(), m_widget->m_karaoke->duration() );
+            remainingms = m_widget->m_karaoke->duration() - m_widget->m_karaoke->position();
 
             // Draw background and lyrics
             m_widget->m_karaoke->draw( p );
         }
+        else
+            remainingms = -1;
 
         m_widget->m_karaokeMutex.unlock();
 

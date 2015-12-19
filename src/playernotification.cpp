@@ -13,7 +13,7 @@ PlayerNotification::PlayerNotification(QObject *parent)
     reset();
 }
 
-qint64 PlayerNotification::drawTop(KaraokePainter &p)
+qint64 PlayerNotification::drawTop(KaraokePainter &p, qint64 remainingms)
 {
     // If the height change, see how large the font we could fit height-wise
     if ( m_lastScreenHeight != p.notificationRect().height() )
@@ -25,7 +25,7 @@ qint64 PlayerNotification::drawTop(KaraokePainter &p)
     p.setPen( Qt::white );
     p.setFont( m_font );
 
-    if ( p.duration() - p.time() > 5000 )
+    if ( remainingms == -1 || remainingms > 5000 )
     {
         if ( m_scrollOffset >= m_fontMetrics.width( m_notificationLine[m_textOffset] ) )
         {

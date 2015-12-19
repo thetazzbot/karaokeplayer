@@ -11,6 +11,19 @@ class EventController : public QObject
     Q_OBJECT
 
     public:
+        enum Event
+        {
+            EVENT_PLAYER_START,
+            EVENT_PLAYER_PAUSERESUME,
+            EVENT_PLAYER_STOP,
+            EVENT_PLAYER_BACKWARD,
+            EVENT_PLAYER_FORWARD,
+
+            EVENT_QUEUE_NEXT,
+            EVENT_QUEUE_PREVIOUS,
+            EVENT_QUEUE_CLEAR,
+        };
+
         EventController();
         ~EventController();
 
@@ -36,10 +49,14 @@ class EventController : public QObject
         // Reports an error
         void    error( QString message );
 
+        // Most events should end up here
+        bool    cmdEvent( Event event );
+
         // EVents from different sources
         void    keyEvent( QKeyEvent * event );
         void    lircEvent( QString event );
         void    dbusEvent( QString event );
+
 
     private:
         EventController_DBus *   m_dbusController;

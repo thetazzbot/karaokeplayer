@@ -22,6 +22,9 @@ class SongQueue : public QObject
 
         SongQueue( QObject * parent );
 
+        // Initializes the queue, loading it (and emitting the queueChanged) if necessary
+        void    init();
+
         // Adds a song into queue, automatically rearranging it
         void    addSong( const QString& file, const QString& singer );
 
