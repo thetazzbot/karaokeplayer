@@ -3,6 +3,7 @@
 
 #include "webserver.h"
 #include "webserverrequesthandler.h"
+#include "mainwindow.h"
 
 WebServer * pWebServer;
 
@@ -20,12 +21,15 @@ void WebServer::run()
     WebServerRequestHandler serverHandler;
     handler.addSubHandler( QRegExp("api/"), &serverHandler );
 
+    connect( &serverHandler, SIGNAL(queueAdd(QString,QString)), pMainWindow, SLOT(queueAdd(QString,QString)) );
+
     QHttpServer server( &handler );
 
     // Attempt to listen on the specified port
     if ( !server.listen( QHostAddress::Any, 8000) )
     {
         qCritical("Unable to listen on the specified port.");
+        return;
     }
 
     exec();

@@ -63,4 +63,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
         QStackedWidget* m_widgetStack;
 };
 
+
+extern MainWindow * pMainWindow;
+
 #endif // MAINWINDOW_H

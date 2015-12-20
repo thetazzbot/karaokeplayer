@@ -17,6 +17,8 @@
 #include "webserver.h"
 
 
+MainWindow * pMainWindow;
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent), Ui::MainWindow()
 {

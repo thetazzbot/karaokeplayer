@@ -108,7 +108,7 @@ void QObjectHandler::process(QHttpSocket *socket, const QString &path)
 
     // Ensure that the return type of the slot is QVariantMap
     QMetaMethod method = metaObject()->method(index);
-    if(method.returnType() != QMetaType::QVariantMap) {
+    if(method.returnType() != QMetaType::QByteArray ) {
         socket->writeError(QHttpSocket::InternalServerError);
         return;
     }

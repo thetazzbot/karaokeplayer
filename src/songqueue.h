@@ -25,9 +25,6 @@ class SongQueue : public QObject
         // Initializes the queue, loading it (and emitting the queueChanged) if necessary
         void    init();
 
-        // Adds a song into queue, automatically rearranging it
-        void    addSong( const QString& file, const QString& singer );
-
         // Returns true if the queue has no more songs and the current song is not valid
         bool    isEmpty() const;
 
@@ -51,6 +48,9 @@ class SongQueue : public QObject
 
     public slots:
         void    clear();
+
+        // Adds a song into queue, automatically rearranging it
+        void    addSong( const QString& file, const QString& singer );
 
     private:
         // Internal function which saves queue to disk and calls the signals
