@@ -7,24 +7,26 @@
 WebServer * pWebServer;
 
 WebServer::WebServer()
-    : QObject()
+    : QThread()
 {
-    moveToThread( &m_webThread );
+}
 
+void WebServer::run()
+{
     // Build the hierarchy of handlers
-    m_handler = new QFilesystemHandler(":/static");
-    m_handler->addRedirect(QRegExp("^$"), "/index.html");
+    QFilesystemHandler handler(":/static");
+    handler.addRedirect(QRegExp("^$"), "/index.html");
 
-    m_serverHandler = new WebServerRequestHandler();
-    m_handler->addSubHandler( QRegExp("api/"), m_serverHandler );
+    WebServerRequestHandler serverHandler;
+    handler.addSubHandler( QRegExp("api/"), &serverHandler );
 
-    m_server = new QHttpServer( m_handler );
+    QHttpServer server( &handler );
 
     // Attempt to listen on the specified port
-    if ( !m_server->listen( QHostAddress::Any, 8000) )
+    if ( !server.listen( QHostAddress::Any, 8000) )
     {
         qCritical("Unable to listen on the specified port.");
     }
 
-    m_webThread.start();
+    exec();
 }

@@ -55,6 +55,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Launch the web server
     pWebServer = new WebServer();
+    pWebServer->start();
 
     connect( pController, SIGNAL(playerStart()), this, SLOT(queueStart()) );
     connect( pController, SIGNAL(playerStop()), this, SLOT(queueStop()) );
