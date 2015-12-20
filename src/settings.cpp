@@ -22,4 +22,7 @@ Settings::Settings()
 
     queueAddNewSingersNext = false;
     queueFilename = "/home/tim/work/my/karaokeplayer/test/queue.dat";
+
+    songdbFilename = "/home/tim/work/my/karaokeplayer/test/karaoke.db";
+    songPathPrefix = "/mnt/karaoke";
 }

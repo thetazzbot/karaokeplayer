@@ -49,6 +49,9 @@ class SongQueue : public QObject
     signals:
         void    queueChanged();
 
+    public slots:
+        void    clear();
+
     private:
         // Internal function which saves queue to disk and calls the signals
         void    queueUpdated();

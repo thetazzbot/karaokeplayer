@@ -20,7 +20,6 @@ KaraokeFile::KaraokeFile( PlayerWidget *w )
 {
     m_widget = w;
 
-    m_musicFile = 0;
     m_lyrics = 0;
     m_background = 0;
     m_convProcess = 0;
@@ -37,7 +36,6 @@ KaraokeFile::KaraokeFile( PlayerWidget *w )
 
 KaraokeFile::~KaraokeFile()
 {
-    delete m_musicFile;
     delete m_lyrics;
     delete m_background;
     delete m_convProcess;
@@ -142,10 +140,8 @@ bool KaraokeFile::open(const QString &filename)
         if ( !m_convProcess )
         {
             m_musicFileName = musicFile;
-            loadMusicFile();
+            m_player.load( m_musicFileName );
         }
-        else
-            m_musicFile = 0;
 
         // Read the lyrics
         QFile * lfile = new QFile( lyricFile );
@@ -269,21 +265,6 @@ void KaraokeFile::startConversion(const QString &src)
     args << "-Ow" << src << "-o" << m_musicFileName;
 
     convProcess->start( "timidity", args );
-}
-
-void KaraokeFile::loadMusicFile()
-{
-    QFile * mf = new QFile( m_musicFileName );
-
-    if ( !mf->open( QIODevice::ReadOnly ) )
-    {
-        QString err = mf->errorString();
-        delete mf;
-        throw QString("Cannot open music file %1: %2").arg( m_musicFileName ) .arg(err);
-    }
-
-    m_player.load( mf );
-    m_musicFile = mf;
 }
 
 void KaraokeFile::stop()

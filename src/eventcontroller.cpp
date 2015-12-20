@@ -1,10 +1,13 @@
 #include <QDBusConnection>
 #include <QApplication>
-#include <QMetaClassInfo>
+//#include <QMetaClassInfo>
+#include <QInputDialog>
 
 #include "eventcontroller.h"
 #include "eventcontroller_dbus.h"
 #include "songenqueuedialog.h"
+#include "songsearchdialog.h"
+#include "songdatabase.h"
 
 EventController * pController;
 
@@ -104,6 +107,22 @@ void EventController::keyEvent(QKeyEvent *event)
 
         if ( dlg.exec() == QDialog::Accepted )
             emit queueAdd( dlg.leFile->text(), dlg.leSinger->text() );
+    }
+
+    if ( event->key() == Qt::Key_S )
+    {
+        SongSearchDialog dlg;
+
+        if ( dlg.exec() == QDialog::Accepted )
+        {
+            QString path = pSongDatabase->pathForId( dlg.selectedSongId() );
+
+            if ( path.isEmpty() )
+                return;
+
+            QString singer = QInputDialog::getText( 0, "Enter singer name", "Singer name:" );
+            emit queueAdd( path, singer );
+        }
     }
 
     if ( event->key() == Qt::Key_N || event->key() == Qt::Key_Up )

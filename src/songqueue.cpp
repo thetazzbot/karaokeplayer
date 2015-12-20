@@ -166,6 +166,14 @@ QString SongQueue::filenameToTitle(const QString &file)
     return finfo.baseName();
 }
 
+void SongQueue::clear()
+{
+    m_queue.clear();
+    m_currentSong = 0;
+
+    queueUpdated();
+}
+
 void SongQueue::queueUpdated()
 {
     if ( !pSettings->queueFilename.isEmpty() )

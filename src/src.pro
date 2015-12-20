@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui multimedia widgets dbus
+QT       += core gui multimedia widgets dbus network
 
 TARGET = karaokeplayer
 TEMPLATE = app
@@ -32,7 +32,8 @@ SOURCES += main.cpp\
     eventcontroller_dbus.cpp \
     songenqueuedialog.cpp \
     playernotification.cpp \
-    playerrenderer.cpp
+    playerrenderer.cpp \
+    songsearchdialog.cpp
 
 HEADERS  += mainwindow.h \
     playerwidget.h \
@@ -53,10 +54,12 @@ HEADERS  += mainwindow.h \
     eventcontroller_dbus.h \
     songenqueuedialog.h \
     playernotification.h \
-    playerrenderer.h
+    playerrenderer.h \
+    songsearchdialog.h
 
 FORMS    += mainwindow.ui \
-    songenqueuedialog.ui
+    songenqueuedialog.ui \
+    songsearchdialog.ui
 INCLUDEPATH += ..
 LIBS += -L ../libkaraokelyrics -lkaraokelyrics
 POST_TARGETDEPS += ../libkaraokelyrics/libkaraokelyrics.a

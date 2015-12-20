@@ -61,14 +61,12 @@ class KaraokeFile : public QObject
 
         // Convert the src to the m_musicFileName
         void    startConversion( const QString& src );
-        void    loadMusicFile();
 
-        QIODevice        *  m_musicFile;
+        QString             m_musicFileName;
         PlayerLyrics     *  m_lyrics;
         PlayerBackground *  m_background;
 
         // For conversion
-        QString             m_musicFileName;
         QProcess         *  m_convProcess;
 
         // Player and rendering widget

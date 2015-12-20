@@ -38,6 +38,10 @@ class Settings
 
         unsigned int    m_playerBackgroundLastObject; // last shown image, or last played video
         qint64          m_playerBackgroundLastVideoTime;  // for video only
+
+        // Songs database
+        QString         songdbFilename;
+        QString         songPathPrefix;
 };
 
 extern Settings * pSettings;

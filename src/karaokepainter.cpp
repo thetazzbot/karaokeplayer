@@ -89,7 +89,7 @@ int KaraokePainter::tallestFontSize( QFont &font, int height )
         QFontMetrics fm( font );
         //qDebug("%d-%d: trying font size %d to draw on %d: width %d", minsize, maxsize, cursize, drawing_width, fm.width(m_longestLyricLine) );
 
-        if ( fm.height() < height )
+        if ( fm.lineSpacing() < height )
             minsize = cursize;
         else
             maxsize = cursize;

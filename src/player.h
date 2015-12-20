@@ -18,9 +18,7 @@ class Player : public QObject
         // - A music file (we need to find a matching lyrics file);
         // - A ZIP archive (we should extract both music and matching lyrics file from it);
         // - A compound file such as KFN;
-        void    load( QIODevice * musicfile );
-
-        void    loadVideo( const QString& videofile, QAbstractVideoSurface *surface );
+        void    load( const QString& musicfile );
 
         bool    play();
 
@@ -45,6 +43,8 @@ class Player : public QObject
         QString         m_errorMsg;
 
         QMediaPlayer  * m_player;
+
+        bool            m_loaded_started;
 };
 
 #endif // PLAYER_H

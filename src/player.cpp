@@ -14,11 +14,10 @@ Player::Player()
     connect( m_player, SIGNAL(mediaChanged(QMediaContent)), this, SLOT(slotMediaChanged(QMediaContent)) );
 }
 
-
-void Player::load( QIODevice * musicfile )
+void Player::load(const QString &musicfile)
 {
-    // We don't know if this succeeded or not until start() is called
-    m_player->setMedia(QMediaContent(), musicfile );
+    m_loaded_started = false;
+    m_player->setMedia( QMediaContent( QUrl::fromLocalFile( musicfile ) ) );
 }
 
 void Player::stop()
@@ -57,6 +56,14 @@ void Player::slotMediaStatusChanged(QMediaPlayer::MediaStatus status)
     if ( status == QMediaPlayer::EndOfMedia )
         emit finished();
 
+    if ( status == QMediaPlayer::LoadedMedia )
+    {
+        if ( m_loaded_started )
+            m_player->play();
+        else
+            m_loaded_started = true;
+    }
+
     qDebug() << "slotMediaStatusChanged" << status;
 }
 
@@ -67,6 +74,10 @@ void Player::slotMediaChanged(const QMediaContent &media)
 
 bool Player::play()
 {
-    m_player->play();
+    if ( m_loaded_started )
+        m_player->play();
+    else
+        m_loaded_started = true;
+
     return true;
 }

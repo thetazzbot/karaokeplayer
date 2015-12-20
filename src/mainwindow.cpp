@@ -11,6 +11,7 @@
 #include "playerwidget.h"
 #include "karaokefile.h"
 #include "songqueue.h"
+#include "songdatabase.h"
 #include "playernotification.h"
 #include "eventcontroller.h"
 
@@ -29,6 +30,9 @@ MainWindow::MainWindow(QWidget *parent) :
     // Then notification
     pNotification = new PlayerNotification( 0 );
 
+    // Song database
+    pSongDatabase = new SongDatabase();
+
     m_widgetStack = new QStackedWidget();
     setCentralWidget( m_widgetStack );
 
@@ -45,11 +49,15 @@ MainWindow::MainWindow(QWidget *parent) :
     // This may load the queue
     pSongQueue->init();
 
+    // Load the song database
+    pSongDatabase->init();
+
     connect( pController, SIGNAL(playerStart()), this, SLOT(queueStart()) );
     connect( pController, SIGNAL(playerStop()), this, SLOT(queueStop()) );
     connect( pController, SIGNAL(queueAdd(QString,QString)), this, SLOT(queueAdd(QString,QString)) );
     connect( pController, SIGNAL(queueNext()), this, SLOT(queueNext()) );
     connect( pController, SIGNAL(queuePrevious()), this, SLOT(queuePrevious()) );
+    connect( pController, SIGNAL(queueClear()), pSongQueue, SLOT(clear()) );
 }
 
 MainWindow::~MainWindow()
