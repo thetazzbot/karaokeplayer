@@ -14,7 +14,6 @@
 #include "songdatabase.h"
 #include "playernotification.h"
 #include "eventcontroller.h"
-#include "webserver.h"
 
 
 MainWindow * pMainWindow;
@@ -55,9 +54,8 @@ MainWindow::MainWindow(QWidget *parent) :
     // Load the song database
     pSongDatabase->init();
 
-    // Launch the web server
-    pWebServer = new WebServer();
-    pWebServer->start();
+    // Initialize the controller
+    pController->start();
 
     connect( pController, SIGNAL(playerStart()), this, SLOT(queueStart()) );
     connect( pController, SIGNAL(playerStop()), this, SLOT(queueStop()) );
@@ -151,4 +149,5 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     m_widget->stopKaraoke();
+    pController->stop();
 }

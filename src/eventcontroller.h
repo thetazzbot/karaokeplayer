@@ -4,7 +4,12 @@
 #include <QString>
 #include <QKeyEvent>
 
-#define HAS_DBUS_CONTROLLER
+#define HAS_DBUS_SUPPORT
+#define HAS_LIRC_SUPPORT
+#define HAS_HTTP_SUPPORT
+
+class EventController_WebServer;
+
 
 class EventController : public QObject
 {
@@ -26,6 +31,10 @@ class EventController : public QObject
 
         EventController();
         ~EventController();
+
+        // Post-create initialization/shutdown
+        void    start();
+        void    stop();
 
     signals:
         // Events for player
@@ -54,11 +63,11 @@ class EventController : public QObject
 
         // EVents from different sources
         void    keyEvent( QKeyEvent * event );
-        void    lircEvent( QString event );
+
         void    dbusEvent( QString event );
 
     private:
-
+        EventController_WebServer   *   m_webserver;
 };
 
 extern EventController * pController;

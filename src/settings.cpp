@@ -25,4 +25,8 @@ Settings::Settings()
 
     songdbFilename = "/home/tim/work/my/karaokeplayer/test/karaoke.db";
     songPathPrefix = "/mnt/karaoke";
+
+    lircDevicePath = "/dev/lircd";
+
+    httpListenPort = 8000;
 }

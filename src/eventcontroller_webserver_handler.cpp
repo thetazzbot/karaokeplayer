@@ -2,17 +2,17 @@
 #include <QJsonObject>
 #include <QDebug>
 
-#include "webserverrequesthandler.h"
+#include "eventcontroller_webserver_handler.h"
 #include "songdatabase.h"
 #include "eventcontroller.h"
 
 
-WebServerRequestHandler::WebServerRequestHandler(QObject *parent) :
+EventController_WebServer_Handler::EventController_WebServer_Handler(QObject *parent) :
     QObjectHandler(parent)
 {
 }
 
-void WebServerRequestHandler::process(QHttpSocket *socket, const QString & )
+void EventController_WebServer_Handler::process(QHttpSocket *socket, const QString & )
 {
     // Only POST requests are accepted - reject any other methods but ensure
     // that the Allow header is set in order to comply with RFC 2616
@@ -37,12 +37,12 @@ void WebServerRequestHandler::process(QHttpSocket *socket, const QString & )
     }
 }
 
-void WebServerRequestHandler::onReadChannelFinished()
+void EventController_WebServer_Handler::onReadChannelFinished()
 {
     handle( qobject_cast<QHttpSocket*>(sender()) );
 }
 
-void WebServerRequestHandler::handle( QHttpSocket *socket )
+void EventController_WebServer_Handler::handle( QHttpSocket *socket )
 {
     QString path = socket->path();
 
@@ -111,7 +111,7 @@ void WebServerRequestHandler::handle( QHttpSocket *socket )
 }
 
 
-bool WebServerRequestHandler::search( QHttpSocket *socket, QJsonDocument& document )
+bool EventController_WebServer_Handler::search( QHttpSocket *socket, QJsonDocument& document )
 {
     QJsonObject obj = document.object();
 
@@ -140,7 +140,7 @@ bool WebServerRequestHandler::search( QHttpSocket *socket, QJsonDocument& docume
     return true;
 }
 
-bool WebServerRequestHandler::addsong( QHttpSocket *socket, QJsonDocument& document )
+bool EventController_WebServer_Handler::addsong( QHttpSocket *socket, QJsonDocument& document )
 {
     QJsonObject obj = document.object();
 
@@ -163,7 +163,7 @@ bool WebServerRequestHandler::addsong( QHttpSocket *socket, QJsonDocument& docum
     return true;
 }
 
-void WebServerRequestHandler::sendData(QHttpSocket *socket, const QByteArray &data, const QByteArray& type )
+void EventController_WebServer_Handler::sendData(QHttpSocket *socket, const QByteArray &data, const QByteArray& type )
 {
     socket->setHeader( "Content-Length", QByteArray::number( data.length() ) );
     socket->setHeader("Content-Type", type );

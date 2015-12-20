@@ -1,6 +1,5 @@
 #include <QDBusConnection>
 #include <QApplication>
-//#include <QMetaClassInfo>
 #include <QInputDialog>
 
 #include "eventcontroller.h"
@@ -8,22 +7,61 @@
 #include "songenqueuedialog.h"
 #include "songsearchdialog.h"
 #include "songdatabase.h"
+#include "settings.h"
+
+#if defined (HAS_LIRC_SUPPORT)
+    #include "eventcontroller_lirc.h"
+#endif
+
+#if defined (HAS_HTTP_SUPPORT)
+    #include "eventcontroller_webserver.h"
+#endif
+
 
 EventController * pController;
 
 EventController::EventController()
     : QObject()
 {
-#if defined (HAS_DBUS_CONTROLLER)
+    m_webserver = 0;
+}
+
+EventController::~EventController()
+{
+}
+
+void EventController::start()
+{
+#if defined (HAS_DBUS_SUPPORT)
     new EventController_DBus( this );
 
     if ( !QDBusConnection::sessionBus().registerObject( "/", this ) || !QDBusConnection::sessionBus().registerService( DBUS_SERVICE_NAME ) )
         qWarning("Cannot register dbus object");
 #endif
+
+#if defined (HAS_LIRC_SUPPORT)
+    if ( !pSettings->lircDevicePath.isEmpty()  )
+    {
+        EventController_LIRC * lirc = new EventController_LIRC( this );
+        connect( lirc, SIGNAL(lircEvent(EventController::Event)), this, SLOT(cmdEvent(Event)) );
+    }
+#endif
+
+#if defined (HAS_HTTP_SUPPORT)
+    if ( pSettings->httpListenPort > 0 )
+    {
+        m_webserver = new EventController_WebServer( this );
+        m_webserver->start();
+    }
+#endif
 }
 
-EventController::~EventController()
+void EventController::stop()
 {
+#if defined (HAS_HTTP_SUPPORT)
+    if ( m_webserver )
+        m_webserver->exit( 0 );
+#endif
 }
 
 void EventController::playerSongFinished()
@@ -136,12 +174,6 @@ void EventController::keyEvent(QKeyEvent *event)
 
 }
 
-void EventController::lircEvent(QString event)
-{
-
-}
-
 void EventController::dbusEvent(QString event)
 {
-
 }

@@ -34,8 +34,9 @@ SOURCES += main.cpp\
     playernotification.cpp \
     playerrenderer.cpp \
     songsearchdialog.cpp \
-    webserver.cpp \
-    webserverrequesthandler.cpp
+    eventcontroller_lirc.cpp \
+    eventcontroller_webserver.cpp \
+    eventcontroller_webserver_handler.cpp
 
 HEADERS  += mainwindow.h \
     playerwidget.h \
@@ -58,8 +59,9 @@ HEADERS  += mainwindow.h \
     playernotification.h \
     playerrenderer.h \
     songsearchdialog.h \
-    webserver.h \
-    webserverrequesthandler.h
+    eventcontroller_lirc.h \
+    eventcontroller_webserver.h \
+    eventcontroller_webserver_handler.h
 
 FORMS    += mainwindow.ui \
     songenqueuedialog.ui \

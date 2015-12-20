@@ -42,6 +42,12 @@ class Settings
         // Songs database
         QString         songdbFilename;
         QString         songPathPrefix;
+
+        // LIRC path
+        QString         lircDevicePath;
+
+        // HTTP port
+        unsigned int    httpListenPort;
 };
 
 extern Settings * pSettings;
