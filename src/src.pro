@@ -33,7 +33,9 @@ SOURCES += main.cpp\
     songenqueuedialog.cpp \
     playernotification.cpp \
     playerrenderer.cpp \
-    songsearchdialog.cpp
+    songsearchdialog.cpp \
+    webserver.cpp \
+    webserverrequesthandler.cpp
 
 HEADERS  += mainwindow.h \
     playerwidget.h \
@@ -55,11 +57,13 @@ HEADERS  += mainwindow.h \
     songenqueuedialog.h \
     playernotification.h \
     playerrenderer.h \
-    songsearchdialog.h
+    songsearchdialog.h \
+    webserver.h \
+    webserverrequesthandler.h
 
 FORMS    += mainwindow.ui \
     songenqueuedialog.ui \
     songsearchdialog.ui
-INCLUDEPATH += ..
-LIBS += -L ../libkaraokelyrics -lkaraokelyrics
-POST_TARGETDEPS += ../libkaraokelyrics/libkaraokelyrics.a
+INCLUDEPATH += .. ../libqhttpengine/QHttpEngine ../libqhttpengine
+LIBS += -L ../libkaraokelyrics/ -lkaraokelyrics -L../libqhttpengine/ -lqhttpengine
+POST_TARGETDEPS += ../libkaraokelyrics/libkaraokelyrics.a ../libqhttpengine/libqhttpengine.a

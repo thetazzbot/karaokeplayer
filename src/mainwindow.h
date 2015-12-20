@@ -36,6 +36,7 @@
 class PlayerWidget;
 class KaraokeFile;
 class SongQueue;
+class WebServer;
 
 class MainWindow : public QMainWindow, public Ui::MainWindow
 {

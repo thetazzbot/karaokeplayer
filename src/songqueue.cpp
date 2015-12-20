@@ -40,7 +40,7 @@ void SongQueue::addSong(const QString &file, const QString &singer)
     // Find the currnet singer index
     int singeridx = 0;
 
-    if ( !m_queue.isEmpty() )
+    if ( !m_queue.isEmpty() && m_currentSong < m_queue.size() )
         singeridx = qMax( m_singers.indexOf( m_queue[m_currentSong].singer ), 0 );
 
     if ( m_singers.indexOf( singer ) == -1 )

@@ -14,6 +14,7 @@
 #include "songdatabase.h"
 #include "playernotification.h"
 #include "eventcontroller.h"
+#include "webserver.h"
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -51,6 +52,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Load the song database
     pSongDatabase->init();
+
+    // Launch the web server
+    pWebServer = new WebServer();
 
     connect( pController, SIGNAL(playerStart()), this, SLOT(queueStart()) );
     connect( pController, SIGNAL(playerStop()), this, SLOT(queueStop()) );
