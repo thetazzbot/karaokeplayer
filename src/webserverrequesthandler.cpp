@@ -12,11 +12,11 @@ WebServerRequestHandler::WebServerRequestHandler(QObject *parent) :
 {
 }
 
-void WebServerRequestHandler::process(QHttpSocket *socket, const QString &)
+void WebServerRequestHandler::process(QHttpSocket *socket, const QString & )
 {
     // Only POST requests are accepted - reject any other methods but ensure
     // that the Allow header is set in order to comply with RFC 2616
-    if ( socket->method() != "POST")
+    if ( socket->method() != "POST" && socket->method() != "GET" )
     {
         socket->setHeader("Allow", "POST");
         socket->writeError(QHttpSocket::MethodNotAllowed);
@@ -44,6 +44,38 @@ void WebServerRequestHandler::onReadChannelFinished()
 
 void WebServerRequestHandler::handle( QHttpSocket *socket )
 {
+    QString path = socket->path();
+
+    if ( path.isEmpty() )
+        path = "index.html";
+
+    if ( !path.startsWith( "/api" ) )
+    {
+        // Simple serving
+        QString localpath = "/home/tim/work/my/karaokeplayer/html" + socket->path();
+
+        QFile f( localpath );
+
+        if ( !f.open( QIODevice::ReadOnly ) )
+        {
+            socket->writeError(QHttpSocket::NotFound);
+            return;
+        }
+
+        QByteArray data = f.readAll();
+        QByteArray type = "text/html";
+
+        if ( path.endsWith( ".js" ) )
+            type = "application/javascript";
+        else if ( path.endsWith( ".css" ) )
+            type = "text/css";
+
+        sendData( socket, data, type );
+
+        qDebug() << path << " served " << localpath;
+        return;
+    }
+
     // Attempt to decode the JSON from the socket
     QJsonParseError error;
     QByteArray rdata = socket->readAll();
@@ -131,9 +163,9 @@ bool WebServerRequestHandler::addsong( QHttpSocket *socket, QJsonDocument& docum
     return true;
 }
 
-void WebServerRequestHandler::sendData(QHttpSocket *socket, const QByteArray &data)
+void WebServerRequestHandler::sendData(QHttpSocket *socket, const QByteArray &data, const QByteArray& type )
 {
     socket->setHeader( "Content-Length", QByteArray::number( data.length() ) );
-    socket->setHeader("Content-Type", "application/json");
+    socket->setHeader("Content-Type", type );
     socket->write(data);
 }

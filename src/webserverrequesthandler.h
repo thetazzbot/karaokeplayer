@@ -24,7 +24,7 @@ class WebServerRequestHandler : public QObjectHandler
         bool    search( QHttpSocket *socket, QJsonDocument& document );
         bool    addsong( QHttpSocket *socket, QJsonDocument& document);
 
-        void    sendData( QHttpSocket *socket, const QByteArray& data );
+        void    sendData(QHttpSocket *socket, const QByteArray& data, const QByteArray &type = "application/json" );
 };
 
 

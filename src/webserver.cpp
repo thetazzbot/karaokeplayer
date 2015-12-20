@@ -15,15 +15,16 @@ WebServer::WebServer()
 void WebServer::run()
 {
     // Build the hierarchy of handlers
-    QFilesystemHandler handler(":/static");
-    handler.addRedirect(QRegExp("^$"), "/index.html");
+//    QFilesystemHandler handler(":/static");
+//    handler.addRedirect(QRegExp("^$"), "/index.html");
 
     WebServerRequestHandler serverHandler;
-    handler.addSubHandler( QRegExp("api/"), &serverHandler );
+    serverHandler.addRedirect(QRegExp("^$"), "/index.html");
+    //handler.addSubHandler( QRegExp("api/"), &serverHandler );
 
     connect( &serverHandler, SIGNAL(queueAdd(QString,QString)), pMainWindow, SLOT(queueAdd(QString,QString)) );
 
-    QHttpServer server( &handler );
+    QHttpServer server( &serverHandler );
 
     // Attempt to listen on the specified port
     if ( !server.listen( QHostAddress::Any, 8000) )
