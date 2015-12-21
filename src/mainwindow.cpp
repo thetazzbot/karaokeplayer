@@ -22,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent), Ui::MainWindow()
 {
     setupUi( this );
+    pMainWindow = this;
 
     // Settings should be created first
     pSettings = new Settings();

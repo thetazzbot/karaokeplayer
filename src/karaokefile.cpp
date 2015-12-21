@@ -264,6 +264,8 @@ void KaraokeFile::convFinished( int exitCode, QProcess::ExitStatus exitStatus )
     m_convProcess = 0;
 
     pNotification->clearMessage();
+    m_playState = STATE_READY;
+    m_player.load( m_musicFileName );
     start();
 }
 
@@ -283,9 +285,14 @@ void KaraokeFile::startConversion(const QString &src)
 void KaraokeFile::stop()
 {
     if ( m_convProcess )
+    {
         m_convProcess->kill();
-
-    m_player.stop();
+        m_convProcess->deleteLater();
+        m_convProcess = 0;
+        QFile::remove( m_musicFileName );
+    }
+    else
+        m_player.stop();
 }
 
 bool KaraokeFile::isMidiFile(const QString &filename)

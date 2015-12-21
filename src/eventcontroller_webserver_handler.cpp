@@ -103,11 +103,6 @@ void EventController_WebServer_Handler::handle( QHttpSocket *socket )
         return;
     }
 
-/*    // Convert the return value to JSON and write it to the socket
-    QByteArray data = QJsonDocument(QJsonObject::fromVariantMap(retVal)).toJson();
-    socket->setHeader("Content-Length", QByteArray::number(data.length()));
-    socket->setHeader("Content-Type", "application/json");
-    socket->write(data);*/
     socket->close();
 }
 

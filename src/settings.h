@@ -37,6 +37,7 @@ class Settings
         BackgroundType  playerBackgroundType;
         QColor          playerBackgroundColor;
         QStringList     playerBackgroundObjects;    // images or videos
+        unsigned int    playerBackgroundTransitionDelay; // images only, in seconds. 0 - no transitions/slideshow
 
         unsigned int    m_playerBackgroundLastObject; // last shown image, or last played video
         qint64          m_playerBackgroundLastVideoTime;  // for video only

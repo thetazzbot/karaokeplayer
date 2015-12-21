@@ -5,8 +5,12 @@ Settings * pSettings;
 
 Settings::Settings()
 {
-    playerBackgroundType = BACKGROUND_TYPE_VIDEO;
-    playerBackgroundObjects << "/home/tim/work/my/karaokeplayer/test/bg0.mp4" << "/home/tim/work/my/karaokeplayer/test/bg1.mp4";
+    //playerBackgroundType = BACKGROUND_TYPE_VIDEO;
+    //playerBackgroundObjects << "/home/tim/work/my/karaokeplayer/test/bg0.mp4" << "/home/tim/work/my/karaokeplayer/test/bg1.mp4";
+
+    playerBackgroundType = BACKGROUND_TYPE_IMAGE;
+    playerBackgroundObjects << "/home/tim/work/my/karaokeplayer/test/images";
+    playerBackgroundTransitionDelay = 10;
 
     m_playerBackgroundLastObject = 0;
     m_playerBackgroundLastVideoTime = 0;

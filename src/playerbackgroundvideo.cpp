@@ -31,7 +31,10 @@ bool PlayerBackgroundVideo::initFromFile(QIODevice &file)
 
 void PlayerBackgroundVideo::start()
 {
-    m_player.play();
+    if ( m_startPlaying )
+        m_player.play();
+    else
+        m_startPlaying = true;
 }
 
 void PlayerBackgroundVideo::pause(bool pausing)
@@ -100,7 +103,12 @@ void PlayerBackgroundVideo::slotMediaStatusChanged(QMediaPlayer::MediaStatus sta
     qDebug() << "video" << status;
 
     if ( status == QMediaPlayer::LoadedMedia )
-        m_player.play();
+    {
+        if ( m_startPlaying )
+            m_player.play();
+        else
+            m_startPlaying = true;
+    }
 
     if ( status == QMediaPlayer::EndOfMedia )
     {

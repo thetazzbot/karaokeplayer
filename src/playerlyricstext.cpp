@@ -92,8 +92,8 @@ bool PlayerLyricsText::load( QIODevice &file, const QString& filename )
     }
 
 
-    //foreach ( const PlayerLyricTextLine& t, m_lines )
-    //    t.dump();
+    foreach ( const PlayerLyricTextLine& t, m_lines )
+        t.dump();
 
     //qDebug("Longest line for rendering is %d", m_longestLine );
     //m_lines[m_longestLine].dump();
