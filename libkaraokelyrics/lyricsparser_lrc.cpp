@@ -54,13 +54,17 @@ void LyricsParser_LRC::parse( QIODevice& file, LyricsLoader::Container& output, 
         if ( !header )
         {
             // If this is an empty line, add '\n' to the last entry if we have it
-            if ( line.isEmpty() && !templyrics.isEmpty() )
+            if ( line.isEmpty() )
             {
-                while ( templyrics.contains( last_time ) )
-                    last_time++;
+                if ( !templyrics.isEmpty() )
+                {
+                    while ( templyrics.contains( last_time ) )
+                        last_time++;
 
-                templyrics.insert( last_time, "[BR]" );
-                last_time++;
+                    templyrics.insert( last_time, "[BR]" );
+                    last_time++;
+                }
+
                 continue;
             }
 

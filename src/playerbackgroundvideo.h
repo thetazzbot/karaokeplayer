@@ -33,7 +33,7 @@ class PlayerBackgroundVideo : public QAbstractVideoSurface, public PlayerBackgro
 
         // Current state notifications, may be reimplemented. Default implementation does nothing.
         virtual void    start();
-        virtual void    pause( bool resuming );
+        virtual void    pause( bool pausing );
         virtual void    stop();
 
         // This one is overridden from QAbstractVideoSurface

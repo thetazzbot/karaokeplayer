@@ -34,12 +34,12 @@ void PlayerBackgroundVideo::start()
     m_player.play();
 }
 
-void PlayerBackgroundVideo::pause(bool resuming)
+void PlayerBackgroundVideo::pause(bool pausing)
 {
-    if ( resuming )
-        m_player.play();
-    else
+    if ( pausing )
         m_player.pause();
+    else
+        m_player.play();
 }
 
 void PlayerBackgroundVideo::stop()

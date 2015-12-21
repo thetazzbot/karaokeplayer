@@ -46,18 +46,19 @@ void EventController_WebServer_Handler::handle( QHttpSocket *socket )
 {
     QString path = socket->path();
 
-    if ( path.isEmpty() )
-        path = "index.html";
+    if ( path.isEmpty() || path == "/" )
+        path = "/index.html";
 
     if ( !path.startsWith( "/api" ) )
     {
         // Simple serving
-        QString localpath = "/home/tim/work/my/karaokeplayer/html" + socket->path();
+        QString localpath = "/home/tim/work/my/karaokeplayer/html" + path;
 
         QFile f( localpath );
 
         if ( !f.open( QIODevice::ReadOnly ) )
         {
+            qDebug() << path << " not found " << localpath;
             socket->writeError(QHttpSocket::NotFound);
             return;
         }

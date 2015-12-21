@@ -24,7 +24,7 @@ class PlayerBackground
 
         // Current state notifications, may be reimplemented. Default implementation does nothing.
         virtual void    start();
-        virtual void    pause( bool resuming );
+        virtual void    pause( bool pausing );
         virtual void    stop();
 };
 
