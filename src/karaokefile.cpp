@@ -132,6 +132,8 @@ bool KaraokeFile::open(const QString &filename)
                     // Start conversion right away
                     m_musicFileName = test;
                     startConversion( musicFile );
+                    m_playState = STATE_CONVERTING;
+                    pNotification->setMessage( "MIDI conversion in progress" );
                 }
             }
         }
@@ -160,30 +162,41 @@ bool KaraokeFile::open(const QString &filename)
     if ( !m_lyrics->load( *lyricFileRead, lyricFile ) )
         throw( QObject::tr("Can't load lyrics file %1: %2") .arg( lyricFile ) .arg( m_lyrics->errorMsg() ) );
 
-    //m_background = new PlayerBackgroundColor();
-    m_background = new PlayerBackgroundVideo();
+    // Which background should we use?
+    switch ( pSettings->playerBackgroundType )
+    {
+        case Settings::BACKGROUND_TYPE_IMAGE:
+            //m_background = new PlayerBackgroundVideo();
+            abort();
+            break;
+
+        case Settings::BACKGROUND_TYPE_VIDEO:
+            m_background = new PlayerBackgroundVideo();
+            break;
+
+        case Settings::BACKGROUND_TYPE_COLOR:
+            m_background = new PlayerBackgroundColor();
+            break;
+    }
+
+    // Initialize
     m_background->initFromSettings();
 
-    m_playState = STATE_READY;
+    if ( m_playState != STATE_CONVERTING )
+        m_playState = STATE_READY;
+
     return true;
 }
 
 void KaraokeFile::start()
 {
     // If no conversion is in progress, start the player and rendering thread
-    if ( !m_convProcess )
+    if ( m_playState == STATE_READY )
     {
         m_playState = STATE_PLAYING;
         m_background->start();
         m_player.play();
         pNotification->clearMessage();
-
-//        QThread::start();
-    }
-    else
-    {
-        // Else we ignore it and wait until conversion is done
-        pNotification->setMessage( "MIDI conversion in progress" );
     }
 }
 
@@ -257,72 +270,24 @@ void KaraokeFile::convFinished( int exitCode, QProcess::ExitStatus exitStatus )
 void KaraokeFile::startConversion(const QString &src)
 {
     // Using Timidity
-    QProcess * convProcess = new QProcess( this );
-    connect( convProcess, SIGNAL(error(QProcess::ProcessError)), this, SLOT(convError(QProcess::ProcessError)) );
-    connect( convProcess, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(convFinished(int,QProcess::ExitStatus)) );
+    m_convProcess = new QProcess( this );
+    connect( m_convProcess, SIGNAL(error(QProcess::ProcessError)), this, SLOT(convError(QProcess::ProcessError)) );
+    connect( m_convProcess, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(convFinished(int,QProcess::ExitStatus)) );
 
     QStringList args;
     args << "-Ow" << src << "-o" << m_musicFileName;
 
-    convProcess->start( "timidity", args );
+    m_convProcess->start( "timidity", args );
 }
 
 void KaraokeFile::stop()
 {
+    if ( m_convProcess )
+        m_convProcess->kill();
+
     m_player.stop();
 }
 
-/*
-void KaraokeFile::run()
-{
-    // from http://www.koonsolo.com/news/dewitters-gameloop/
-    // We do not need fast rendering, and need constant FPS, so 2nd solution works well
-
-    // This assumes 25 FPS, so we have 1000/25ms per cycle
-    static const unsigned int MS_PER_CYCLE = 1000 / 20;
-    QTime next_cycle;
-    QImage renderimage( 800, 600, QImage::Format_ARGB32 );
-
-    while ( m_continue )
-    {
-        qint64 time = m_player.position();
-        next_cycle = QTime::currentTime().addMSecs( MS_PER_CYCLE );
-
-        renderimage.fill( Qt::black );
-
-        // Redraw main screen
-        KaraokePainter p( KaraokePainter::AREA_MAIN_SCREEN, time, m_player.duration(), renderimage );
-
-        // Background is always on
-        m_background->draw( p );
-
-        // But lyrics are only on if the text is not set
-        if ( m_customMessage.isEmpty() )
-        {
-            m_lyrics->draw( p );
-            m_nextRedrawTime = m_lyrics->nextUpdate();
-        }
-        else
-        {
-            p.drawCenteredOutlineText( 50, Qt::white, m_customMessage );
-        }
-
-        p.switchArea( KaraokePainter::AREA_TOP );
-        pNotification->draw( p );
-
-        p.end();
-
-        if ( !m_widget->setImage( renderimage ) )
-            continue; // rerender
-
-        QMetaObject::invokeMethod( m_widget, "refresh", Qt::QueuedConnection );
-
-        // When should we have next tick?
-        int remainingms = qMax( QTime::currentTime().msecsTo( next_cycle ), 5 );
-        msleep( remainingms );
-    }
-}
-*/
 bool KaraokeFile::isMidiFile(const QString &filename)
 {
     static const char * extlist[] = { ".kar", ".mid", ".midi", 0 };

@@ -40,7 +40,7 @@ bool PlayerLyricsText::load( QIODevice &file, const QString& filename )
         if ( lyrics[i].text.isEmpty() )
         {
             // If the first lyric is empty (weird), ignore it
-            if ( i == 0 )
+            if ( m_lines.isEmpty() && linestartidx == -1 )
                 continue;
 
             // If the empty lines follow, just add them as-is
@@ -223,7 +223,7 @@ bool PlayerLyricsText::render(KaraokePainter &p)
         return true;
 
     // If a current line is empty, track down once
-    if ( m_lines[current].isEmpty() )
+    if ( m_lines[current].isEmpty() && current > 0 )
         current--;
 
     while ( yoffset < ybottom && current < m_lines.size() )

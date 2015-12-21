@@ -55,6 +55,7 @@ class KaraokeFile : public QObject
         {
             STATE_RESET,
             STATE_READY,
+            STATE_CONVERTING,
             STATE_PLAYING,
             STATE_PAUSED
         };
