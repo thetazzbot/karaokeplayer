@@ -43,7 +43,8 @@ void EventController::start()
     if ( !pSettings->lircDevicePath.isEmpty()  )
     {
         EventController_LIRC * lirc = new EventController_LIRC( this );
-        connect( lirc, SIGNAL(lircEvent(EventController::Event)), this, SLOT(cmdEvent(Event)) );
+
+        connect( lirc, SIGNAL(lircEvent(int)), this, SLOT(cmdEvent(int)) );
     }
 #endif
 
@@ -64,6 +65,35 @@ void EventController::stop()
 #endif
 }
 
+int EventController::eventByName(const char *eventname)
+{
+    if ( !strcmp( eventname, "START" ) )
+        return EVENT_PLAYER_START;
+
+    if ( !strcmp( eventname, "PAUSE" ) )
+        return EVENT_PLAYER_PAUSERESUME;
+
+    if ( !strcmp( eventname, "STOP" ) )
+        return EVENT_PLAYER_STOP;
+
+    if ( !strcmp( eventname, "BACKWARD" ) )
+        return EVENT_PLAYER_BACKWARD;
+
+    if ( !strcmp( eventname, "FORWARD" ) )
+        return EVENT_PLAYER_FORWARD;
+
+    if ( !strcmp( eventname, "NEXT" ) )
+        return EVENT_QUEUE_NEXT;
+
+    if ( !strcmp( eventname, "PREVIOUS" ) )
+        return EVENT_QUEUE_PREVIOUS;
+
+    if ( !strcmp( eventname, "CLEAR" ) )
+        return EVENT_QUEUE_CLEAR;
+
+    return -1;
+}
+
 void EventController::playerSongFinished()
 {
     emit queueNext();
@@ -76,10 +106,15 @@ void EventController::playerSongFailed()
 
 void EventController::error(QString message)
 {
-
+    qDebug("ERROR: %s", qPrintable(message));
 }
 
-bool EventController::cmdEvent( EventController::Event event )
+void EventController::warning(QString message)
+{
+    qDebug("WARNING: %s", qPrintable(message));
+}
+
+bool EventController::cmdEvent(int event )
 {
     switch ( event )
     {

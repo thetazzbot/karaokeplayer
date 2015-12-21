@@ -27,6 +27,7 @@ Settings::Settings()
     songPathPrefix = "/mnt/karaoke";
 
     lircDevicePath = "/dev/lircd";
+    lircMappingFile = "/home/tim/work/my/karaokeplayer/test/lirc.map";
 
     httpListenPort = 8000;
 }

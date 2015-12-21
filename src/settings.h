@@ -9,6 +9,8 @@ class Settings
     public:
         Settings();
 
+
+
         enum BackgroundType
         {
             BACKGROUND_TYPE_COLOR,
@@ -45,6 +47,7 @@ class Settings
 
         // LIRC path
         QString         lircDevicePath;
+        QString         lircMappingFile;
 
         // HTTP port
         unsigned int    httpListenPort;

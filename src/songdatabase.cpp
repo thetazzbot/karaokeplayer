@@ -5,6 +5,7 @@
 
 #include "settings.h"
 #include "songdatabase.h"
+#include "util.h"
 
 SongDatabase * pSongDatabase;
 
@@ -56,9 +57,9 @@ bool SongDatabase::init()
         else
         {
             // ID type file
-            int o = line.indexOf( ' ' );
+            int o = Util::indexOfSpace( line );
 
-            if ( o == -1 && ( o = line.indexOf( '\t' )) == -1 )
+            if ( o == -1 )
                 continue;
 
             Record rec;
@@ -66,7 +67,7 @@ bool SongDatabase::init()
             QString id = line.left( o );
             QString type = line.mid( o ).trimmed();
 
-            if ( (o = type.indexOf( ' ' )) == -1 && ( o = line.indexOf( '\t' )) == -1 )
+            if ( (o = Util::indexOfSpace( type )) == -1 )
                 continue;
 
             rec.type = type.left( o );

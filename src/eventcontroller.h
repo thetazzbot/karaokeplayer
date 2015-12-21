@@ -36,6 +36,9 @@ class EventController : public QObject
         void    start();
         void    stop();
 
+        // Looks up the event (for translations)
+        static int eventByName( const char * eventname );
+
     signals:
         // Events for player
         void    playerStart();
@@ -55,11 +58,12 @@ class EventController : public QObject
         void    playerSongFinished();
         void    playerSongFailed();
 
-        // Reports an error
+        // Reports an error or warning
         void    error( QString message );
+        void    warning( QString message );
 
         // Most events should end up here
-        bool    cmdEvent( Event event );
+        bool    cmdEvent( int event );
 
         // EVents from different sources
         void    keyEvent( QKeyEvent * event );
