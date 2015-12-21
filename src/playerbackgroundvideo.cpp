@@ -24,7 +24,7 @@ PlayerBackgroundVideo::~PlayerBackgroundVideo()
 {
 }
 
-bool PlayerBackgroundVideo::initFromFile(QIODevice &file)
+bool PlayerBackgroundVideo::initFromFile(QIODevice &)
 {
     return false;
 }
@@ -114,12 +114,12 @@ void PlayerBackgroundVideo::slotMediaStatusChanged(QMediaPlayer::MediaStatus sta
     {
         pSettings->m_playerBackgroundLastObject++;
 
-        if ( (int) pSettings->m_playerBackgroundLastObject >= pSettings->playerBackgroundObjects.size() )
+        if ( (int) pSettings->m_playerBackgroundLastObject >= pSettings->m_playerBackgroundObjects.size() )
             pSettings->m_playerBackgroundLastObject = 0;
 
         pSettings->m_playerBackgroundLastVideoTime = 0;
 
-        QString videofile = pSettings->playerBackgroundObjects[ pSettings->m_playerBackgroundLastObject ];
+        QString videofile = pSettings->m_playerBackgroundObjects[ pSettings->m_playerBackgroundLastObject ];
         qDebug("Background video ended, switching to video %s", qPrintable(videofile) );
 
         m_player.setMedia( QMediaContent( QUrl::fromLocalFile( videofile ) ) );
@@ -132,7 +132,7 @@ bool PlayerBackgroundVideo::initFromSettings(const QString &)
 {
     m_valid = 0;
 
-    QString videofile = pSettings->playerBackgroundObjects[ pSettings->m_playerBackgroundLastObject ];
+    QString videofile = pSettings->m_playerBackgroundObjects[ pSettings->m_playerBackgroundLastObject ];
 
     m_player.setMedia( QMediaContent( QUrl::fromLocalFile( videofile ) ) );
     m_player.setPosition( pSettings->m_playerBackgroundLastVideoTime );

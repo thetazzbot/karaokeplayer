@@ -13,6 +13,7 @@ class Player : public QObject
 
     public:
         Player();
+        ~Player();
 
         // Load the file, which could be:
         // - A music file (we need to find a matching lyrics file);

@@ -7,11 +7,15 @@
 Player::Player()
     : QObject()
 {
-    m_player = new QMediaPlayer();
+    m_player = new QMediaPlayer( this );
 
     connect( m_player, SIGNAL(error(QMediaPlayer::Error)), this, SLOT(slotError(QMediaPlayer::Error)) );
     connect( m_player, SIGNAL(mediaStatusChanged(QMediaPlayer::MediaStatus)), this, SLOT(slotMediaStatusChanged(QMediaPlayer::MediaStatus)) );
     connect( m_player, SIGNAL(mediaChanged(QMediaContent)), this, SLOT(slotMediaChanged(QMediaContent)) );
+}
+
+Player::~Player()
+{
 }
 
 void Player::load(const QString &musicfile)

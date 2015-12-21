@@ -9,6 +9,7 @@
 #include "playerlyricstext.h"
 #include "playerbackgroundcolor.h"
 #include "playerbackgroundvideo.h"
+#include "playerbackgroundimage.h"
 #include "karaokepainter.h"
 #include "eventcontroller.h"
 #include "playernotification.h"
@@ -166,8 +167,7 @@ bool KaraokeFile::open(const QString &filename)
     switch ( pSettings->playerBackgroundType )
     {
         case Settings::BACKGROUND_TYPE_IMAGE:
-            //m_background = new PlayerBackgroundVideo();
-            abort();
+            m_background = new PlayerBackgroundImage();
             break;
 
         case Settings::BACKGROUND_TYPE_VIDEO:
@@ -292,7 +292,9 @@ void KaraokeFile::stop()
         QFile::remove( m_musicFileName );
     }
     else
+    {
         m_player.stop();
+    }
 }
 
 bool KaraokeFile::isMidiFile(const QString &filename)

@@ -9,8 +9,6 @@ class Settings
     public:
         Settings();
 
-
-
         enum BackgroundType
         {
             BACKGROUND_TYPE_COLOR,
@@ -27,6 +25,8 @@ class Settings
         bool        playerLyricsTextEachCharacter;
         bool        convertMidiFiles;
         bool        playerCDGbackgroundTransparent;
+        int         playerRenderFPS;
+
 
         // Queue parameters
         bool        queueAddNewSingersNext; // if true, new singers are added right after the current singer; otherwise at the end.
@@ -41,6 +41,9 @@ class Settings
 
         unsigned int    m_playerBackgroundLastObject; // last shown image, or last played video
         qint64          m_playerBackgroundLastVideoTime;  // for video only
+        QStringList     m_playerBackgroundObjects;  // actual objects
+
+        unsigned int    m_playerRenderMSecPerFrame;
 
         // Songs database
         QString         songdbFilename;
@@ -52,6 +55,9 @@ class Settings
 
         // HTTP port
         unsigned int    httpListenPort;
+
+    private:
+        void    loadBackgroundObjects();
 };
 
 extern Settings * pSettings;

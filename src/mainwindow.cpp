@@ -24,6 +24,9 @@ MainWindow::MainWindow(QWidget *parent) :
     setupUi( this );
     pMainWindow = this;
 
+    // We don't need any specific crypto
+    qsrand( (unsigned int) (long) pMainWindow * (unsigned int) time(0) );
+
     // Settings should be created first
     pSettings = new Settings();
 

@@ -4,6 +4,7 @@
 #include "playernotification.h"
 #include "playerrenderer.h"
 #include "playerwidget.h"
+#include "settings.h"
 
 static const unsigned int RENDER_FPS = 20;
 
@@ -30,15 +31,12 @@ void PlayerRenderer::run()
 {
     // from http://www.koonsolo.com/news/dewitters-gameloop/
     // We do not need fast rendering, and need constant FPS, so 2nd solution works well
-
-    // This assumes 25 FPS, so we have 1000/25ms per cycle
-    static const unsigned int MS_PER_CYCLE = 1000 / RENDER_FPS;
     QTime next_cycle;
     qint64 remainingms = -1;
 
     while ( m_continue )
     {
-        next_cycle = QTime::currentTime().addMSecs( MS_PER_CYCLE );
+        next_cycle = QTime::currentTime().addMSecs( pSettings->m_playerRenderMSecPerFrame );
 
         // Prepare the image
         m_renderImage->fill( Qt::black );

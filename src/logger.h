@@ -11,6 +11,7 @@ class Logger : public QObject
         explicit Logger(QObject *parent = 0);
 
         static void debug( const QString& str );
+        static void debug( const char * fmt, ... );
 
     signals:
 
