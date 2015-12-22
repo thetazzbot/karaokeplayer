@@ -146,8 +146,15 @@ bool EventController_WebServer_Handler::addsong( QHttpSocket *socket, QJsonDocum
     QString singer = obj["s"].toString();
     QString path = pSongDatabase->pathForId( obj["i"].toInt() );
 
-    if ( path.isEmpty() )
-        return false;
+    if ( path.isEmpty() || singer.isEmpty() )
+    {
+        QJsonObject out;
+        out["result"] = 0;
+
+        sendData( socket, QJsonDocument( out ).toJson() );
+        socket->close();
+        return true;
+    }
 
     emit queueAdd( path, singer );
 
