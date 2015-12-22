@@ -33,7 +33,7 @@ QRect KaraokePainter::notificationRect() const
 void KaraokePainter::setClipAreaMain()
 {
     // Keep the top off the renderer
-    int h = notificationRect().height();
+    int h = notificationRect().height() + 1;
     m_rect = QRect( 0, 0, m_image->width(), m_image->height() - h );
     translate( 0, h );
 }
@@ -87,7 +87,7 @@ int KaraokePainter::tallestFontSize( QFont &font, int height )
         cursize = minsize + (maxsize - minsize) / 2;
         font.setPointSize( cursize );
         QFontMetrics fm( font );
-        //qDebug("%d-%d: trying font size %d to draw on %d: width %d", minsize, maxsize, cursize, drawing_width, fm.width(m_longestLyricLine) );
+        //qDebug("trying font size %d to draw on %d: height %d %d", cursize, height, fm.lineSpacing(), fm.height() );
 
         if ( fm.lineSpacing() < height )
             minsize = cursize;
@@ -105,15 +105,6 @@ int KaraokePainter::largetsFontSize( const QString &textline )
 
 void KaraokePainter::drawOutlineText(int x, int y, const QColor &color, const QString &text)
 {
-    /*QPainterPath path;
-
-    path.addText( x, y, font(), text );
-
-    fillPath( path, QBrush(color) );
-    QPen strokepen( Qt::black );
-    strokepen.setWidth( font().pointSize() > 32 ? 2 : 1 );
-
-    strokePath( path, strokepen );*/
     setPen( Qt::black );
     drawText( x-1, y-1, text );
     drawText( x-1, y+1, text );

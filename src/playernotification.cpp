@@ -4,7 +4,7 @@
 PlayerNotification * pNotification;
 
 PlayerNotification::PlayerNotification(QObject *parent)
-    : QObject( parent ), m_fontMetrics( m_font )
+    : QObject( parent )
 {
     m_scrollStep = 3;
     m_lastScreenHeight = 0;
@@ -21,7 +21,6 @@ qint64 PlayerNotification::drawTop(KaraokePainter &p, qint64 remainingms)
     {
         m_lastScreenHeight = p.notificationRect().height();
         p.tallestFontSize( m_font, m_lastScreenHeight );
-        m_fontMetrics = QFontMetrics( m_font );
     }
 
     p.setPen( Qt::white );
@@ -29,7 +28,7 @@ qint64 PlayerNotification::drawTop(KaraokePainter &p, qint64 remainingms)
 
     if ( remainingms == -1 || remainingms > 5000 )
     {
-        if ( m_scrollOffset >= m_fontMetrics.width( m_notificationLine[m_textOffset] ) )
+        if ( m_scrollOffset >= p.fontMetrics().width( m_notificationLine[m_textOffset] ) )
         {
             m_scrollOffset = 0;
             m_textOffset++;
@@ -40,10 +39,10 @@ qint64 PlayerNotification::drawTop(KaraokePainter &p, qint64 remainingms)
         else
             m_scrollOffset++;
 
-        p.drawText( -m_scrollOffset, m_fontMetrics.height(), m_notificationLine.mid( m_textOffset ) + "      " + m_notificationLine );
+        p.drawText( -m_scrollOffset, p.fontMetrics().ascent(), m_notificationLine.mid( m_textOffset ) + "      " + m_notificationLine );
     }
     else
-        p.drawText( 0, m_fontMetrics.height(), m_firstItem );
+        p.drawText( 0, p.fontMetrics().ascent(), m_firstItem );
 
     return p.time();
 }

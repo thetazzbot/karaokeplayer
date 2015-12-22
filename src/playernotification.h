@@ -33,7 +33,6 @@ class PlayerNotification : public QObject
 
     private:
         QFont           m_font;
-        QFontMetrics    m_fontMetrics;
         int             m_lastScreenHeight;
 
         QString         m_firstItem;
