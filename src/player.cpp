@@ -7,7 +7,7 @@
 Player::Player()
     : QObject()
 {
-    m_player = new QMediaPlayer( this );
+    m_player = new QMediaPlayer();
 
     connect( m_player, SIGNAL(error(QMediaPlayer::Error)), this, SLOT(slotError(QMediaPlayer::Error)) );
     connect( m_player, SIGNAL(mediaStatusChanged(QMediaPlayer::MediaStatus)), this, SLOT(slotMediaStatusChanged(QMediaPlayer::MediaStatus)) );
@@ -16,6 +16,7 @@ Player::Player()
 
 Player::~Player()
 {
+    m_player->deleteLater();
 }
 
 void Player::load(const QString &musicfile)
