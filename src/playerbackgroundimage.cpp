@@ -1,4 +1,5 @@
 #include <QDebug>
+#include <math.h>
 
 #include "logger.h"
 #include "eventcontroller.h"
@@ -8,6 +9,7 @@
 PlayerBackgroundImage::PlayerBackgroundImage()
 {
     m_percentage = 0;
+    m_movementSpeed = 1;
 }
 
 bool PlayerBackgroundImage::initFromSettings(const QString &)
@@ -40,7 +42,33 @@ qint64 PlayerBackgroundImage::draw(KaraokePainter &p)
     }
 
     if ( !m_currentImage.isNull() )
-        p.drawImage( QPoint(0,0), m_currentImage.scaled( p.size() ) );
+    {
+        // We only animate if the image is at least 20% larger than display resolution
+        if ( m_movementSpeed > 0
+        && (double) m_currentImage.height() / (double) p.rect().height() > 1.10
+        && (double) m_currentImage.width() / (double) p.rect().width() > 1.10 )
+        {
+            QRect srcrect = p.rect();
+            QPoint neworigin = m_movementOrigin + m_movementVelocity;
+            srcrect.moveTopLeft( neworigin );
+
+            // Depends on direction
+            if ( srcrect.x() < 0 || srcrect.right() > m_currentImage.width() )
+                m_movementVelocity.setX( -m_movementVelocity.x() );
+
+            if ( srcrect.y() < 0 || srcrect.bottom() > m_currentImage.height() )
+                m_movementVelocity.setY( -m_movementVelocity.y() );
+
+            m_movementOrigin += m_movementVelocity;
+            srcrect.moveTopLeft( m_movementOrigin + m_movementVelocity );
+            p.drawImage( p.rect(), m_currentImage, srcrect );
+        }
+        else
+        {
+            // Image is too small, just draw it as-is
+            p.drawImage( p.rect(), m_currentImage, m_currentImage.rect() );
+        }
+    }
 
     if ( pSettings->playerBackgroundTransitionDelay > 0 && m_lastUpdated.elapsed() > (int) pSettings->playerBackgroundTransitionDelay * 1000 )
         loadNewImage();
@@ -73,13 +101,42 @@ void PlayerBackgroundImage::loadNewImage()
 
     m_lastUpdated = QTime::currentTime();
     m_lastUpdated.start();
+
+    // Start new transition
     m_percentage = 0;
+
+    // Choose new base angle - make it sharp (in 20-50 degree range), as we don't want to have like 1% angle
+    int angle = qrand() % 30 + 20;
+
+    // And convert the angle to speed
+    int mv_x = qMax( (int) sin( (double) angle * M_PI ) * m_movementSpeed, 1 );
+    int mv_y = qMax( (int) cos( (double) angle * M_PI ) * m_movementSpeed, 1 );
+
+    // And adjust speed and origin based on random intial direction
+    switch ( qrand() % 4 )
+    {
+        case 0: // From left-top: x+, y+
+            m_movementVelocity = QPoint( mv_x, mv_y );
+            break;
+
+        case 1: // From right-top: x-, y+
+            m_movementVelocity = QPoint( -mv_x, mv_y );
+            break;
+
+        case 2: // From right-bottom: x-, y-
+            m_movementVelocity = QPoint( -mv_x, -mv_y );
+            break;
+
+        case 3: // From left-bottom: x-, y-
+            m_movementVelocity = QPoint( mv_x, -mv_y );
+            break;
+    }
 }
 
 bool PlayerBackgroundImage::performTransition(KaraokePainter &p)
 {
     // We want the whole transition to be done in 1.5 sec
-    static const int TRANSITION = 250;
+    static const int TRANSITION = 500;
     int percstep = (pSettings->m_playerRenderMSecPerFrame * 100) / TRANSITION;
 
     // Paint the original image first so we have it

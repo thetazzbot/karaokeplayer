@@ -19,7 +19,7 @@ void Logger::debug(const char *fmt, ... )
     char buf[1024];
 
     va_start( vl, fmt );
-    vsnprintf( buf, sizeof(buf), fmt, vl );
+    vsnprintf( buf, sizeof(buf-1), fmt, vl );
     va_end( vl );
 
     qDebug( "%s", buf );
