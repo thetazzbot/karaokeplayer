@@ -9,7 +9,8 @@
 PlayerBackgroundImage::PlayerBackgroundImage()
 {
     m_percentage = 0;
-    m_movementSpeed = 0;
+
+    m_animationSpeed = 5;
 }
 
 bool PlayerBackgroundImage::initFromSettings(const QString &)
@@ -44,24 +45,14 @@ qint64 PlayerBackgroundImage::draw(KaraokePainter &p)
     if ( !m_currentImage.isNull() )
     {
         // We only animate if the image is at least 20% larger than display resolution
-        if ( m_movementSpeed > 0
+        if ( m_animationSpeed > 0
         && (double) m_currentImage.height() / (double) p.rect().height() > 1.10
         && (double) m_currentImage.width() / (double) p.rect().width() > 1.10 )
         {
-            QRect srcrect = p.rect();
-            QPoint neworigin = m_movementOrigin + m_movementVelocity;
-            srcrect.moveTopLeft( neworigin );
-
-            // Depends on direction
-            if ( srcrect.x() < 0 || srcrect.right() > m_currentImage.width() )
-                m_movementVelocity.setX( -m_movementVelocity.x() );
-
-            if ( srcrect.y() < 0 || srcrect.bottom() > m_currentImage.height() )
-                m_movementVelocity.setY( -m_movementVelocity.y() );
-
-            m_movementOrigin += m_movementVelocity;
-            srcrect.moveTopLeft( m_movementOrigin + m_movementVelocity );
-            p.drawImage( p.rect(), m_currentImage, srcrect );
+            if ( false )
+                animateMove(p);
+            else
+                animateZoom(p);
         }
         else
         {
@@ -105,12 +96,14 @@ void PlayerBackgroundImage::loadNewImage()
     // Start new transition
     m_percentage = 0;
 
+    // Animation move
     // Choose new base angle - make it sharp (in 20-50 degree range), as we don't want to have like 1% angle
+    //
     int angle = qrand() % 50 + 10;
 
     // And convert the angle to speed
-    int mv_x = qMax( qRound( (sin( ((double) angle * M_PI) / 180 ) * (double) m_movementSpeed)), 1 );
-    int mv_y = qMax( qRound( (cos( ((double) angle * M_PI) / 180 ) * (double) m_movementSpeed)), 1 );
+    int mv_x = qMax( qRound( (sin( ((double) angle * M_PI) / 180 ) * (double) m_animationSpeed )), 1 );
+    int mv_y = qMax( qRound( (cos( ((double) angle * M_PI) / 180 ) * (double) m_animationSpeed )), 1 );
 
     // And adjust speed and origin based on random intial direction
     switch ( qrand() % 4 )
@@ -133,6 +126,7 @@ void PlayerBackgroundImage::loadNewImage()
     }
 
     m_movementOrigin = QPoint( 0, 0 );
+    m_zoomFactor = 0;
 }
 
 bool PlayerBackgroundImage::performTransition(KaraokePainter &p)
@@ -176,4 +170,35 @@ bool PlayerBackgroundImage::performTransition(KaraokePainter &p)
         return false;
 
     return true;
+}
+
+void PlayerBackgroundImage::animateMove( KaraokePainter &p )
+{
+    QRect srcrect = p.rect();
+    QPoint neworigin = m_movementOrigin + m_movementVelocity;
+    srcrect.moveTopLeft( neworigin );
+
+    // Depends on direction
+    if ( srcrect.x() < 0 || srcrect.right() > m_currentImage.width() )
+        m_movementVelocity.setX( -m_movementVelocity.x() );
+
+    if ( srcrect.y() < 0 || srcrect.bottom() > m_currentImage.height() )
+        m_movementVelocity.setY( -m_movementVelocity.y() );
+
+    m_movementOrigin += m_movementVelocity;
+    srcrect.moveTopLeft( m_movementOrigin + m_movementVelocity );
+    p.drawImage( p.rect(), m_currentImage, srcrect );
+}
+
+void PlayerBackgroundImage::animateZoom(KaraokePainter &p)
+{
+    QRect destrect = m_currentImage.rect();
+
+    destrect.adjust( m_zoomFactor, (m_zoomFactor * m_currentImage.height()) / m_currentImage.width(), -m_zoomFactor, (-m_zoomFactor * m_currentImage.height()) / m_currentImage.width() );
+
+    if ( destrect.width() <= p.rect().width() )
+        loadNewImage();
+
+    m_zoomFactor += m_animationSpeed;
+    p.drawImage( p.rect(), m_currentImage, destrect );
 }

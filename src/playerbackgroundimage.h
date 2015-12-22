@@ -27,6 +27,9 @@ class PlayerBackgroundImage : public PlayerBackground
         void    loadNewImage();
         bool    performTransition( KaraokePainter& p );
 
+        void    animateMove( KaraokePainter& p );
+        void    animateZoom( KaraokePainter& p );
+
         // Last time the image was updated
         QTime   m_lastUpdated;
 
@@ -37,12 +40,15 @@ class PlayerBackgroundImage : public PlayerBackground
         // For transition between current and new image - percentage (0-100) of how much of new image is shown
         int     m_percentage;
 
-        // For current image movement
-        int     m_movementAngle;    // 0 - 359, clockwise, 0 degrees starts at 12.
-        int     m_movementSpeed;    // 0 - no movement
+        // Animation speed: 0 - no animation
+        int     m_animationSpeed;
 
+        // For animateMove
         QPoint  m_movementOrigin;   // current top-left coordinate of the origin rectangle
         QPoint  m_movementVelocity;
+
+        // For animateZoom - percentage between 100% desktop size an
+        int     m_zoomFactor;
 };
 
 #endif // PLAYERBACKGROUNDIMAGE_H
