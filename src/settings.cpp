@@ -14,7 +14,7 @@ Settings::Settings()
 
     playerBackgroundType = BACKGROUND_TYPE_IMAGE;
     playerBackgroundObjects << "/home/tim/work/my/karaokeplayer/test/images";
-    playerBackgroundTransitionDelay = 0;
+    playerBackgroundTransitionDelay = 30;
 
     playerRenderFPS = 25;
     playerBackgroundColor = QColor( Qt::black );

@@ -9,7 +9,7 @@
 PlayerBackgroundImage::PlayerBackgroundImage()
 {
     m_percentage = 0;
-    m_movementSpeed = 1;
+    m_movementSpeed = 0;
 }
 
 bool PlayerBackgroundImage::initFromSettings(const QString &)
@@ -106,11 +106,11 @@ void PlayerBackgroundImage::loadNewImage()
     m_percentage = 0;
 
     // Choose new base angle - make it sharp (in 20-50 degree range), as we don't want to have like 1% angle
-    int angle = qrand() % 30 + 20;
+    int angle = qrand() % 50 + 10;
 
     // And convert the angle to speed
-    int mv_x = qMax( (int) sin( (double) angle * M_PI ) * m_movementSpeed, 1 );
-    int mv_y = qMax( (int) cos( (double) angle * M_PI ) * m_movementSpeed, 1 );
+    int mv_x = qMax( qRound( (sin( ((double) angle * M_PI) / 180 ) * (double) m_movementSpeed)), 1 );
+    int mv_y = qMax( qRound( (cos( ((double) angle * M_PI) / 180 ) * (double) m_movementSpeed)), 1 );
 
     // And adjust speed and origin based on random intial direction
     switch ( qrand() % 4 )
@@ -131,6 +131,8 @@ void PlayerBackgroundImage::loadNewImage()
             m_movementVelocity = QPoint( mv_x, -mv_y );
             break;
     }
+
+    m_movementOrigin = QPoint( 0, 0 );
 }
 
 bool PlayerBackgroundImage::performTransition(KaraokePainter &p)
