@@ -15,9 +15,10 @@ class SongQueue : public QObject
         class Song
         {
             public:
-                QString  file;
+                QString  file;     // may be original or cached
                 QString  title;
                 QString  singer;
+                bool     preparing;    // if true, the conversion/downloading/extraction is still in progress
         };
 
         SongQueue( QObject * parent );
@@ -49,7 +50,10 @@ class SongQueue : public QObject
     public slots:
         void    clear();
 
-        // Adds a song into queue, automatically rearranging it
+        // This slot is called when processing for a music file (downloading, unpacking or converting) is finished.
+        void    processingFinished( const QString& origfile, bool succeed );
+
+        // Adds a song into queue, automatically rearranging it. Returns true if the song is added, false otherwise
         void    addSong( const QString& file, const QString& singer );
 
     private:

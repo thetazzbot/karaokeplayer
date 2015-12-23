@@ -5,6 +5,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QDialog>
+#include <QTimer>
 
 #include "settings.h"
 #include "mainwindow.h"
@@ -14,6 +15,7 @@
 #include "songdatabase.h"
 #include "playernotification.h"
 #include "eventcontroller.h"
+#include "convertermidi.h"
 
 
 MainWindow * pMainWindow;
@@ -39,6 +41,9 @@ MainWindow::MainWindow(QWidget *parent) :
     // Song database
     pSongDatabase = new SongDatabase();
 
+    // MIDI converter
+    pConverterMIDI = new ConverterMIDI( this );
+
     m_widgetStack = new QStackedWidget();
     setCentralWidget( m_widgetStack );
 
@@ -61,12 +66,15 @@ MainWindow::MainWindow(QWidget *parent) :
     // Initialize the controller
     pController->start();
 
+    // Connect slots
     connect( pController, SIGNAL(playerStart()), this, SLOT(queueStart()) );
     connect( pController, SIGNAL(playerStop()), this, SLOT(queueStop()) );
     connect( pController, SIGNAL(queueAdd(QString,QString)), this, SLOT(queueAdd(QString,QString)) );
     connect( pController, SIGNAL(queueNext()), this, SLOT(queueNext()) );
     connect( pController, SIGNAL(queuePrevious()), this, SLOT(queuePrevious()) );
     connect( pController, SIGNAL(queueClear()), pSongQueue, SLOT(clear()) );
+
+    connect( pConverterMIDI, SIGNAL(finished(QString,bool)), pSongQueue, SLOT(processingFinished(QString,bool)) );
 }
 
 MainWindow::~MainWindow()
@@ -123,6 +131,15 @@ void MainWindow::playCurrentItem()
 
     SongQueue::Song current = pSongQueue->current();
 
+    // If current song is not ready yet, show the notification and wait until it is
+    if ( current.preparing )
+    {
+        pNotification->setMessage( tr("Conversion in progress") );
+        QTimer::singleShot( 500, this, SLOT( playCurrentItem() ) );
+        return;
+    }
+
+    pNotification->clearMessage();
     KaraokeFile * karfile = new KaraokeFile( m_widget );
 
     try

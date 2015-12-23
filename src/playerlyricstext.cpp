@@ -145,6 +145,7 @@ qint64 PlayerLyricsText::firstLyricStart() const
 
 void PlayerLyricsText::drawNotification(KaraokePainter &p, qint64 timeleft)
 {
+    p.setPen( Qt::black );
     p.setBrush( Qt::white );
     p.drawRect( 0, 0, timeleft * p.rect().width() / MAX_NOTIFICATION_DURATION, 10 );
 }

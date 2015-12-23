@@ -52,9 +52,9 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
         void    queueNext();
         void    queuePrevious();
         void    queueStart();
+        void    playCurrentItem();
 
     private:
-        void    playCurrentItem();
         void    keyPressEvent(QKeyEvent * event);
         void    closeEvent(QCloseEvent * event);
 

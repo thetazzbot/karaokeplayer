@@ -13,6 +13,7 @@
 #include "karaokepainter.h"
 #include "eventcontroller.h"
 #include "playernotification.h"
+#include "util.h"
 
 #include "libkaraokelyrics/lyricsloader.h"
 
@@ -23,7 +24,6 @@ KaraokeFile::KaraokeFile( PlayerWidget *w )
 
     m_lyrics = 0;
     m_background = 0;
-    m_convProcess = 0;
     m_playState = STATE_RESET;
 
     m_nextRedrawTime = -1;
@@ -37,9 +37,22 @@ KaraokeFile::KaraokeFile( PlayerWidget *w )
 
 KaraokeFile::~KaraokeFile()
 {
+    m_player.stop();
+
     delete m_lyrics;
     delete m_background;
-    delete m_convProcess;
+}
+
+bool KaraokeFile::needsProcessing(const QString &filename)
+{
+    if ( isMidiFile( filename ) && pSettings->convertMidiFiles )
+    {
+        // We only need processing if we don't have a cached copy of a processed file
+        if ( !QFile::exists( Util::cachedFile( filename )) )
+            return true;
+    }
+
+    return false;
 }
 
 bool KaraokeFile::open(const QString &filename)
@@ -106,45 +119,18 @@ bool KaraokeFile::open(const QString &filename)
         // Open the music file as we need QIODevice
         if ( isMidiFile( musicFile ) && pSettings->convertMidiFiles )
         {
-            // Do we have it cached?
-            QFileInfo finfo( musicFile );
-            QString test = finfo.absolutePath() + QDir::separator() + finfo.completeBaseName() + ".wav";
+            // If we have converted it, a cached file should be there
+            QString test = Util::cachedFile( filename );
 
-            if ( QFile::exists( test ) )
-                musicFile = test;
-            else
-            {
-                QCryptographicHash hash( QCryptographicHash::Sha3_512 );
-                QFile file( musicFile );
+            if ( !QFile::exists( test ) )
+                throw QString("Cannot open music file %1 or cached file %2").arg( musicFile ) .arg(test);
 
-                if ( !file.open( QIODevice::ReadOnly ) )
-                {
-                    QString err = file.errorString();
-                    throw QString("Cannot open music file %1: %2").arg( musicFile ) .arg(err);
-                }
-
-                hash.addData( &file );
-                test = pSettings->cacheDir + QDir::separator() + hash.result().toHex() + ".wav";
-
-                if (  QFile::exists( test ) )
-                    musicFile = test;
-                else
-                {
-                    // Start conversion right away
-                    m_musicFileName = test;
-                    startConversion( musicFile );
-                    m_playState = STATE_CONVERTING;
-                    pNotification->setMessage( "MIDI conversion in progress" );
-                }
-            }
+            musicFile = test;
         }
 
-        // If we started a process, the conversion is in progress
-        if ( !m_convProcess )
-        {
-            m_musicFileName = musicFile;
-            m_player.load( m_musicFileName );
-        }
+        // Load the music file
+        m_musicFileName = musicFile;
+        m_player.load( m_musicFileName );
 
         // Read the lyrics
         QFile * lfile = new QFile( lyricFile );
@@ -181,9 +167,7 @@ bool KaraokeFile::open(const QString &filename)
 
     // Initialize
     m_background->initFromSettings();
-
-    if ( m_playState != STATE_CONVERTING )
-        m_playState = STATE_READY;
+    m_playState = STATE_READY;
 
     return true;
 }
@@ -191,13 +175,10 @@ bool KaraokeFile::open(const QString &filename)
 void KaraokeFile::start()
 {
     // If no conversion is in progress, start the player and rendering thread
-    if ( m_playState == STATE_READY )
-    {
-        m_playState = STATE_PLAYING;
-        m_background->start();
-        m_player.play();
-        pNotification->clearMessage();
-    }
+    m_playState = STATE_PLAYING;
+    m_background->start();
+    m_player.play();
+    pNotification->clearMessage();
 }
 
 void KaraokeFile::pause()
@@ -250,51 +231,9 @@ qint64 KaraokeFile::draw(KaraokePainter &p)
     return qMin( bgtime, lyrictime );
 }
 
-void KaraokeFile::convError(QProcess::ProcessError )
-{
-    pNotification->setMessage( "MIDI conversion failed" );
-}
-
-void KaraokeFile::convFinished( int exitCode, QProcess::ExitStatus exitStatus )
-{
-    // FIXME: copy?
-
-    // Do not delete the object when we're in its slot!
-    m_convProcess->deleteLater();
-    m_convProcess = 0;
-
-    pNotification->clearMessage();
-    m_playState = STATE_READY;
-    m_player.load( m_musicFileName );
-    start();
-}
-
-void KaraokeFile::startConversion(const QString &src)
-{
-    // Using Timidity
-    m_convProcess = new QProcess( this );
-    connect( m_convProcess, SIGNAL(error(QProcess::ProcessError)), this, SLOT(convError(QProcess::ProcessError)) );
-    connect( m_convProcess, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(convFinished(int,QProcess::ExitStatus)) );
-
-    QStringList args;
-    args << "-Ow" << src << "-o" << m_musicFileName;
-
-    m_convProcess->start( "timidity", args );
-}
-
 void KaraokeFile::stop()
 {
-    if ( m_convProcess )
-    {
-        m_convProcess->kill();
-        m_convProcess->deleteLater();
-        m_convProcess = 0;
-        QFile::remove( m_musicFileName );
-    }
-    else
-    {
-        m_player.stop();
-    }
+    m_player.stop();
 }
 
 bool KaraokeFile::isMidiFile(const QString &filename)

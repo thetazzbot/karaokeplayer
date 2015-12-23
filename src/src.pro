@@ -38,7 +38,8 @@ SOURCES += main.cpp\
     eventcontroller_webserver.cpp \
     eventcontroller_webserver_handler.cpp \
     logger.cpp \
-    playerbackgroundimage.cpp
+    playerbackgroundimage.cpp \
+    convertermidi.cpp
 
 HEADERS  += mainwindow.h \
     playerwidget.h \
@@ -66,7 +67,8 @@ HEADERS  += mainwindow.h \
     eventcontroller_webserver_handler.h \
     logger.h \
     util.h \
-    playerbackgroundimage.h
+    playerbackgroundimage.h \
+    convertermidi.h
 
 FORMS    += mainwindow.ui \
     songenqueuedialog.ui \

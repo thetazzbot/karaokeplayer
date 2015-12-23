@@ -24,10 +24,11 @@ class KaraokeFile : public QObject
     Q_OBJECT
 
     public:
-        //KaraokeFile( AudioPlayer_FFmpeg * plr, PlayerWidget * w );
         KaraokeFile( PlayerWidget * w );
-
         ~KaraokeFile();
+
+        // Checks if the file queued needs processing (i.e. MIDI conversion)
+        static bool needsProcessing( const QString& filename );
 
         // open - a music file, a lyrics file, a combined file (KFN) or a ZIP archive
         bool    open( const QString& filename );
@@ -46,16 +47,11 @@ class KaraokeFile : public QObject
         void    seekTo( qint64 timing );
         void    stop();
 
-    private slots:
-        void	convError( QProcess::ProcessError error );
-        void	convFinished( int exitCode, QProcess::ExitStatus exitStatus );
-
     protected:
         enum State
         {
             STATE_RESET,
             STATE_READY,
-            STATE_CONVERTING,
             STATE_PLAYING,
             STATE_PAUSED
         };
@@ -66,9 +62,6 @@ class KaraokeFile : public QObject
         QString             m_musicFileName;
         PlayerLyrics     *  m_lyrics;
         PlayerBackground *  m_background;
-
-        // For conversion
-        QProcess         *  m_convProcess;
 
         // Player and rendering widget
         Player              m_player;
