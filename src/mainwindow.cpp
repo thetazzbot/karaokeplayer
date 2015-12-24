@@ -167,8 +167,9 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     pController->keyEvent( event );
 }
 
-void MainWindow::closeEvent(QCloseEvent *event)
+void MainWindow::closeEvent(QCloseEvent *)
 {
     m_widget->stopKaraoke();
     pController->stop();
+    pSettings->save();
 }

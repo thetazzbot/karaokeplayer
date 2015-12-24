@@ -56,6 +56,9 @@ class Settings
         // HTTP port
         unsigned int    httpListenPort;
 
+    public:
+        void    save();
+
     private:
         void    loadBackgroundObjects();
 };

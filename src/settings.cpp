@@ -1,5 +1,6 @@
 #include <QDir>
 #include <QFileInfo>
+#include <QSettings>
 
 #include "settings.h"
 #include "logger.h"
@@ -25,7 +26,7 @@ Settings::Settings()
     cacheDir = "/home/tim/work/my/karaokeplayer/test/cache";
     convertMidiFiles = true;
     playerCDGbackgroundTransparent = true;
-    playerMusicLyricDelay = 0;
+    playerMusicLyricDelay = 300;
 
     queueAddNewSingersNext = false;
     queueFilename = "/home/tim/work/my/karaokeplayer/test/queue.dat";
@@ -44,6 +45,34 @@ Settings::Settings()
 
     if ( playerBackgroundType == BACKGROUND_TYPE_IMAGE || playerBackgroundType == BACKGROUND_TYPE_VIDEO )
         loadBackgroundObjects();
+}
+
+void Settings::save()
+{
+    QSettings settings;
+
+    settings.setValue( "player/BackgroundType", playerBackgroundType );
+    settings.setValue( "player/BackgroundObjects", playerBackgroundObjects );
+    settings.setValue( "player/RenderFPS", playerRenderFPS );
+
+    settings.setValue( "player/BackgroundColor", playerBackgroundColor );
+    settings.setValue( "player/LyricsFont", playerLyricsFont );
+    settings.setValue( "player/LyricsTextBeforeColor", playerLyricsTextBeforeColor );
+    settings.setValue( "player/LyricsTextAfterColor", playerLyricsTextAfterColor );
+    settings.setValue( "player/LyricsTextEachCharacter", playerLyricsTextEachCharacter );
+    settings.setValue( "player/cacheDir", cacheDir );
+    settings.setValue( "player/convertMidiFiles", convertMidiFiles );
+    settings.setValue( "player/CDGbackgroundTransparent", playerCDGbackgroundTransparent );
+    settings.setValue( "player/MusicLyricDelay", playerMusicLyricDelay );
+
+    settings.setValue( "queueAddNewSingersNext", queueAddNewSingersNext );
+
+    settings.setValue( "lircDevicePath", lircDevicePath );
+
+    settings.setValue( "httpListenPort", httpListenPort );
+
+    settings.setValue( "temp/playerBackgroundLastObject", m_playerBackgroundLastObject );
+    settings.setValue( "temp/playerBackgroundLastVideoTime", m_playerBackgroundLastVideoTime );
 }
 
 void Settings::loadBackgroundObjects()
