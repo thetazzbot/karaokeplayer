@@ -26,6 +26,7 @@ class Settings
         bool        convertMidiFiles;
         bool        playerCDGbackgroundTransparent;
         int         playerRenderFPS;
+        int         playerMusicLyricDelay;      // delay in milliseconds between lyrics and music for this hardware
 
 
         // Queue parameters

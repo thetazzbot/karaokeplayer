@@ -3,6 +3,7 @@
 
 #include <QMap>
 #include <QObject>
+#include <QStringList>
 
 struct sqlite3;
 
@@ -32,23 +33,21 @@ class SongDatabase : public QObject
 
         bool    search( const QString& substr, QList<SearchResult>& results, unsigned int limit = 100 );
 
+        // Queries the song file path
         QString pathForId( int id );
+
+        // Returns the song lyric delay
+        int     getLyricDelay( int id );
+
+        // Updates the song playing stats and delay
+        void    updatePlayedSong( int id, int newdelay );
 
     private:
         bool    pathToArtistTitle( const QString& path, QString& artist, QString& title );
-        bool    queryRow( const QString& sql, QMap<QString, QVariant> &output );
-        bool    execute( const QString& sql );
-        QString &quote( QString& orig );
-        QString quote( const QString& orig );
+        //bool    queryRow( const QString& sql, QMap<QString, QVariant> &output );
+        bool    execute( const QString& sql, const QStringList& args = QStringList() );
 
     private:
-        class Record
-        {
-        public:
-            QString type;
-            QString filename;
-        };
-
         // Database intentifier (to recognize if the database changed)
         QString         m_identifier;
 

@@ -24,7 +24,7 @@ class KaraokeFile : public QObject
     Q_OBJECT
 
     public:
-        KaraokeFile( PlayerWidget * w );
+        KaraokeFile( PlayerWidget * w, int id );
         ~KaraokeFile();
 
         // Checks if the file queued needs processing (i.e. MIDI conversion)
@@ -46,6 +46,8 @@ class KaraokeFile : public QObject
         void    seekBackward();
         void    seekTo( qint64 timing );
         void    stop();
+        void    lyricEarlier();
+        void    lyricLater();
 
     protected:
         enum State
@@ -73,6 +75,9 @@ class KaraokeFile : public QObject
         // Next redraw time
         qint64              m_lastRedrawTime;
         qint64              m_nextRedrawTime;
+
+        // Song ID (to query the db); 0 no id
+        int                 m_songID;
 
         static bool isMidiFile( const QString& filename );
         static bool isSupportedMusicFile( const QString& filename );

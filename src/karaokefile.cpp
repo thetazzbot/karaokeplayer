@@ -12,15 +12,17 @@
 #include "playerbackgroundimage.h"
 #include "karaokepainter.h"
 #include "eventcontroller.h"
+#include "songdatabase.h"
 #include "playernotification.h"
 #include "util.h"
 
 #include "libkaraokelyrics/lyricsloader.h"
 
 
-KaraokeFile::KaraokeFile( PlayerWidget *w )
+KaraokeFile::KaraokeFile( PlayerWidget *w, int id )
 {
     m_widget = w;
+    m_songID = id;
 
     m_lyrics = 0;
     m_background = 0;
@@ -33,6 +35,8 @@ KaraokeFile::KaraokeFile( PlayerWidget *w )
     connect( pController, SIGNAL( playerPauseResume()), this, SLOT(pause()) );
     connect( pController, SIGNAL( playerForward()), this, SLOT(seekForward()) );
     connect( pController, SIGNAL( playerBackward()), this, SLOT(seekBackward()) );
+    connect( pController, SIGNAL(playerLyricsEarlier()), this, SLOT(lyricEarlier()) );
+    connect( pController, SIGNAL(playerLyricsLater()), this, SLOT(lyricLater()) );
 }
 
 KaraokeFile::~KaraokeFile()
@@ -149,6 +153,10 @@ bool KaraokeFile::open(const QString &filename)
     if ( !m_lyrics->load( *lyricFileRead, lyricFile ) )
         throw( QObject::tr("Can't load lyrics file %1: %2") .arg( lyricFile ) .arg( m_lyrics->errorMsg() ) );
 
+    // If we have song ID, query the DB if it has a delay for those lyrics
+    if ( m_songID != 0 )
+        m_lyrics->setDelay( pSongDatabase->getLyricDelay( m_songID ) );
+
     // Which background should we use?
     switch ( pSettings->playerBackgroundType )
     {
@@ -178,7 +186,7 @@ void KaraokeFile::start()
     m_playState = STATE_PLAYING;
     m_background->start();
     m_player.play();
-    pNotification->clearMessage();
+    pNotification->clearOnScreenMessage();
 }
 
 void KaraokeFile::pause()
@@ -234,6 +242,25 @@ qint64 KaraokeFile::draw(KaraokePainter &p)
 void KaraokeFile::stop()
 {
     m_player.stop();
+
+    if ( m_songID )
+        pSongDatabase->updatePlayedSong( m_songID, m_lyrics->delay() );
+}
+
+void KaraokeFile::lyricEarlier()
+{
+    int newdelay = m_lyrics->delay() + 200;
+    m_lyrics->setDelay( newdelay );
+
+    pNotification->setMessage( tr("Lyrics show %1 by %2ms") .arg( newdelay < 0 ? "earlier" : "later") .arg(newdelay));
+}
+
+void KaraokeFile::lyricLater()
+{
+    int newdelay = m_lyrics->delay() - 200;
+    m_lyrics->setDelay( newdelay );
+
+    pNotification->setMessage( tr("Lyrics show %1 by %2ms") .arg( newdelay < 0 ? "earlier" : "later") .arg(newdelay));
 }
 
 bool KaraokeFile::isMidiFile(const QString &filename)

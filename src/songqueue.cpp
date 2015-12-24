@@ -24,7 +24,7 @@ void SongQueue::init()
         load();
 }
 
-void SongQueue::addSong(const QString &file, const QString &singer)
+void SongQueue::addSong(const QString &file, const QString &singer, int id)
 {
     // Find the currnet singer index
     int singeridx = 0;
@@ -42,6 +42,7 @@ void SongQueue::addSong(const QString &file, const QString &singer)
 
     // Add to the end now
     Song song;
+    song.id = id;
     song.file = file;
     song.singer = singer;
     song.title = filenameToTitle( file );

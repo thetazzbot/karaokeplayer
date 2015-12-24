@@ -17,7 +17,7 @@ void EventController_WebServer::run()
 {
     EventController_WebServer_Handler serverHandler;
 
-    connect( &serverHandler, SIGNAL(queueAdd(QString,QString)), pMainWindow, SLOT(queueAdd(QString,QString)) );
+    connect( &serverHandler, SIGNAL(queueAdd(QString,QString,int)), pMainWindow, SLOT(queueAdd(QString,QString,int)) );
 
     QHttpServer server( &serverHandler );
 

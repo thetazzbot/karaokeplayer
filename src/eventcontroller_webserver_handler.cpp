@@ -2,6 +2,7 @@
 #include <QJsonObject>
 #include <QDebug>
 
+#include "logger.h"
 #include "eventcontroller_webserver_handler.h"
 #include "songdatabase.h"
 #include "eventcontroller.h"
@@ -143,11 +144,14 @@ bool EventController_WebServer_Handler::addsong( QHttpSocket *socket, QJsonDocum
     if ( !obj.contains( "i" ) || !obj.contains( "s" ) )
         return false;
 
+    int id = obj["i"].toInt();
     QString singer = obj["s"].toString();
-    QString path = pSongDatabase->pathForId( obj["i"].toInt() );
+    QString path = pSongDatabase->pathForId( id );
 
     if ( path.isEmpty() || singer.isEmpty() )
     {
+        Logger::debug("WebInterface: failed to add song %d: %s", path.isEmpty() ? "path not found" : "singer is empty");
+
         QJsonObject out;
         out["result"] = 0;
 
@@ -156,7 +160,8 @@ bool EventController_WebServer_Handler::addsong( QHttpSocket *socket, QJsonDocum
         return true;
     }
 
-    emit queueAdd( path, singer );
+    Logger::debug("WebInterface: %s added song %d: %s", qPrintable(singer), id, qPrintable(path) );
+    emit queueAdd( path, singer, id );
 
     QJsonObject out;
     out["result"] = 1;

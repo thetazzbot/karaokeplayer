@@ -46,6 +46,9 @@ class KaraokePainter : public QPainter
         // Draws text x-centered at percentage y-wise (such as "70% of y") with the specified color, but with black outline
         void    drawCenteredOutlineText( int ypercentage, const QColor& color, const QString& text );
 
+        // Changes the time
+        void    setTime( qint64 newtime );
+
     private:
         QRect       m_rect;
         qint64      m_time;

@@ -27,6 +27,9 @@ class EventController : public QObject
             EVENT_QUEUE_NEXT,
             EVENT_QUEUE_PREVIOUS,
             EVENT_QUEUE_CLEAR,
+
+            EVENT_LYRIC_EARLIER,   // decreases the music-lyric delay (negative too)
+            EVENT_LYRIC_LATER,     // increases the music-lyric delay
         };
 
         EventController();
@@ -46,6 +49,8 @@ class EventController : public QObject
         void    playerPauseResume();
         void    playerForward();
         void    playerBackward();
+        void    playerLyricsEarlier();
+        void    playerLyricsLater();
 
         // Events for queue manager
         void    queueAdd( QString songpath, QString singer );

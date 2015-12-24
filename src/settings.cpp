@@ -25,6 +25,7 @@ Settings::Settings()
     cacheDir = "/home/tim/work/my/karaokeplayer/test/cache";
     convertMidiFiles = true;
     playerCDGbackgroundTransparent = true;
+    playerMusicLyricDelay = 0;
 
     queueAddNewSingersNext = false;
     queueFilename = "/home/tim/work/my/karaokeplayer/test/queue.dat";
@@ -35,6 +36,7 @@ Settings::Settings()
     lircMappingFile = "/home/tim/work/my/karaokeplayer/test/lirc.map";
 
     httpListenPort = 8000;
+
 
     m_playerBackgroundLastObject = 0;
     m_playerBackgroundLastVideoTime = 0;

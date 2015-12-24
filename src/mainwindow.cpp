@@ -69,7 +69,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // Connect slots
     connect( pController, SIGNAL(playerStart()), this, SLOT(queueStart()) );
     connect( pController, SIGNAL(playerStop()), this, SLOT(queueStop()) );
-    connect( pController, SIGNAL(queueAdd(QString,QString)), this, SLOT(queueAdd(QString,QString)) );
+    connect( pController, SIGNAL(queueAdd(QString,QString,int)), this, SLOT(queueAdd(QString,QString,int)) );
     connect( pController, SIGNAL(queueNext()), this, SLOT(queueNext()) );
     connect( pController, SIGNAL(queuePrevious()), this, SLOT(queuePrevious()) );
     connect( pController, SIGNAL(queueClear()), pSongQueue, SLOT(clear()) );
@@ -81,9 +81,9 @@ MainWindow::~MainWindow()
 {
 }
 
-void MainWindow::queueAdd(QString file, QString singer)
+void MainWindow::queueAdd(QString file, QString singer, int id)
 {
-    pSongQueue->addSong( file, singer );
+    pSongQueue->addSong( file, singer, id );
 
     if ( m_widget->position() == -1 )
         playCurrentItem();
@@ -134,13 +134,13 @@ void MainWindow::playCurrentItem()
     // If current song is not ready yet, show the notification and wait until it is
     if ( current.preparing )
     {
-        pNotification->setMessage( tr("Conversion in progress") );
+        pNotification->setOnScreenMessage( tr("Conversion in progress") );
         QTimer::singleShot( 500, this, SLOT( playCurrentItem() ) );
         return;
     }
 
-    pNotification->clearMessage();
-    KaraokeFile * karfile = new KaraokeFile( m_widget );
+    pNotification->clearOnScreenMessage();
+    KaraokeFile * karfile = new KaraokeFile( m_widget, current.id );
 
     try
     {

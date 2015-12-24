@@ -150,6 +150,14 @@ bool EventController::cmdEvent(int event )
         emit queueClear();
         break;
 
+    case EVENT_LYRIC_EARLIER:
+        emit playerLyricsEarlier();
+        break;
+
+    case EVENT_LYRIC_LATER:
+        emit playerLyricsLater();
+        break;
+
     default:
         return false;
     }
@@ -173,6 +181,12 @@ void EventController::keyEvent(QKeyEvent *event)
 
     if ( event->key() == Qt::Key_Right )
         cmdEvent( EVENT_PLAYER_FORWARD );
+
+    if ( event->key() == Qt::Key_Period )
+        cmdEvent( EVENT_LYRIC_LATER );
+
+    if ( event->key() == Qt::Key_Comma )
+        cmdEvent( EVENT_LYRIC_EARLIER );
 
     if ( event->key() == Qt::Key_O )
     {

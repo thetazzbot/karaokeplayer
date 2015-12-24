@@ -36,6 +36,10 @@ class PlayerLyrics
         // Error message
         QString errorMsg() const { return m_errorMsg; }
 
+        // Set/get lyric time delay
+        void    setDelay( int delayms );
+        int     delay() const;
+
     protected:
         // Render lyrics for current timestamp into the QImage provided. Must "render over",
         // and not mess up with the rest of the screen. True on success, false + m_errorMsg on error.
@@ -47,6 +51,9 @@ class PlayerLyrics
 
         // Last time lyrics renderer was called (in ms)
         qint64          m_lastRenderedTime;
+
+        // Lyric delay
+        QAtomicInt      m_timeDelay;
 };
 
 #endif // LYRICSRENDERER_H

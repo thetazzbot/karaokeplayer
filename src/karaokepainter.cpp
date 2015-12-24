@@ -122,3 +122,8 @@ void KaraokePainter::drawCenteredOutlineText(int ypercentage, const QColor &colo
 
     drawOutlineText( x, y, color, text );
 }
+
+void KaraokePainter::setTime(qint64 newtime)
+{
+    m_time = newtime;
+}

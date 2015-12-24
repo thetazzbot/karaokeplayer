@@ -15,7 +15,8 @@ class SongQueue : public QObject
         class Song
         {
             public:
-                QString  file;     // may be original or cached
+                int      id;        // nonzero if the song is in the database, so its status could be updated
+                QString  file;      // may be original or cached
                 QString  title;
                 QString  singer;
                 bool     preparing;    // if true, the conversion/downloading/extraction is still in progress
@@ -54,7 +55,7 @@ class SongQueue : public QObject
         void    processingFinished( const QString& origfile, bool succeed );
 
         // Adds a song into queue, automatically rearranging it. Returns true if the song is added, false otherwise
-        void    addSong( const QString& file, const QString& singer );
+        void    addSong( const QString& file, const QString& singer, int id );
 
     private:
         // Internal function which saves queue to disk and calls the signals

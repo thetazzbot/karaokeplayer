@@ -86,16 +86,21 @@ void PlayerNotification::queueUpdated()
     reset();
 }
 
-void PlayerNotification::setMessage(const QString &message)
+void PlayerNotification::setOnScreenMessage(const QString &message)
 {
     QMutexLocker m( &m_mutex );
     m_customMessage = message;
 }
 
-void PlayerNotification::clearMessage()
+void PlayerNotification::clearOnScreenMessage()
 {
     QMutexLocker m( &m_mutex );
     m_customMessage.clear();
+}
+
+void PlayerNotification::setMessage(const QString &message, int show)
+{
+
 }
 
 void PlayerNotification::reset()

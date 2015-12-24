@@ -25,8 +25,10 @@ class PlayerNotification : public QObject
     public slots:
         void    queueUpdated();
 
-        void    setMessage( const QString& message );
-        void    clearMessage();
+        void    setOnScreenMessage( const QString& message );
+        void    clearOnScreenMessage();
+
+        void    setMessage( const QString& message, int show = 2000 );
 
     private:
         void    reset();
