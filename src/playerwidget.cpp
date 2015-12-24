@@ -74,7 +74,7 @@ qint64 PlayerWidget::duration() const
 }
 
 // This function is called from a different thread, which is guaranteed not to use render image until the call returns
-QImage *PlayerWidget::switchImages()
+QImage * PlayerWidget::switchImages()
 {
     int newRenderImage;
 
@@ -112,6 +112,7 @@ void PlayerWidget::closeEvent(QCloseEvent *event)
 {
     stopKaraoke();
 
+    m_renderer->stop();
     delete m_renderer;
     m_renderer = 0;
 

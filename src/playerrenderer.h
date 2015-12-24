@@ -19,6 +19,8 @@ class PlayerRenderer : public QThread
         explicit PlayerRenderer( PlayerNotification * notification, QImage * render, PlayerWidget *parent );
         ~PlayerRenderer();
 
+        void    stop();
+
     private:
         void    run();
 

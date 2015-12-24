@@ -20,6 +20,11 @@ PlayerRenderer::PlayerRenderer(PlayerNotification *notification, QImage * render
 
 PlayerRenderer::~PlayerRenderer()
 {
+    stop();
+}
+
+void PlayerRenderer::stop()
+{
     if ( m_continue )
     {
         m_continue.store( 0 );
