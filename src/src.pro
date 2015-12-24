@@ -39,7 +39,8 @@ SOURCES += main.cpp\
     eventcontroller_webserver_handler.cpp \
     logger.cpp \
     playerbackgroundimage.cpp \
-    convertermidi.cpp
+    convertermidi.cpp \
+    ../sqlite3/sqlite3.c
 
 HEADERS  += mainwindow.h \
     playerwidget.h \
@@ -76,3 +77,4 @@ FORMS    += mainwindow.ui \
 INCLUDEPATH += .. ../libqhttpengine/QHttpEngine ../libqhttpengine
 LIBS += -L ../libkaraokelyrics/ -lkaraokelyrics -L../libqhttpengine/ -lqhttpengine
 POST_TARGETDEPS += ../libkaraokelyrics/libkaraokelyrics.a ../libqhttpengine/libqhttpengine.a
+DEFINES += SQLITE_OMIT_LOAD_EXTENSION

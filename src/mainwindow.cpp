@@ -39,7 +39,7 @@ MainWindow::MainWindow(QWidget *parent) :
     pNotification = new PlayerNotification( 0 );
 
     // Song database
-    pSongDatabase = new SongDatabase();
+    pSongDatabase = new SongDatabase( this );
 
     // MIDI converter
     pConverterMIDI = new ConverterMIDI( this );

@@ -47,7 +47,6 @@ class Settings
 
         // Songs database
         QString         songdbFilename;
-        QString         songPathPrefix;
 
         // LIRC path
         QString         lircDevicePath;
