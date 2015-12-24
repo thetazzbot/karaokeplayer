@@ -86,7 +86,7 @@ bool SongDatabase::init()
 
     // Create tables/indexes if not there
     if ( !execute( "CREATE TABLE IF NOT EXISTS songs( id INTEGER PRIMARY KEY, path TEXT, artist TEXT, title TEXT,"
-                  "type TEXT, search TEXT, played INT, lastplayed INT, lyricdelay INT, data BLOB )" )
+                  "type TEXT, search TEXT, played INT, lastplayed INT, lyricdelay INT, added INT, data BLOB )" )
          || !execute( "CREATE INDEX IF NOT EXISTS idxSearch ON songs(search)" )
          || !execute( "CREATE TABLE IF NOT EXISTS settings( version INTEGER, identifier TEXT, lastupdated INT, pathprefix TEXT )" ) )
         return false;
@@ -163,7 +163,7 @@ bool SongDatabase::importFromText(const QString &filename, const QString& pathPr
         params << path << artist << title << type << search;
 
         // id INTEGER PRIMARY KEY, path TEXT, artist TEXT, title TEXT type TEXT, search TEXT, played INT, lastplayed INT, lyricdelay INT, data BLOB
-        if ( !execute( QString("INSERT OR REPLACE INTO songs VALUES( %1, ?, ?, ?, ?, ?, 0, 0, 0, NULL )").arg( id ), params ) )
+        if ( !execute( QString("INSERT OR REPLACE INTO songs VALUES( %1, ?, ?, ?, ?, ?, 0, 0, 0, DATETIME(), NULL )").arg( id ), params ) )
             continue;
     }
 
