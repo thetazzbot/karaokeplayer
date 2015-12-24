@@ -57,9 +57,6 @@ class SongDatabase : public QObject
         // Last update time_t
         qint64          m_lastUpdate;
 
-        // Prefix for the file paths
-        QString         m_filePrefix;
-
         // Database handle
         sqlite3 *       m_sqlitedb;
 };

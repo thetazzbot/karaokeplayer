@@ -48,6 +48,7 @@ class Settings
 
         // Songs database
         QString         songdbFilename;
+        QString         songPathPrefix;
 
         // LIRC path
         QString         lircDevicePath;
@@ -57,6 +58,7 @@ class Settings
         unsigned int    httpListenPort;
 
     public:
+        void    load();
         void    save();
 
     private:

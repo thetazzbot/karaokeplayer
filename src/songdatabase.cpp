@@ -88,7 +88,7 @@ bool SongDatabase::init()
     if ( !execute( "CREATE TABLE IF NOT EXISTS songs( id INTEGER PRIMARY KEY, path TEXT, artist TEXT, title TEXT,"
                   "type TEXT, search TEXT, played INT, lastplayed INT, lyricdelay INT, added INT, data BLOB )" )
          || !execute( "CREATE INDEX IF NOT EXISTS idxSearch ON songs(search)" )
-         || !execute( "CREATE TABLE IF NOT EXISTS settings( version INTEGER, identifier TEXT, lastupdated INT, pathprefix TEXT )" ) )
+         || !execute( "CREATE TABLE IF NOT EXISTS settings( version INTEGER, identifier TEXT, lastupdated INT)" ) )
         return false;
 
     // Verify/update version
@@ -101,7 +101,7 @@ bool SongDatabase::init()
         m_lastUpdate = time( 0 );
 
         // Set the settings
-        if ( !execute( QString("INSERT INTO settings VALUES( %1, ?, %2, '')") .arg( m_currentVersion) .arg(m_lastUpdate), QStringList() << m_identifier ) )
+        if ( !execute( QString("INSERT INTO settings VALUES( %1, ?, %2)") .arg( m_currentVersion) .arg(m_lastUpdate), QStringList() << m_identifier ) )
             return false;
     }
     else
@@ -109,7 +109,6 @@ bool SongDatabase::init()
         m_currentVersion = stmt.columnInt64( 0 );
         m_identifier = stmt.columnText( 1 );
         m_lastUpdate = stmt.columnInt64( 2 );
-        m_filePrefix = stmt.columnText( 3 );
     }
 
     //importFromText( "/home/tim/work/my/karaokeplayer/test/karaoke.text", "/mnt/karaoke" );
@@ -216,7 +215,7 @@ QString SongDatabase::pathForId(int id)
     if ( !stmt.prepare( m_sqlitedb, QString("SELECT path FROM songs WHERE id=%1") .arg(id)) || stmt.step() != SQLITE_ROW )
         return "";
 
-    return m_filePrefix + stmt.columnText( 0 );
+    return pSettings->songPathPrefix + stmt.columnText( 0 );
 }
 
 int SongDatabase::getLyricDelay(int id)
