@@ -23,6 +23,7 @@ class EventController_WebServer_Handler : public QObjectHandler
         void    handle(QHttpSocket *socket);
         bool    search( QHttpSocket *socket, QJsonDocument& document );
         bool    addsong( QHttpSocket *socket, QJsonDocument& document);
+        bool    listqueue( QHttpSocket * socket, QJsonDocument& document );
 
         void    sendData(QHttpSocket *socket, const QByteArray& data, const QByteArray &type = "application/json" );
 };

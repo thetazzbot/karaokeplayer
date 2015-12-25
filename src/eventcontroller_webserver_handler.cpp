@@ -5,6 +5,7 @@
 #include "logger.h"
 #include "eventcontroller_webserver_handler.h"
 #include "songdatabase.h"
+#include "songqueue.h"
 #include "eventcontroller.h"
 
 
@@ -97,6 +98,8 @@ void EventController_WebServer_Handler::handle( QHttpSocket *socket )
         res = search( socket, document );
     else if ( socket->path() == "/api/addsong" )
         res = addsong( socket, document );
+    else if ( socket->path() == "/api/listqueue" )
+        res = listqueue( socket, document );
 
     if ( !res )
     {
@@ -170,6 +173,33 @@ bool EventController_WebServer_Handler::addsong( QHttpSocket *socket, QJsonDocum
     socket->close();
     return true;
 }
+
+bool EventController_WebServer_Handler::listqueue(QHttpSocket *socket, QJsonDocument &)
+{
+    QList<SongQueue::Song> queue;
+
+    // Get the song list
+    pSongQueue->exportQueue( queue );
+
+    QJsonArray out;
+
+    Q_FOREACH( const SongQueue::Song& s, queue )
+    {
+        QJsonObject rec;
+
+        rec[ "i" ] = s.id;
+        rec[ "p" ] = s.singer;
+        rec[ "t"] = s.title;
+        rec[ "s"] = s.stateText();
+
+        out.append( rec );
+    }
+
+    sendData( socket, QJsonDocument( out ).toJson() );
+    socket->close();
+    return true;
+}
+
 
 void EventController_WebServer_Handler::sendData(QHttpSocket *socket, const QByteArray &data, const QByteArray& type )
 {
