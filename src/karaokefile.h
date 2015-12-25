@@ -7,8 +7,9 @@
 #include "player.h"
 #include "playerlyrics.h"
 #include "playerbackground.h"
+#include "songqueue.h"
 
-class Player;
+
 class PlayerWidget;
 
 // Represents a playable Karaoke file. It may be one of the following:
@@ -24,14 +25,14 @@ class KaraokeFile : public QObject
     Q_OBJECT
 
     public:
-        KaraokeFile( PlayerWidget * w, int id );
+        KaraokeFile( PlayerWidget * w, const SongQueue::Song& song );
         ~KaraokeFile();
 
         // Checks if the file queued needs processing (i.e. MIDI conversion)
         static bool needsProcessing( const QString& filename );
 
-        // open - a music file, a lyrics file, a combined file (KFN) or a ZIP archive
-        bool    open( const QString& filename );
+        // open a file
+        bool    open();
 
         qint64  duration();
         qint64  position();
@@ -76,8 +77,8 @@ class KaraokeFile : public QObject
         qint64              m_lastRedrawTime;
         qint64              m_nextRedrawTime;
 
-        // Song ID (to query the db); 0 no id
-        int                 m_songID;
+        // Song info
+        SongQueue::Song     m_song;
 
         static bool isMidiFile( const QString& filename );
         static bool isSupportedMusicFile( const QString& filename );

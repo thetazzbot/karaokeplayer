@@ -19,10 +19,10 @@
 #include "libkaraokelyrics/lyricsloader.h"
 
 
-KaraokeFile::KaraokeFile( PlayerWidget *w, int id )
+KaraokeFile::KaraokeFile( PlayerWidget *w, const SongQueue::Song &song )
 {
     m_widget = w;
-    m_songID = id;
+    m_song = song;
 
     m_lyrics = 0;
     m_background = 0;
@@ -59,10 +59,11 @@ bool KaraokeFile::needsProcessing(const QString &filename)
     return false;
 }
 
-bool KaraokeFile::open(const QString &filename)
+bool KaraokeFile::open()
 {
-    QString lyricFile;
     QIODevice * lyricFileRead = 0;
+    QString lyricFile;
+    QString filename = m_song.file;
 
     if ( filename.endsWith( ".zip", Qt::CaseInsensitive ) )
     {
@@ -154,8 +155,8 @@ bool KaraokeFile::open(const QString &filename)
         throw( QObject::tr("Can't load lyrics file %1: %2") .arg( lyricFile ) .arg( m_lyrics->errorMsg() ) );
 
     // If we have song ID, query the DB if it has a delay for those lyrics
-    if ( m_songID != 0 )
-        m_lyrics->setDelay( pSongDatabase->getLyricDelay( m_songID ) );
+    if ( m_song.songid != 0 )
+        m_lyrics->setDelay( pSongDatabase->getLyricDelay( m_song.songid ) );
 
     // Which background should we use?
     switch ( pSettings->playerBackgroundType )
@@ -186,6 +187,8 @@ void KaraokeFile::start()
     m_playState = STATE_PLAYING;
     m_background->start();
     m_player.play();
+
+    pSongQueue->statusChanged( m_song.id, true );
     pNotification->clearOnScreenMessage();
 }
 
@@ -243,8 +246,10 @@ void KaraokeFile::stop()
 {
     m_player.stop();
 
-    if ( m_songID )
-        pSongDatabase->updatePlayedSong( m_songID, m_lyrics->delay() );
+    pSongQueue->statusChanged( m_song.id, false );
+
+    if ( m_song.songid )
+        pSongDatabase->updatePlayedSong( m_song.songid, m_lyrics->delay() );
 }
 
 void KaraokeFile::lyricEarlier()

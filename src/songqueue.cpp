@@ -16,6 +16,7 @@ SongQueue::SongQueue(QObject *parent)
     : QObject( parent )
 {
     m_currentSong = 0;
+    m_nextQueueId = 1;
 }
 
 void SongQueue::init()
@@ -42,16 +43,17 @@ void SongQueue::addSong(const QString &file, const QString &singer, int id)
 
     // Add to the end now
     Song song;
-    song.id = id;
+    song.id = m_nextQueueId++;
+    song.songid = id;
     song.file = file;
     song.singer = singer;
     song.title = filenameToTitle( file );
 
     // Find out if it needs to be converted
-    song.preparing = KaraokeFile::needsProcessing( file );
+    song.state = KaraokeFile::needsProcessing( file ) ? Song::STATE_PREPARING : Song::STATE_READY;
 
     // If it is, schedule it for conversion
-    if ( song.preparing )
+    if ( song.state == Song::STATE_PREPARING )
         pConverterMIDI->add( file );
 
     // Add to queue
@@ -64,7 +66,7 @@ void SongQueue::addSong(const QString &file, const QString &singer, int id)
         singeridx = 0;
 
     int songidx = m_currentSong + 1;
-    Logger::debug( "Adding file %s by %s into queue%s", qPrintable(file), qPrintable(singer), song.preparing ? ", needs preparation" : "" );
+    Logger::debug( "Queue: Adding file %d %s by %s into queue: %s", id, qPrintable(file), qPrintable(singer), qPrintable( song.stateText() ) );
 /*
     for ( int i = 0; i < m_singers.size(); i++ )
         qDebug() << "Singer " << i << ": " << m_singers[i];
@@ -142,19 +144,15 @@ bool SongQueue::next()
     return true;
 }
 
-void SongQueue::asList(QList<QString> &queue)
+void SongQueue::exportQueue(QList<SongQueue::Song> &queue)
 {
-    queue.clear();
-
-    for ( int i = m_currentSong + 1; i < m_queue.size(); i++ )
-    {
-        queue.append( m_queue[i].singer + "|" + m_queue[i].title + (m_queue[i].preparing ? "*" : "") );
-    }
+    // Export starting from current song
+    queue = m_queue.mid( m_currentSong );
 }
 
 bool SongQueue::isEmpty() const
 {
-    return (int) m_currentSong == m_queue.size();
+    return (int) m_currentSong == m_queue.size() || m_queue.isEmpty();
 }
 
 QString SongQueue::filenameToTitle(const QString &file)
@@ -182,9 +180,24 @@ void SongQueue::processingFinished(const QString &origfile, bool succeed)
         if ( m_queue[i].file == origfile )
         {
             if ( succeed )
-                m_queue[i].preparing = false;
+                m_queue[i].state = Song::STATE_READY;
             else
                 m_queue.removeAt( i );
+        }
+    }
+
+    emit queueUpdated();
+}
+
+void SongQueue::statusChanged(int id, bool playstarted)
+{
+    // Find the file in queue - we go through the entire loop in case a file is added more than once
+    for ( int i = 0; i < m_queue.size(); i++ )
+    {
+        if ( m_queue[i].id == id )
+        {
+            m_queue[i].state = playstarted ? Song::STATE_PLAYING : Song::STATE_READY;
+            break;
         }
     }
 
@@ -213,11 +226,14 @@ void SongQueue::save()
     dts << QString("KARAOKEQUEUE");
     dts << (int) 1;
     dts << m_currentSong;
+    dts << m_nextQueueId;
     dts << m_singers;
     dts << m_queue.size();
 
     foreach ( const Song& s, m_queue )
     {
+        dts << s.id;
+        dts << s.songid;
         dts << s.file;
         dts << s.title;
         dts << s.singer;
@@ -246,23 +262,27 @@ void SongQueue::load()
         return;
 
     dts >> m_currentSong;
+    dts >> m_nextQueueId;
     dts >> m_singers;
-    dts >> version;
+    dts >> version; // now queue size
 
     for ( int i = 0; i < version; i++ )
     {
         Song s;
 
+        dts >> s.id;
+        dts >> s.songid;
         dts >> s.file;
         dts >> s.title;
         dts >> s.singer;
 
         // Find out if it needs to be converted
-        s.preparing = KaraokeFile::needsProcessing( s.file );
+        s.state = KaraokeFile::needsProcessing( s.file ) ? Song::STATE_PREPARING : Song::STATE_READY;
 
         // If it is, schedule it for conversion
-        if ( s.preparing )
+        if ( s.state == Song::STATE_PREPARING )
             pConverterMIDI->add( s.file );
+
         m_queue.append( s );
     }
 

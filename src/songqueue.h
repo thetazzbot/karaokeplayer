@@ -15,11 +15,30 @@ class SongQueue : public QObject
         class Song
         {
             public:
-                int      id;        // nonzero if the song is in the database, so its status could be updated
-                QString  file;      // may be original or cached
-                QString  title;
-                QString  singer;
-                bool     preparing;    // if true, the conversion/downloading/extraction is still in progress
+                enum State
+                {
+                    STATE_READY,
+                    STATE_PREPARING,       // Song preparating is in progress (for example MIDI conversion)
+                    STATE_PLAYING,
+                };
+
+                int         id;         // unique queue id as order can change anytime so index cannot be used as ID
+                int         songid;     // nonzero if the song is in the database, so its status could be updated
+                QString     file;       // may be original or cached
+                QString     title;
+                QString     singer;
+                State       state;      // see above
+
+                QString stateText() const
+                {
+                    if ( state == STATE_PREPARING )
+                        return "preparing";
+
+                    if ( state == STATE_PLAYING )
+                        return "playing";
+
+                    return "ready";
+                }
         };
 
         SongQueue( QObject * parent );
@@ -40,7 +59,7 @@ class SongQueue : public QObject
         bool    next();
 
         // Returns queue representation as list of author|song items (used in notifications
-        void    asList( QList<QString>& queue );
+        void    exportQueue( QList<Song>& queue );
 
         // Internal stuff
         QString filenameToTitle( const QString& file );
@@ -53,6 +72,9 @@ class SongQueue : public QObject
 
         // This slot is called when processing for a music file (downloading, unpacking or converting) is finished.
         void    processingFinished( const QString& origfile, bool succeed );
+
+        // Song status changed (playing/stopped)
+        void    statusChanged( int id, bool playstarted );
 
         // Adds a song into queue, automatically rearranging it. Returns true if the song is added, false otherwise
         void    addSong( const QString& file, const QString& singer, int id );
@@ -79,6 +101,9 @@ class SongQueue : public QObject
 
         // keeps track of all singers by name
         QList<QString>      m_singers;
+
+        // Queue identifier increment
+        unsigned int        m_nextQueueId;
 };
 
 extern SongQueue * pSongQueue;

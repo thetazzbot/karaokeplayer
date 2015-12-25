@@ -57,30 +57,36 @@ qint64 PlayerNotification::drawRegular(KaraokePainter &p)
 
 void PlayerNotification::queueUpdated()
 {
-    QList<QString>  queue;
+    QList<SongQueue::Song> queue;
 
     // Get the song list
-    pSongQueue->asList( queue );
+    pSongQueue->exportQueue( queue );
 
     if ( !queue.isEmpty() )
     {
-        m_notificationLine = tr("[%1] ").arg( queue.size() );
+        m_notificationLine.clear();
+        int elements = 0;
 
         for ( int i = 0; i < queue.size(); i++ )
         {
-            // 0 - singer, 1 - title
-            QStringList pair = queue[i].split( '|' );
+            // Do not show the song if it is being played
+            if ( queue[i].state == SongQueue::Song::STATE_PLAYING )
+                continue;
 
             if ( i == 0 )
-                m_firstItem = tr("Next: %1 (%2)") .arg( pair[1] ) .arg( pair[0] );
+                m_firstItem = tr("Next: %1 (%2)") .arg( queue[i].title ) .arg( queue[i].singer );
 
-            m_notificationLine.append( tr("%1: %2 (%3) ").arg( i + 1 ) .arg( pair[1] ) .arg( pair[0] ) );
+            m_notificationLine.append( tr("%1: %2 (%3) ").arg( i + 1 ) .arg( queue[i].title ) .arg( queue[i].singer ) );
+            elements++;
         }
+
+        m_textQueueSize = tr("[%1]").arg( elements );
     }
     else
     {
         m_notificationLine.clear();
         m_firstItem.clear();
+        m_textQueueSize.clear();
     }
 
     reset();

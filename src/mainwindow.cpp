@@ -132,7 +132,7 @@ void MainWindow::playCurrentItem()
     SongQueue::Song current = pSongQueue->current();
 
     // If current song is not ready yet, show the notification and wait until it is
-    if ( current.preparing )
+    if ( current.state == SongQueue::Song::STATE_PREPARING )
     {
         pNotification->setOnScreenMessage( tr("Conversion in progress") );
         QTimer::singleShot( 500, this, SLOT( playCurrentItem() ) );
@@ -140,11 +140,11 @@ void MainWindow::playCurrentItem()
     }
 
     pNotification->clearOnScreenMessage();
-    KaraokeFile * karfile = new KaraokeFile( m_widget, current.id );
+    KaraokeFile * karfile = new KaraokeFile( m_widget, current );
 
     try
     {
-        if ( !karfile->open( current.file ) )
+        if ( !karfile->open() )
         {
             delete karfile;
             return;

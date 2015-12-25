@@ -39,6 +39,7 @@ class PlayerNotification : public QObject
 
         QString         m_firstItem;
         QString         m_notificationLine;
+        QString         m_textQueueSize;
 
         int             m_textOffset;
         int             m_scrollOffset;
