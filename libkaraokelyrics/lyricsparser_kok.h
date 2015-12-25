@@ -10,7 +10,7 @@ class LyricsParser_KOK : public LyricsParser
 
         // Parses the lyrics, filling up the output container. Throws an error
         // if there are any issues during parsing, otherwise fills up output.
-        void parse( QIODevice& file, LyricsLoader::Container& output, LyricsLoader::Properties& properties );
+        void parse( QIODevice * file, LyricsLoader::Container& output, LyricsLoader::Properties& properties );
 };
 
 #endif // LYRICSPARSER_KOK_H

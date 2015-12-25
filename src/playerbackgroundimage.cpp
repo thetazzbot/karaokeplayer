@@ -24,7 +24,7 @@ bool PlayerBackgroundImage::initFromSettings(const QString &)
     return true;
 }
 
-bool PlayerBackgroundImage::initFromFile(QIODevice &file)
+bool PlayerBackgroundImage::initFromFile(QIODevice *file)
 {
     return false;
 }

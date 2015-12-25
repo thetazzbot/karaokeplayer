@@ -25,7 +25,7 @@ class PlayerLyrics
 
         // Load the lyrics from the QIODevice (which could be an original file or an archive entry)
         // Returns true if load succeed, otherwise must return false and set m_errorMsg to the reason
-        virtual bool    load( QIODevice& file, const QString &filename = "" ) = 0;
+        virtual bool    load( QIODevice * file, const QString &filename = "" ) = 0;
 
         // Must return next time when the lyrics would be updated. If returns -1, no more updates
         virtual qint64  nextUpdate() const = 0;

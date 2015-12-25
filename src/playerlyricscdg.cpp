@@ -22,19 +22,19 @@ PlayerLyricsCDG::PlayerLyricsCDG()
         m_colorTable[i] = 0;
 }
 
-bool PlayerLyricsCDG::load( QIODevice &file, const QString& )
+bool PlayerLyricsCDG::load( QIODevice * file, const QString& )
 {
     // Parse the CD+G stream
     int buggy_commands = 0;
 
     m_cdgStream.clear();
-    m_cdgStream.reserve( file.size() / sizeof( SubCode ) );
+    m_cdgStream.reserve( file->size() / sizeof( SubCode ) );
 
     SubCode sc;
     int readlen;
     int packet_count = 0;
 
-    while ( (readlen = file.read( (char*) &sc, sizeof(sc) )) == sizeof(sc) )
+    while ( (readlen = file->read( (char*) &sc, sizeof(sc) )) == sizeof(sc) )
     {
         if ( ( sc.command & CDG_MASK) == CDG_COMMAND )
         {

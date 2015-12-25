@@ -10,7 +10,6 @@ SOURCES += \
     lyricsparser_kfn.cpp \
     lyricsparser_lrc.cpp \
     lyricsparser_midi.cpp \
-    lyricsparser_powerkaraoke.cpp \
     lyricsloader.cpp \
     lyricsparser.cpp \
     lyricsparser_texts.cpp \

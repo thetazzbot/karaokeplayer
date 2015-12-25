@@ -116,9 +116,9 @@ LyricsParser_MIDI::LyricsParser_MIDI()
     m_currentOffset = 0;
 }
 
-void LyricsParser_MIDI::parse(QIODevice &file, LyricsLoader::Container &output, LyricsLoader::Properties &properties)
+void LyricsParser_MIDI::parse(QIODevice * file, LyricsLoader::Container &output, LyricsLoader::Properties &properties)
 {
-    m_mididata = file.readAll();
+    m_mididata = file->readAll();
 
     if ( m_mididata.isEmpty() )
         throw ("Can't read the file");

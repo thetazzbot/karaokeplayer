@@ -17,7 +17,7 @@ class PlayerBackgroundImage : public PlayerBackground
         // a specific file/QIODevice - for example for KFN files. If the background cannot be initialized
         // a specific way, it must return an error.
         virtual bool    initFromSettings( const QString& param = "" );
-        virtual bool    initFromFile( QIODevice& file );
+        virtual bool    initFromFile( QIODevice * file );
 
         // Draws the background on the image; the prior content of the image is undefined. If false is returned,
         // it is considered an error, and the whole playing process is aborted - use wisely

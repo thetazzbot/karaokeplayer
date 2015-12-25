@@ -22,7 +22,7 @@ LyricsLoader::LyricsLoader(Properties &properties, Container &container)
 {
 }
 
-bool LyricsLoader::parse(const QString &lyricsfile, QIODevice &file)
+bool LyricsLoader::parse(const QString &lyricsfile, QIODevice * file)
 {
     try
     {

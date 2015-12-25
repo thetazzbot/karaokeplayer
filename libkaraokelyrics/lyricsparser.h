@@ -29,14 +29,14 @@ class LyricsParser
 
         // Parses the lyrics, filling up the output container. Throws an error
         // if there are any issues during parsing, otherwise fills up output.
-        virtual void parse( QIODevice& file, LyricsLoader::Container& output, LyricsLoader::Properties& properties ) = 0;
+        virtual void parse( QIODevice * file, LyricsLoader::Container& output, LyricsLoader::Properties& properties ) = 0;
 
         // Timing to text converter
         static QString timeAsText( quint64 timing );
 
     protected:
         // This should handle encoding as well
-        QStringList loadText( QIODevice& file );
+        QStringList loadText( QIODevice * file );
 
         // Returns the lyric type by the file extension
         static Type getTypeByExtension( const QString& extension );

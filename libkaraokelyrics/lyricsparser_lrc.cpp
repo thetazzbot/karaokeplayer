@@ -10,7 +10,7 @@ LyricsParser_LRC::LyricsParser_LRC()
     offset = 0;
 }
 
-void LyricsParser_LRC::parse( QIODevice& file, LyricsLoader::Container& output, LyricsLoader::Properties& properties )
+void LyricsParser_LRC::parse( QIODevice * file, LyricsLoader::Container& output, LyricsLoader::Properties& properties )
 {
     bool header = true;
     qint64 last_time = -1;

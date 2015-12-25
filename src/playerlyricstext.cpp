@@ -17,7 +17,7 @@ PlayerLyricsText::PlayerLyricsText()
     m_renderFont = pSettings->playerLyricsFont;
 }
 
-bool PlayerLyricsText::load( QIODevice &file, const QString& filename )
+bool PlayerLyricsText::load( QIODevice * file, const QString& filename )
 {
     LyricsLoader::Container lyrics;
     LyricsLoader::Properties properties;

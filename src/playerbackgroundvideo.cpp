@@ -24,7 +24,7 @@ PlayerBackgroundVideo::~PlayerBackgroundVideo()
 {
 }
 
-bool PlayerBackgroundVideo::initFromFile(QIODevice &)
+bool PlayerBackgroundVideo::initFromFile(QIODevice *)
 {
     return false;
 }

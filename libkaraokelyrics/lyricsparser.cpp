@@ -9,11 +9,11 @@ LyricsParser::~LyricsParser()
 {
 }
 
-QStringList LyricsParser::loadText(QIODevice &file)
+QStringList LyricsParser::loadText(QIODevice * file)
 {
     // Other formats are text files, so we need to find out the encoding
     // FIXME: assuming UTF-8
-    QByteArray datalyrics = file.readAll();
+    QByteArray datalyrics = file->readAll();
 
     if ( datalyrics.indexOf( '\r') != -1 )
         datalyrics.replace( "\r\n", "\n" );

@@ -5,7 +5,7 @@ LyricsParser_Texts::LyricsParser_Texts()
 {
 }
 
-void LyricsParser_Texts::parse(QIODevice &file, LyricsLoader::Container &output, LyricsLoader::Properties &properties)
+void LyricsParser_Texts::parse(QIODevice *file, LyricsLoader::Container &output, LyricsLoader::Properties &properties)
 {
     QStringList lyrics = loadText( file );
 

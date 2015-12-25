@@ -2,6 +2,7 @@
 #include <QCryptographicHash>
 
 #include "player.h"
+#include "logger.h"
 #include "settings.h"
 #include "karaokesong.h"
 #include "karaokewidget.h"
@@ -119,7 +120,7 @@ bool KaraokeSong::open()
                 return false;
         }
 
-        qDebug( "Found music file %s, lyric file %s", qPrintable(musicFile), qPrintable(lyricFile) );
+        Logger::debug( "KaraokeSong: matching music file %s with lyric file %s", qPrintable(musicFile), qPrintable(lyricFile) );
 
         // Open the music file as we need QIODevice
         if ( isMidiFile( musicFile ) && pSettings->convertMidiFiles )
@@ -151,8 +152,11 @@ bool KaraokeSong::open()
     else
         m_lyrics = new PlayerLyricsText();
 
-    if ( !m_lyrics->load( *lyricFileRead, lyricFile ) )
+    if ( !m_lyrics->load( lyricFileRead, lyricFile ) )
         throw( QObject::tr("Can't load lyrics file %1: %2") .arg( lyricFile ) .arg( m_lyrics->errorMsg() ) );
+
+    lyricFileRead->close();
+    delete lyricFileRead;
 
     // If we have song ID, query the DB if it has a delay for those lyrics
     if ( m_song.songid != 0 )

@@ -16,7 +16,7 @@ class PlayerBackgroundColor : public PlayerBackground
         bool    initFromSettings( const QString& param = "" );
 
         // Color background doesn't support files
-        bool    initFromFile( QIODevice& ) { return false; }
+        bool    initFromFile( QIODevice * ) { return false; }
 
         // Draws the background on the image; the prior content of the image is undefined. If false is returned,
         // it is considered an error, and the whole playing process is aborted - use wisely

@@ -51,7 +51,7 @@ class LyricsLoader
         // on success, false if there is an rror, see errorMsg() contains reason.
         //
         // It gets the lyrics file name and QIODevice because the file may be extracted (from ZIP or KFN)
-        bool parse( const QString& lyricsfile, QIODevice& file );
+        bool parse( const QString& lyricsfile, QIODevice * file );
 
         static bool    isSupportedFile( const QString& filename );
 

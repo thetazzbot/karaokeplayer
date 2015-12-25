@@ -20,7 +20,7 @@ class PlayerLyricsCDG : public PlayerLyrics
 
         // Load the lyrics from the QIODevice (which could be an original file or an archive entry)
         // Returns true if load succeed, otherwise must return false and set m_errorMsg to the reason
-        bool    load( QIODevice& file, const QString &filename = "" );
+        bool    load( QIODevice * file, const QString &filename = "" );
 
         // Must return true if the lyrics must be updated/redrawn for the specified time
         qint64  nextUpdate() const;
