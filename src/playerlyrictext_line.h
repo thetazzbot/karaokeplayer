@@ -24,10 +24,10 @@ class PlayerLyricTextLine
 
         // Draw the lyrics according to time. Returns next time when the lyrics need
         // to be updated
-        qint64  draw( KaraokePainter& p, int yoffset );
+        qint64  draw( KaraokePainter& p, qint64 time, int yoffset );
 
         // Draw the disappearing animation with specific percentage(0-100)
-        void    drawDisappear( KaraokePainter& p, int percentage, int yoffset );
+        void    drawDisappear(KaraokePainter& p, int percentage, int yoffset );
 
         // Empty set means screen space, and will not have draw/nextTime called
         bool    isEmpty() const { return m_line.empty(); }

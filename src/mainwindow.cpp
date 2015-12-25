@@ -17,6 +17,8 @@
 #include "actionhandler.h"
 #include "currentstate.h"
 #include "convertermidi.h"
+#include "version.h"
+#include "ui_dialog_about.h"
 
 
 MainWindow * pMainWindow;
@@ -82,6 +84,13 @@ MainWindow::MainWindow(QWidget *parent) :
     connect( pActionHandler, SIGNAL(queueClear()), pSongQueue, SLOT(clear()) );
 
     connect( pConverterMIDI, SIGNAL(finished(QString,bool)), pSongQueue, SLOT(processingFinished(QString,bool)) );
+
+    // Connect menu actions
+    connect( action_About, SIGNAL(triggered()), this, SLOT(menuAbout()) );
+    connect( actionPlay_file, SIGNAL(triggered()), this, SLOT(menuOpenKaraoke()) );
+    connect( actionSettings, SIGNAL(triggered()), this, SLOT(menuSettings()) );
+    connect( action_Player_window, SIGNAL(triggered()), this, SLOT(menuToggleWindowPlayer()) );
+    connect( action_Quit, SIGNAL(triggered()), qApp, SLOT(quit()) );
 }
 
 MainWindow::~MainWindow()
@@ -91,9 +100,7 @@ MainWindow::~MainWindow()
 void MainWindow::queueAdd(QString file, QString singer, int id)
 {
     pSongQueue->addSong( file, singer, id );
-
-    if ( m_widget->position() == -1 )
-        playCurrentItem();
+    queueStart();
 }
 
 void MainWindow::queueStop()
@@ -113,7 +120,7 @@ void MainWindow::queueNext()
 
 void MainWindow::queuePrevious()
 {
-    if ( m_widget->position() > 10000 )
+    if ( pCurrentState->playerState != CurrentState::PLAYERSTATE_STOPPED && pCurrentState->playerPosition > 10000 )
     {
         pActionHandler->cmdAction( ActionHandler::ACTION_PLAYER_SEEK_BACK );
         return;
@@ -128,7 +135,7 @@ void MainWindow::queuePrevious()
 
 void MainWindow::queueStart()
 {
-    if ( m_widget->position() == -1 )
+    if ( pCurrentState->playerState == CurrentState::PLAYERSTATE_STOPPED )
         playCurrentItem();
 }
 
@@ -168,6 +175,37 @@ void MainWindow::playCurrentItem()
     }
 
     m_widget->startKaraoke( karfile );
+}
+
+void MainWindow::menuOpenKaraoke()
+{
+
+}
+
+void MainWindow::menuSettings()
+{
+
+}
+
+void MainWindow::menuToggleWindowPlayer()
+{
+
+}
+
+void MainWindow::menuAbout()
+{
+    QDialog dlg;
+    Ui::DialogAbout ui_about;
+
+    ui_about.setupUi( &dlg );
+
+    ui_about.labelAbout->setText( tr("<b>Ulduzsoft Karaoke Player version %1.%2</b><br><br>"
+            "Copyright (C) George Yunaev 2015-2016, <a href=\"mailto:support@ulduzsoft.com\">support@ulduzsoft.com</a><br><br>"
+            "Web site: <a href=\"http://www.ulduzsoft.com\">www.ulduzsoft.com/karplayer</a><br><br>"
+            "This program is licensed under terms of GNU General Public License "
+            "version 3; see LICENSE file for details.") .arg(APP_VERSION_MAJOR) .arg(APP_VERSION_MINOR) );
+
+    dlg.exec();
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)

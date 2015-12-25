@@ -15,13 +15,6 @@ class KaraokePainter : public QPainter
         QSize   size() const { return m_rect.size(); }
         QRect   rect() const { return m_rect; }
 
-        // Setters and getters for times
-        void    setTimes( qint64 position, qint64 duration );
-
-        // Those would both return 0 if we are not playing
-        qint64  time() const { return m_time; }
-        qint64  duration() const { return m_duration; }
-
         // Returns the notification area rect
         QRect   notificationRect() const;
 
@@ -46,13 +39,8 @@ class KaraokePainter : public QPainter
         // Draws text x-centered at percentage y-wise (such as "70% of y") with the specified color, but with black outline
         void    drawCenteredOutlineText( int ypercentage, const QColor& color, const QString& text );
 
-        // Changes the time
-        void    setTime( qint64 newtime );
-
     private:
         QRect       m_rect;
-        qint64      m_time;
-        qint64      m_duration;
         QImage  *   m_image;
         QRect       m_textRect;
 };

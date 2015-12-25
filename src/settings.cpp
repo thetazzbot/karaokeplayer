@@ -16,8 +16,6 @@ Settings::Settings()
     load();
 
     // Validate settings
-    m_playerRenderMSecPerFrame = 1000 / playerRenderFPS;
-
     if ( playerBackgroundType == BACKGROUND_TYPE_IMAGE || playerBackgroundType == BACKGROUND_TYPE_VIDEO )
         loadBackgroundObjects();
 

@@ -14,8 +14,6 @@ KaraokePainter::KaraokePainter(QImage *img)
 {
     m_image = img;
     m_rect = img->rect();
-    m_time = 0;
-    m_duration = 0;
 
     // More clipping
     int xspacing = (m_rect.width() * TEXTLYRICS_SPACING_LEFTRIGHT) / 100;
@@ -27,11 +25,6 @@ KaraokePainter::KaraokePainter(QImage *img)
     m_textRect = QRect( xspacing, yspacing, textwidth, textheight );
 }
 
-void KaraokePainter::setTimes(qint64 position, qint64 duration)
-{
-    m_time = position;
-    m_duration = duration;
-}
 
 QRect KaraokePainter::notificationRect() const
 {
@@ -123,9 +116,4 @@ void KaraokePainter::drawCenteredOutlineText(int ypercentage, const QColor &colo
     int y = (m_textRect.height() * ypercentage / 100 ) + fontMetrics().height() + m_textRect.y();
 
     drawOutlineText( x, y, color, text );
-}
-
-void KaraokePainter::setTime(qint64 newtime)
-{
-    m_time = newtime;
 }

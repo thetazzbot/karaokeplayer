@@ -23,7 +23,7 @@ void PlayerNotification::showStopped()
     m_customMessage = pCurrentState->webserverURL.isEmpty() ? "Please select a song" : pCurrentState->webserverURL;
 }
 
-qint64 PlayerNotification::drawTop(KaraokePainter &p, qint64 remainingms)
+qint64 PlayerNotification::drawTop( KaraokePainter &p )
 {
     // If the height change, see how large the font we could fit height-wise
     if ( m_lastScreenHeight != p.notificationRect().height() )
@@ -34,6 +34,11 @@ qint64 PlayerNotification::drawTop(KaraokePainter &p, qint64 remainingms)
 
     p.setPen( Qt::white );
     p.setFont( m_font );
+
+    int remainingms = -1;
+
+    if ( pCurrentState->playerState != CurrentState::PLAYERSTATE_STOPPED )
+        remainingms = qMax( 0, pCurrentState->playerDuration - pCurrentState->playerPosition );
 
     if ( remainingms == -1 || remainingms > 5000 )
     {
@@ -53,7 +58,7 @@ qint64 PlayerNotification::drawTop(KaraokePainter &p, qint64 remainingms)
     else
         p.drawText( 0, p.fontMetrics().ascent(), m_firstItem );
 
-    return p.time();
+    return 0;
 }
 
 qint64 PlayerNotification::drawRegular(KaraokePainter &p)

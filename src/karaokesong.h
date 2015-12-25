@@ -34,11 +34,8 @@ class KaraokeSong : public QObject
         // open a file
         bool    open();
 
-        qint64  duration();
-        qint64  position();
-
+        // Draws current song in its current state
         qint64  draw( KaraokePainter& p );
-
 
     public slots:
         void    start();
@@ -51,14 +48,6 @@ class KaraokeSong : public QObject
         void    lyricLater();
 
     protected:
-        enum State
-        {
-            STATE_RESET,
-            STATE_READY,
-            STATE_PLAYING,
-            STATE_PAUSED
-        };
-
         // Convert the src to the m_musicFileName
         void    startConversion( const QString& src );
 
@@ -69,9 +58,6 @@ class KaraokeSong : public QObject
         // Player and rendering widget
         Player              m_player;
         KaraokeWidget     *  m_widget;
-
-        // Play state tracker
-        State               m_playState;
 
         // Next redraw time
         qint64              m_lastRedrawTime;

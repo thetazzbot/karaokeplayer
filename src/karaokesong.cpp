@@ -15,6 +15,7 @@
 #include "actionhandler.h"
 #include "songdatabase.h"
 #include "playernotification.h"
+#include "currentstate.h"
 #include "util.h"
 
 #include "libkaraokelyrics/lyricsloader.h"
@@ -27,7 +28,6 @@ KaraokeSong::KaraokeSong( KaraokeWidget *w, const SongQueue::Song &song )
 
     m_lyrics = 0;
     m_background = 0;
-    m_playState = STATE_RESET;
 
     m_nextRedrawTime = -1;
     m_lastRedrawTime = -1;
@@ -181,15 +181,13 @@ bool KaraokeSong::open()
 
     // Initialize
     m_background->initFromSettings();
-    m_playState = STATE_READY;
-
     return true;
 }
 
 void KaraokeSong::start()
 {
-    // If no conversion is in progress, start the player and rendering thread
-    m_playState = STATE_PLAYING;
+    pCurrentState->playerState = CurrentState::PLAYERSTATE_PLAYING;
+
     m_background->start();
     m_player.play();
 
@@ -199,15 +197,15 @@ void KaraokeSong::start()
 
 void KaraokeSong::pause()
 {
-    if ( m_playState == STATE_PLAYING )
+    if ( pCurrentState->playerState == CurrentState::PLAYERSTATE_PLAYING )
     {
-        m_playState = STATE_PAUSED;
+        pCurrentState->playerState = CurrentState::PLAYERSTATE_PAUSED;
         m_player.pause();
         m_background->pause( true );
     }
     else
     {
-        m_playState = STATE_PLAYING;
+        pCurrentState->playerState = CurrentState::PLAYERSTATE_PLAYING;
         m_player.play();
         m_background->pause( false );
     }
@@ -215,12 +213,12 @@ void KaraokeSong::pause()
 
 void KaraokeSong::seekForward()
 {
-    seekTo( qMin( duration() - 10000, position() + 10000 ) );
+    seekTo( qMin( m_player.duration() - 10000, m_player.position() + 10000 ) );
 }
 
 void KaraokeSong::seekBackward()
 {
-    seekTo( qMax( position() - 10000, 0LL ) );
+    seekTo( qMax( m_player.position() - 10000, 0LL ) );
 }
 
 void KaraokeSong::seekTo(qint64 timing)
@@ -228,18 +226,11 @@ void KaraokeSong::seekTo(qint64 timing)
     m_player.seekTo( timing );
 }
 
-qint64 KaraokeSong::duration()
-{
-    return m_player.duration();
-}
-
-qint64 KaraokeSong::position()
-{
-    return m_player.position();
-}
-
 qint64 KaraokeSong::draw(KaraokePainter &p)
 {
+    // Update position
+    pCurrentState->playerPosition = m_player.position();
+
     // Background is always on
     qint64 bgtime = m_background->draw( p );
     qint64 lyrictime = m_lyrics->draw( p );
@@ -249,6 +240,8 @@ qint64 KaraokeSong::draw(KaraokePainter &p)
 
 void KaraokeSong::stop()
 {
+    pCurrentState->playerState = CurrentState::PLAYERSTATE_STOPPED;
+
     m_player.stop();
 
     pSongQueue->statusChanged( m_song.id, false );

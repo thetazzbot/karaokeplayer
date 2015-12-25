@@ -3,6 +3,7 @@
 #include <QFile>
 
 #include "actionhandler.h"
+#include "currentstate.h"
 #include "player.h"
 
 Player::Player()
@@ -12,7 +13,7 @@ Player::Player()
 
     connect( m_player, SIGNAL(error(QMediaPlayer::Error)), this, SLOT(slotError(QMediaPlayer::Error)) );
     connect( m_player, SIGNAL(mediaStatusChanged(QMediaPlayer::MediaStatus)), this, SLOT(slotMediaStatusChanged(QMediaPlayer::MediaStatus)) );
-    connect( m_player, SIGNAL(mediaChanged(QMediaContent)), this, SLOT(slotMediaChanged(QMediaContent)) );
+
     connect( pActionHandler, SIGNAL(playerVolumeDown()), this, SLOT(volumeDown()) );
     connect( pActionHandler, SIGNAL(playerVolumeUp()), this, SLOT(volumeUp()) );
 }
@@ -45,12 +46,16 @@ void Player::seekTo(qint64 time)
 
 void Player::volumeDown()
 {
-    m_player->setVolume( qMax( m_player->volume() - 5, 0 ) );
+    int newvolume = qMax( m_player->volume() - 5, 0 );
+    m_player->setVolume( newvolume );
+    pCurrentState->playerVolume = newvolume;
 }
 
 void Player::volumeUp()
 {
-    m_player->setVolume( qMin( m_player->volume() + 5, 100 ) );
+    int newvolume = qMin( m_player->volume() + 5, 100 );
+    m_player->setVolume( newvolume );
+    pCurrentState->playerVolume = newvolume;
 }
 
 qint64 Player::position()
@@ -76,6 +81,9 @@ void Player::slotMediaStatusChanged(QMediaPlayer::MediaStatus status)
 
     if ( status == QMediaPlayer::LoadedMedia )
     {
+        pCurrentState->playerDuration = m_player->duration();
+        pCurrentState->playerVolume = m_player->volume();
+
         if ( m_loaded_started )
             m_player->play();
         else
@@ -83,11 +91,6 @@ void Player::slotMediaStatusChanged(QMediaPlayer::MediaStatus status)
     }
 
     qDebug() << "slotMediaStatusChanged" << status;
-}
-
-void Player::slotMediaChanged(const QMediaContent &media)
-{
-    qDebug() << "slotMediaChanged" << media.canonicalUrl();
 }
 
 bool Player::play()

@@ -72,11 +72,13 @@ HEADERS  += mainwindow.h \
     actionhandler_dbus.h \
     actionhandler_lirc.h \
     actionhandler_webserver.h \
-    actionhandler_webserver_handler.h
+    actionhandler_webserver_handler.h \
+    version.h
 
 FORMS    += mainwindow.ui \
     songsearchdialog.ui \
-    playerwidget.ui
+    playerwidget.ui \
+    dialog_about.ui
 RESOURCES += resources.qrc
 INCLUDEPATH += .. ../libqhttpengine/QHttpEngine ../libqhttpengine
 LIBS += -L ../libkaraokelyrics/ -lkaraokelyrics -L../libqhttpengine/ -lqhttpengine -lsqlite3

@@ -1,7 +1,7 @@
 #include "playerlyrics.h"
 #include "settings.h"
 #include "karaokepainter.h"
-
+#include "currentstate.h"
 
 PlayerLyrics::PlayerLyrics()
 {
@@ -14,17 +14,12 @@ PlayerLyrics::~PlayerLyrics()
 
 bool PlayerLyrics::draw(KaraokePainter &p)
 {
-    qint64 origtime = p.time();
+    qint64 time = qMax( 0, pCurrentState->playerPosition + m_timeDelay );
 
-    // Prevent time going below zero
-    p.setTime( qMax( 0LL, origtime + m_timeDelay ) );
-
-    if ( !render( p ) )
+    if ( !render( p, time ) )
         return false;
 
-    p.setTime( origtime );
-    m_lastRenderedTime = origtime;
-
+    m_lastRenderedTime = pCurrentState->playerPosition;
     return true;
 }
 

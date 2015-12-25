@@ -28,7 +28,7 @@ class PlayerLyricsCDG : public PlayerLyrics
     private:
         // Render lyrics for current timestamp into the QImage provided. Must "render over",
         // and not mess up with the rest of the screen. True on success, false + m_errorMsg on error.
-        virtual bool    render( KaraokePainter& p );
+        virtual bool    render(KaraokePainter& p, qint64 time);
 
     private:
         typedef struct

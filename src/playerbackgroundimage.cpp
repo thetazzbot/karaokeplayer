@@ -4,6 +4,7 @@
 #include "logger.h"
 #include "actionhandler.h"
 #include "settings.h"
+#include "currentstate.h"
 #include "playerbackgroundimage.h"
 
 PlayerBackgroundImage::PlayerBackgroundImage()
@@ -133,7 +134,7 @@ bool PlayerBackgroundImage::performTransition(KaraokePainter &p)
 {
     // We want the whole transition to be done in 1.5 sec
     static const int TRANSITION = 500;
-    int percstep = (pSettings->m_playerRenderMSecPerFrame * 100) / TRANSITION;
+    int percstep = ( pCurrentState->msecPerFrame * 100) / TRANSITION;
 
     // Paint the original image first so we have it
     p.drawImage( QPoint(0,0), m_currentImage.scaled( p.size() ) );

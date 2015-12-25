@@ -38,7 +38,6 @@ class Player : public QObject
     private slots:
         void	slotError(QMediaPlayer::Error error);
         void    slotMediaStatusChanged(QMediaPlayer::MediaStatus status);
-        void    slotMediaChanged(const QMediaContent & media);
         void    volumeDown();
         void    volumeUp();
 

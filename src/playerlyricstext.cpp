@@ -117,7 +117,7 @@ void PlayerLyricsText::calculateFontSize()
     m_renderFont.setPointSize( fontsize );
 }
 
-void PlayerLyricsText::renderTitle( KaraokePainter &p )
+void PlayerLyricsText::renderTitle(KaraokePainter &p , qint64 time )
 {
     int fs_artist = p.largestFontSize( m_artist );
     int fs_title = p.largestFontSize( m_title );
@@ -128,9 +128,9 @@ void PlayerLyricsText::renderTitle( KaraokePainter &p )
 
     QColor color( Qt::white );
 
-    if ( m_showTitleTime - p.time() < TITLE_FADEOUT_TIME )
+    if ( m_showTitleTime - time < TITLE_FADEOUT_TIME )
     {
-        color.setAlpha( (m_showTitleTime - p.time() ) * 255 / TITLE_FADEOUT_TIME );
+        color.setAlpha( (m_showTitleTime - time ) * 255 / TITLE_FADEOUT_TIME );
         m_nextUpdateTime = 0;
     }
 
@@ -151,14 +151,12 @@ void PlayerLyricsText::drawNotification(KaraokePainter &p, qint64 timeleft)
 }
 
 
-bool PlayerLyricsText::render(KaraokePainter &p)
+bool PlayerLyricsText::render(KaraokePainter &p, qint64 timems)
 {
-    qint64 timems = p.time();
-
     // Title time?
     if ( m_showTitleTime > 0 && timems < m_showTitleTime )
     {
-        renderTitle( p );
+        renderTitle( p, timems );
         return true;
     }
 
@@ -178,7 +176,7 @@ bool PlayerLyricsText::render(KaraokePainter &p)
             continue;
 
         // Line ended already
-        if ( m_lines[current].endTime() < p.time() )
+        if ( m_lines[current].endTime() < timems )
             continue;
 
         // We found it
@@ -201,7 +199,7 @@ bool PlayerLyricsText::render(KaraokePainter &p)
     if ( current > 0 && current < m_lines.size() )
     {
         // Should we scroll?
-        if ( p.time() > m_lines[current].startTime() )
+        if ( timems > m_lines[current].startTime() )
         {
             scroll_total = m_lines[current].endTime() - m_lines[current].startTime();
             scroll_passed = timems - m_lines[current].startTime();
@@ -238,7 +236,7 @@ bool PlayerLyricsText::render(KaraokePainter &p)
             }
             else
             {
-                m_lines[current].draw( p, yoffset );
+                m_lines[current].draw( p, timems, yoffset );
             }
         }
 

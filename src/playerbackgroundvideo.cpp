@@ -3,6 +3,7 @@
 #include "settings.h"
 #include "karaokepainter.h"
 #include "actionhandler.h"
+#include "currentstate.h"
 #include "playerbackgroundvideo.h"
 
 
@@ -166,6 +167,6 @@ qint64 PlayerBackgroundVideo::draw(KaraokePainter &p)
         m_lastFrame.unmap();
     }
 
-    // Assume 25fps
-    return p.time() + 40;
+    // Next frame
+    return 0;
 }

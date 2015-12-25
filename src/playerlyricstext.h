@@ -42,11 +42,11 @@ class PlayerLyricsText : public PlayerLyrics
     protected:
         // Render lyrics for current timestamp into the QImage provided. Must "render over",
         // and not mess up with the rest of the screen. True on success, false + m_errorMsg on error.
-        virtual bool    render( KaraokePainter& p );
+        virtual bool    render( KaraokePainter& p, qint64 time );
 
         void    calculateFontSize();
         int     largetsFontSize( const QSize& size, const QString& text );
-        void    renderTitle( KaraokePainter &p );
+        void    renderTitle( KaraokePainter &p, qint64 time );
         qint64  firstLyricStart() const;
 
         void    drawNotification( KaraokePainter &p, qint64 timeleft);

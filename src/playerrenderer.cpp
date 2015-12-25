@@ -5,6 +5,7 @@
 #include "playerrenderer.h"
 #include "karaokewidget.h"
 #include "settings.h"
+#include "currentstate.h"
 
 static const unsigned int RENDER_FPS = 20;
 
@@ -37,11 +38,10 @@ void PlayerRenderer::run()
     // from http://www.koonsolo.com/news/dewitters-gameloop/
     // We do not need fast rendering, and need constant FPS, so 2nd solution works well
     QTime next_cycle;
-    qint64 remainingms = -1;
 
     while ( m_continue )
     {
-        next_cycle = QTime::currentTime().addMSecs( pSettings->m_playerRenderMSecPerFrame );
+        next_cycle = QTime::currentTime().addMSecs( pCurrentState->msecPerFrame );
 
         // Prepare the image
         m_renderImage->fill( Qt::black );
@@ -50,28 +50,19 @@ void PlayerRenderer::run()
         KaraokePainter p( m_renderImage );
 
         // Render the top area notification
-        m_notification->drawTop( p, remainingms );
+        m_notification->drawTop( p );
 
         // Switch the painter to main area
         p.setClipAreaMain();
 
-        // If we have the Karaoke object, use it
-        m_widget->m_karaokeMutex.lock();
-
-        if ( m_widget->m_karaoke )
+        if ( pCurrentState->playerState != CurrentState::PLAYERSTATE_STOPPED )
         {
-            // Set timing
-            // FIXME
-            p.setTimes( m_widget->m_karaoke->position(), m_widget->m_karaoke->duration() );
-            remainingms = m_widget->m_karaoke->duration() - m_widget->m_karaoke->position();
+            m_widget->m_karaokeMutex.lock();
 
             // Draw background and lyrics
             m_widget->m_karaoke->draw( p );
+            m_widget->m_karaokeMutex.unlock();
         }
-        else
-            remainingms = -1;
-
-        m_widget->m_karaokeMutex.unlock();
 
         // And subsequent notifications, if any (they must go on top of lyrics)
         m_notification->drawRegular( p );

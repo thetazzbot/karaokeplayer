@@ -43,7 +43,7 @@ class PlayerLyrics
     protected:
         // Render lyrics for current timestamp into the QImage provided. Must "render over",
         // and not mess up with the rest of the screen. True on success, false + m_errorMsg on error.
-        virtual bool    render( KaraokePainter& p ) = 0;
+        virtual bool    render( KaraokePainter& p, qint64 time ) = 0;
 
     protected:
         // Any error should set this member

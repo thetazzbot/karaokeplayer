@@ -2,6 +2,8 @@
 #define CURRENTSTATE_H
 
 #include <QObject>
+#include <QAtomicInt>
+#include "songqueue.h"
 
 //
 // Represents current state of a player.
@@ -15,9 +17,35 @@ class CurrentState : public QObject
     Q_OBJECT
 
     public:
+        enum
+        {
+            PLAYERSTATE_STOPPED,
+            PLAYERSTATE_PLAYING,
+            PLAYERSTATE_PAUSED
+        };
+
         explicit CurrentState(QObject *parent = 0);
 
-        QString     webserverURL;
+        // mseconds per frame
+        unsigned int            msecPerFrame;
+
+        // Web server URL
+        QString                 webserverURL;
+
+        // Current player state
+        QAtomicInt              playerState;
+
+        // Current song being played (not valid if playerState is STOPPED)
+        SongQueue::Song         playerSong;
+
+        // Current song parameters (not valid if playerState is STOPPED) - updated from another thread!
+        QAtomicInt              playerPosition;
+        QAtomicInt              playerDuration;
+
+        int                     playerVolume;
+
+        // Current singer queue (read-only; any modifications will be overwritten)
+        QList<SongQueue::Song>  songQueue;
 
     signals:
 

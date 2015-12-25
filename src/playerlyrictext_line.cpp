@@ -44,7 +44,7 @@ qint64 PlayerLyricTextLine::endTime() const
     return m_line.last().start + m_line.last().duration;
 }
 
-qint64 PlayerLyricTextLine::draw( KaraokePainter& p, int yoffset )
+qint64 PlayerLyricTextLine::draw( KaraokePainter& p, qint64 time, int yoffset )
 {
     if ( m_line.isEmpty() )
         return 0;
@@ -56,7 +56,7 @@ qint64 PlayerLyricTextLine::draw( KaraokePainter& p, int yoffset )
     {
         p.drawOutlineText( x,
                            yoffset,
-                           m_line[i].start < p.time() ? pSettings->playerLyricsTextAfterColor
+                           m_line[i].start < time ? pSettings->playerLyricsTextAfterColor
                                                 : pSettings->playerLyricsTextBeforeColor,
                            m_line[i].text );
 

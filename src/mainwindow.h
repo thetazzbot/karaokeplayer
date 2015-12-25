@@ -1,3 +1,6 @@
+//TODO:
+// change all timings to int / no qin64
+
 // Features:
 //
 // Ensure QMediaPlayer etc works on all platforms for:
@@ -13,7 +16,6 @@
 
 // - CDG, KFN, MID, LRC, Ultrastar, ZIP
 // - Timidity
-// - Video background
 // - Remote song storage, download (incl encrypted)
 // - Voice passthrough and recording
 // - Video + voice recording
@@ -58,6 +60,12 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
         void    queuePrevious();
         void    queueStart();
         void    playCurrentItem();
+
+        // Menu actions
+        void    menuOpenKaraoke();
+        void    menuSettings();
+        void    menuToggleWindowPlayer();
+        void    menuAbout();
 
     private:
         void    keyPressEvent(QKeyEvent * event);

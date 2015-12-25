@@ -44,8 +44,6 @@ class Settings
         qint64          m_playerBackgroundLastVideoTime;  // for video only
         QStringList     m_playerBackgroundObjects;  // actual objects
 
-        unsigned int    m_playerRenderMSecPerFrame;
-
         // Songs database
         QString         songdbFilename;
         QString         songPathPrefix;

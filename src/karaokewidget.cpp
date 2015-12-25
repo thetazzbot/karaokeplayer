@@ -63,26 +63,6 @@ void KaraokeWidget::stopEverything()
     m_renderer = 0;
 }
 
-qint64 KaraokeWidget::position() const
-{
-    QMutexLocker m( &m_karaokeMutex );
-
-    if ( m_karaoke )
-        return m_karaoke->position();
-
-    return -1;
-}
-
-qint64 KaraokeWidget::duration() const
-{
-    QMutexLocker m( &m_karaokeMutex );
-
-    if ( m_karaoke )
-        return m_karaoke->position();
-
-    return -1;
-}
-
 // This function is called from a different thread, which is guaranteed not to use render image until the call returns
 QImage * KaraokeWidget::switchImages()
 {
