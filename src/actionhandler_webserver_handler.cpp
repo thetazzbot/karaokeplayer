@@ -1,7 +1,10 @@
+#include <QMimeDatabase>
+#include <QMimeType>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QDebug>
 
+#include "settings.h"
 #include "logger.h"
 #include "actionhandler_webserver_handler.h"
 #include "songdatabase.h"
@@ -53,29 +56,37 @@ void ActionHandler_WebServer_Handler::handle( QHttpSocket *socket )
 
     if ( !path.startsWith( "/api" ) )
     {
-        // Simple serving
-        QString localpath = "/home/tim/work/my/karaokeplayer/html" + path;
-
+        // File serving - first look up in resources
+        QString localpath = ":/html" + path;
         QFile f( localpath );
 
         if ( !f.open( QIODevice::ReadOnly ) )
         {
-            qDebug() << path << " not found " << localpath;
-            socket->writeError(QHttpSocket::NotFound);
-            return;
+            // Attempt to serve from wwwroot if defined
+            if ( !pSettings->httpDocumentRoot.isEmpty() )
+            {
+                f.setFileName( pSettings->httpDocumentRoot + path );
+
+                if ( !f.open( QIODevice::ReadOnly ) )
+                {
+                    Logger::debug( "WebServer: requested path %s is not found in resources or %s", qPrintable(path), qPrintable(pSettings->httpDocumentRoot) );
+                    socket->writeError(QHttpSocket::NotFound);
+                    return;
+                }
+            }
+            else
+            {
+                Logger::debug( "WebServer: requested path %s is not found in resources, and httpDocumentRoot is not defined", qPrintable(path) );
+                socket->writeError(QHttpSocket::NotFound);
+                return;
+            }
         }
 
         QByteArray data = f.readAll();
-        QByteArray type = "text/html";
+        QByteArray type = QMimeDatabase().mimeTypeForFile( f.fileName() ).name().toUtf8();
 
-        if ( path.endsWith( ".js" ) )
-            type = "application/javascript";
-        else if ( path.endsWith( ".css" ) )
-            type = "text/css";
-
+        Logger::debug( "WebServer: serving content %s from %s, type %s", qPrintable(path), f.fileName().startsWith( ':' ) ? "resources" : qPrintable(f.fileName()), qPrintable(type) );
         sendData( socket, data, type );
-
-        qDebug() << path << " served " << localpath;
         return;
     }
 
@@ -153,7 +164,7 @@ bool ActionHandler_WebServer_Handler::addsong( QHttpSocket *socket, QJsonDocumen
 
     if ( path.isEmpty() || singer.isEmpty() )
     {
-        Logger::debug("WebInterface: failed to add song %d: %s", path.isEmpty() ? "path not found" : "singer is empty");
+        Logger::debug("WebServer: failed to add song %d: %s", path.isEmpty() ? "path not found" : "singer is empty");
 
         QJsonObject out;
         out["result"] = 0;
@@ -163,7 +174,7 @@ bool ActionHandler_WebServer_Handler::addsong( QHttpSocket *socket, QJsonDocumen
         return true;
     }
 
-    Logger::debug("WebInterface: %s added song %d: %s", qPrintable(singer), id, qPrintable(path) );
+    Logger::debug("WebServer: %s added song %d: %s", qPrintable(singer), id, qPrintable(path) );
     emit queueAdd( path, singer, id );
 
     QJsonObject out;
