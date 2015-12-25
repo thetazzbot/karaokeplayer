@@ -14,7 +14,6 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    playerwidget.cpp \
     playerbackground.cpp \
     playerbackgroundcolor.cpp \
     settings.cpp \
@@ -24,7 +23,6 @@ SOURCES += main.cpp\
     songqueue.cpp \
     songdatabase.cpp \
     playerlyricstext.cpp \
-    karaokefile.cpp \
     playerlyrictext_line.cpp \
     karaokepainter.cpp \
     playerbackgroundvideo.cpp \
@@ -40,10 +38,10 @@ SOURCES += main.cpp\
     logger.cpp \
     playerbackgroundimage.cpp \
     convertermidi.cpp \
-    ../sqlite3/sqlite3.c
+    karaokewidget.cpp \
+    karaokesong.cpp
 
 HEADERS  += mainwindow.h \
-    playerwidget.h \
     playerbackground.h \
     playerbackgroundcolor.h \
     settings.h \
@@ -53,7 +51,6 @@ HEADERS  += mainwindow.h \
     songqueue.h \
     songdatabase.h \
     playerlyricstext.h \
-    karaokefile.h \
     playerlyrictext_line.h \
     karaokepainter.h \
     playerbackgroundvideo.h \
@@ -69,12 +66,14 @@ HEADERS  += mainwindow.h \
     logger.h \
     util.h \
     playerbackgroundimage.h \
-    convertermidi.h
+    convertermidi.h \
+    karaokewidget.h \
+    karaokesong.h
 
 FORMS    += mainwindow.ui \
     songenqueuedialog.ui \
     songsearchdialog.ui
 INCLUDEPATH += .. ../libqhttpengine/QHttpEngine ../libqhttpengine
-LIBS += -L ../libkaraokelyrics/ -lkaraokelyrics -L../libqhttpengine/ -lqhttpengine
+LIBS += -L ../libkaraokelyrics/ -lkaraokelyrics -L../libqhttpengine/ -lqhttpengine -lsqlite3
 POST_TARGETDEPS += ../libkaraokelyrics/libkaraokelyrics.a ../libqhttpengine/libqhttpengine.a
 DEFINES += SQLITE_OMIT_LOAD_EXTENSION

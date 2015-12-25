@@ -6,7 +6,7 @@
 #include "logger.h"
 #include "settings.h"
 #include "songqueue.h"
-#include "karaokefile.h"
+#include "karaokesong.h"
 #include "eventcontroller.h"
 #include "convertermidi.h"
 
@@ -50,7 +50,7 @@ void SongQueue::addSong(const QString &file, const QString &singer, int id)
     song.title = filenameToTitle( file );
 
     // Find out if it needs to be converted
-    song.state = KaraokeFile::needsProcessing( file ) ? Song::STATE_PREPARING : Song::STATE_READY;
+    song.state = KaraokeSong::needsProcessing( file ) ? Song::STATE_PREPARING : Song::STATE_READY;
 
     // If it is, schedule it for conversion
     if ( song.state == Song::STATE_PREPARING )
@@ -277,7 +277,7 @@ void SongQueue::load()
         dts >> s.singer;
 
         // Find out if it needs to be converted
-        s.state = KaraokeFile::needsProcessing( s.file ) ? Song::STATE_PREPARING : Song::STATE_READY;
+        s.state = KaraokeSong::needsProcessing( s.file ) ? Song::STATE_PREPARING : Song::STATE_READY;
 
         // If it is, schedule it for conversion
         if ( s.state == Song::STATE_PREPARING )

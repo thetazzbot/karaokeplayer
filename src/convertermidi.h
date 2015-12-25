@@ -5,7 +5,7 @@
 #include <QQueue>
 #include <QProcess>
 
-class KaraokeFile;
+class KaraokeSong;
 
 // Converts MIDI to wav
 class ConverterMIDI : public QObject

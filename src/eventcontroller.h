@@ -73,8 +73,6 @@ class EventController : public QObject
         // EVents from different sources
         void    keyEvent( QKeyEvent * event );
 
-        void    dbusEvent( QString event );
-
     private:
         EventController_WebServer   *   m_webserver;
 };

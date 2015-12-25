@@ -4,9 +4,9 @@
 #include <QMutex>
 #include <QThread>
 
-class PlayerWidget;
+class KaraokeWidget;
 class PlayerNotification;
-class KaraokeFile;
+class KaraokeSong;
 
 // This thread renders everything - lyrics, video, notifications. This way we can switch to GLWidget
 // and keep this class as-is (almost)
@@ -16,7 +16,7 @@ class PlayerRenderer : public QThread
     Q_OBJECT
 
     public:
-        explicit PlayerRenderer( PlayerNotification * notification, QImage * render, PlayerWidget *parent );
+        explicit PlayerRenderer( PlayerNotification * notification, QImage * render, KaraokeWidget *parent );
         ~PlayerRenderer();
 
         void    stop();
@@ -32,7 +32,7 @@ class PlayerRenderer : public QThread
 
         PlayerNotification* m_notification;
 
-        PlayerWidget    *   m_widget;
+        KaraokeWidget    *   m_widget;
 };
 
 #endif // PLAYERRENDERER_H

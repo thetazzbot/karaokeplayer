@@ -1,15 +1,15 @@
 #include <QTime>
 
-#include "karaokefile.h"
+#include "karaokesong.h"
 #include "playernotification.h"
 #include "playerrenderer.h"
-#include "playerwidget.h"
+#include "karaokewidget.h"
 #include "settings.h"
 
 static const unsigned int RENDER_FPS = 20;
 
 
-PlayerRenderer::PlayerRenderer(PlayerNotification *notification, QImage * render, PlayerWidget *parent)
+PlayerRenderer::PlayerRenderer(PlayerNotification *notification, QImage * render, KaraokeWidget *parent)
     : QThread(parent)
 {
     m_widget = parent;

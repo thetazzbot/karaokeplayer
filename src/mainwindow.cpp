@@ -9,8 +9,8 @@
 
 #include "settings.h"
 #include "mainwindow.h"
-#include "playerwidget.h"
-#include "karaokefile.h"
+#include "karaokewidget.h"
+#include "karaokesong.h"
 #include "songqueue.h"
 #include "songdatabase.h"
 #include "playernotification.h"
@@ -48,7 +48,7 @@ MainWindow::MainWindow(QWidget *parent) :
     setCentralWidget( m_widgetStack );
 
     // Lyrics window should be created
-    m_widget = new PlayerWidget( this );
+    m_widget = new KaraokeWidget( this );
     m_widgetStack->addWidget( m_widget );
     m_widgetStack->setCurrentWidget( m_widget );
     m_widget->show();
@@ -140,7 +140,7 @@ void MainWindow::playCurrentItem()
     }
 
     pNotification->clearOnScreenMessage();
-    KaraokeFile * karfile = new KaraokeFile( m_widget, current );
+    KaraokeSong * karfile = new KaraokeSong( m_widget, current );
 
     try
     {

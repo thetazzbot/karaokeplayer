@@ -91,6 +91,12 @@ int EventController::eventByName(const char *eventname)
     if ( !strcmp( eventname, "CLEAR" ) )
         return EVENT_QUEUE_CLEAR;
 
+    if ( !strcmp( eventname, "LYRICSEARLIER" ) )
+        return EVENT_LYRIC_EARLIER;
+
+    if ( !strcmp( eventname, "LYRICSLATER" ) )
+        return EVENT_LYRIC_LATER;
+
     return -1;
 }
 
@@ -221,8 +227,4 @@ void EventController::keyEvent(QKeyEvent *event)
     if ( event->key() == Qt::Key_Z )
         cmdEvent( EVENT_QUEUE_CLEAR );
 
-}
-
-void EventController::dbusEvent(QString event)
-{
 }

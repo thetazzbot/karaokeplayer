@@ -33,8 +33,8 @@
 
 #include "ui_mainwindow.h"
 
-class PlayerWidget;
-class KaraokeFile;
+class KaraokeWidget;
+class KaraokeSong;
 class SongQueue;
 class WebServer;
 
@@ -59,7 +59,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
         void    closeEvent(QCloseEvent *);
 
     private:
-        PlayerWidget *  m_widget;
+        KaraokeWidget *  m_widget;
         QStackedWidget* m_widgetStack;
 };
 
