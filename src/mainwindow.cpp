@@ -179,7 +179,12 @@ void MainWindow::playCurrentItem()
 
 void MainWindow::menuOpenKaraoke()
 {
+    QString file = QFileDialog::getOpenFileName( 0, "Music file", "/home/tim/work/my/karaokeplayer/test/", "*.*");
 
+    if ( file.isEmpty() )
+        return;
+
+    queueAdd( file, "Console", 0 );
 }
 
 void MainWindow::menuSettings()
