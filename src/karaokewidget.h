@@ -1,5 +1,5 @@
-#ifndef PLAYERWIDGET_H
-#define PLAYERWIDGET_H
+#ifndef KARAOKEWIDGET_H
+#define KARAOKEWIDGET_H
 
 #include <QWidget>
 #include <QMutex>
@@ -60,4 +60,4 @@ class KaraokeWidget : public QWidget
 
 };
 
-#endif // PLAYERWIDGET_H
+#endif // KARAOKEWIDGET_H

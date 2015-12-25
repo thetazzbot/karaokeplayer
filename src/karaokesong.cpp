@@ -181,11 +181,16 @@ bool KaraokeSong::open()
 
     // Initialize
     m_background->initFromSettings();
+
+    // Set the song state
+    pCurrentState->playerSong = m_song;
+
     return true;
 }
 
 void KaraokeSong::start()
 {
+    pCurrentState->playerDuration = m_player.duration();
     pCurrentState->playerState = CurrentState::PLAYERSTATE_PLAYING;
 
     m_background->start();

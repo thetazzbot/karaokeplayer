@@ -19,6 +19,7 @@ class CurrentState : public QObject
     public:
         enum
         {
+            // Check Player widget when modifying this enum (it checks for ==PLAYERSTATE_PLAYING)!
             PLAYERSTATE_STOPPED,
             PLAYERSTATE_PLAYING,
             PLAYERSTATE_PAUSED

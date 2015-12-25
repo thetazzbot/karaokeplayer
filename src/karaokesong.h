@@ -1,5 +1,5 @@
-#ifndef KARAOKEFILE_H
-#define KARAOKEFILE_H
+#ifndef KARAOKESONG_H
+#define KARAOKESONG_H
 
 #include <QIODevice>
 #include <QProcess>
@@ -71,4 +71,4 @@ class KaraokeSong : public QObject
         static bool isSupportedLyricFile( const QString& filename );
 };
 
-#endif // KARAOKEFILE_H
+#endif // KARAOKESONG_H

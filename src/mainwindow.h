@@ -44,6 +44,7 @@ class KaraokeWidget;
 class KaraokeSong;
 class SongQueue;
 class WebServer;
+class PlayerWidget;
 
 class MainWindow : public QMainWindow, public Ui::MainWindow
 {
@@ -67,6 +68,9 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
         void    menuToggleWindowPlayer();
         void    menuAbout();
 
+        // Handling dock window closures
+        void    dockWindowClosed( QObject* widget );
+
     private:
         void    keyPressEvent(QKeyEvent * event);
         void    closeEvent(QCloseEvent *);
@@ -74,6 +78,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
     private:
         KaraokeWidget *  m_widget;
         QStackedWidget* m_widgetStack;
+        PlayerWidget *  m_playerWindow;
 };
 
 

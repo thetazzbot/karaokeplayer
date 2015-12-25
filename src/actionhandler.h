@@ -1,5 +1,5 @@
-#ifndef EVENTCONTROLLER_H
-#define EVENTCONTROLLER_H
+#ifndef ACTIONHANDLER_H
+#define ACTIONHANDLER_H
 
 #include <QString>
 #include <QKeyEvent>
@@ -90,4 +90,4 @@ class ActionHandler : public QObject
 
 extern ActionHandler * pActionHandler;
 
-#endif // EVENTCONTROLLER_H
+#endif // ACTIONHANDLER_H

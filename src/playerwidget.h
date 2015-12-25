@@ -24,7 +24,6 @@
 
 #include "playerbutton.h"
 #include "ui_playerwidget.h"
-/*
 
 // Taken from my other project, Karaoke Lyric Editor
 class PlayerWidget : public QDockWidget, public Ui::PlayerWidget
@@ -33,10 +32,9 @@ class PlayerWidget : public QDockWidget, public Ui::PlayerWidget
 
 	public:
 		PlayerWidget(QWidget *parent = 0);
-		~PlayerWidget();
 
 	signals:
-        void	event( int type );
+        void	action( int type );
 
 	public slots:
 		void	btn_playerStop();
@@ -47,8 +45,8 @@ class PlayerWidget : public QDockWidget, public Ui::PlayerWidget
         void	playUpdate();
 
 	private:
-		bool			m_sliderDown; // do not update position
+        QString tickToString(qint64 tickvalue);
 };
 
-*/
+
 #endif // PLAYERWIDGET_H

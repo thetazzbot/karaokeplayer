@@ -18,6 +18,7 @@
 #include "currentstate.h"
 #include "convertermidi.h"
 #include "version.h"
+#include "playerwidget.h"
 #include "ui_dialog_about.h"
 
 
@@ -28,6 +29,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     setupUi( this );
     pMainWindow = this;
+    m_playerWindow  = 0;
 
     // We don't need any specific crypto
     qsrand( (unsigned int) (long) pMainWindow * (unsigned int) time(0) );
@@ -91,6 +93,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect( actionSettings, SIGNAL(triggered()), this, SLOT(menuSettings()) );
     connect( action_Player_window, SIGNAL(triggered()), this, SLOT(menuToggleWindowPlayer()) );
     connect( action_Quit, SIGNAL(triggered()), qApp, SLOT(quit()) );
+
+    // Currently unused
+    mainToolBar->hide();
 }
 
 MainWindow::~MainWindow()
@@ -194,7 +199,17 @@ void MainWindow::menuSettings()
 
 void MainWindow::menuToggleWindowPlayer()
 {
-
+    if ( m_playerWindow )
+    {
+        delete m_playerWindow;
+        m_playerWindow = 0;
+    }
+    else
+    {
+        m_playerWindow = new PlayerWidget( this );
+        connect( m_playerWindow, SIGNAL(destroyed(QObject*)), this, SLOT(dockWindowClosed(QObject*)) );
+        m_playerWindow->show();
+    }
 }
 
 void MainWindow::menuAbout()
@@ -211,6 +226,19 @@ void MainWindow::menuAbout()
             "version 3; see LICENSE file for details.") .arg(APP_VERSION_MAJOR) .arg(APP_VERSION_MINOR) );
 
     dlg.exec();
+}
+
+
+void MainWindow::dockWindowClosed(QObject *widget)
+{
+    if ( widget == m_playerWindow )
+    {
+        // Player dock window closed
+        m_playerWindow = 0;
+        action_Player_window->setChecked( false );
+    }
+    else
+        abort();
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
