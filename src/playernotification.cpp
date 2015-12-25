@@ -90,10 +90,10 @@ void PlayerNotification::queueUpdated()
             if ( queue[i].state == SongQueue::Song::STATE_PLAYING )
                 continue;
 
-            if ( i == 0 )
+            if ( elements == 0 )
                 m_firstItem = tr("Next: %1 (%2)") .arg( queue[i].title ) .arg( queue[i].singer );
 
-            m_notificationLine.append( tr("%1: %2 (%3) ").arg( i + 1 ) .arg( queue[i].title ) .arg( queue[i].singer ) );
+            m_notificationLine.append( tr("%1: %2 (%3) ").arg( elements + 1 ) .arg( queue[i].title ) .arg( queue[i].singer ) );
             elements++;
         }
 

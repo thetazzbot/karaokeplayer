@@ -24,13 +24,13 @@ class KaraokeWidget : public QWidget
         // Set current karaoke song
         void    startKaraoke( KaraokeSong * k );
         void    stopKaraoke();
+        void    stopEverything();
 
         // Current karaoke position and duration. Both return -1 if nothing is played
         qint64  position() const;
         qint64  duration() const;
 
     protected:
-        void    closeEvent(QCloseEvent * event);
         void    paintEvent(QPaintEvent * event);
         void    keyPressEvent(QKeyEvent * event);
 

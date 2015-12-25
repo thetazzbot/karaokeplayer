@@ -4,7 +4,6 @@
 
 #include "actionhandler.h"
 #include "actionhandler_dbus.h"
-#include "songenqueuedialog.h"
 #include "songsearchdialog.h"
 #include "songdatabase.h"
 #include "settings.h"
@@ -200,14 +199,6 @@ void ActionHandler::keyEvent(QKeyEvent *event)
     if ( event->key() == Qt::Key_Minus )
         cmdAction( ACTION_PLAYER_VOLUME_DOWN );
 
-    if ( event->key() == Qt::Key_O )
-    {
-        SongEnqueueDialog dlg;
-
-        if ( dlg.exec() == QDialog::Accepted )
-            emit queueAdd( dlg.leFile->text(), dlg.leSinger->text() );
-    }
-
     if ( event->key() == Qt::Key_S )
     {
         SongSearchDialog dlg;
@@ -220,7 +211,7 @@ void ActionHandler::keyEvent(QKeyEvent *event)
                 return;
 
             QString singer = QInputDialog::getText( 0, "Enter singer name", "Singer name:" );
-            emit queueAdd( path, singer );
+            emit queueAdd( path, singer, dlg.selectedSongId() );
         }
     }
 

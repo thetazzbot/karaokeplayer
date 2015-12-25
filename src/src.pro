@@ -26,7 +26,6 @@ SOURCES += main.cpp\
     playerlyrictext_line.cpp \
     karaokepainter.cpp \
     playerbackgroundvideo.cpp \
-    songenqueuedialog.cpp \
     playernotification.cpp \
     playerrenderer.cpp \
     songsearchdialog.cpp \
@@ -57,7 +56,6 @@ HEADERS  += mainwindow.h \
     playerlyrictext_line.h \
     karaokepainter.h \
     playerbackgroundvideo.h \
-    songenqueuedialog.h \
     playernotification.h \
     playerrenderer.h \
     songsearchdialog.h \
@@ -77,7 +75,6 @@ HEADERS  += mainwindow.h \
     actionhandler_webserver_handler.h
 
 FORMS    += mainwindow.ui \
-    songenqueuedialog.ui \
     songsearchdialog.ui \
     playerwidget.ui
 RESOURCES += resources.qrc

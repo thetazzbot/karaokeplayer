@@ -62,7 +62,7 @@ class ActionHandler : public QObject
         void    playerVolumeDown();
 
         // Actions for queue manager
-        void    queueAdd( QString songpath, QString singer );
+        void    queueAdd( QString songpath, QString singer, int id );
         void    queueNext();
         void    queuePrevious(); // does restart if not within the first 5 seconds
         void    queueClear();

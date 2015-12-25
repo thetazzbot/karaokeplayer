@@ -53,6 +53,16 @@ void KaraokeWidget::stopKaraoke()
     delete k;
 }
 
+void KaraokeWidget::stopEverything()
+{
+    stopKaraoke();
+
+    // Stop the rendering thread
+    m_renderer->stop();
+    delete m_renderer;
+    m_renderer = 0;
+}
+
 qint64 KaraokeWidget::position() const
 {
     QMutexLocker m( &m_karaokeMutex );
@@ -106,17 +116,6 @@ QImage * KaraokeWidget::switchImages()
     QMetaObject::invokeMethod( this, "update", Qt::QueuedConnection );
 
     return m_images[newRenderImage];
-}
-
-void KaraokeWidget::closeEvent(QCloseEvent *event)
-{
-    stopKaraoke();
-
-    m_renderer->stop();
-    delete m_renderer;
-    m_renderer = 0;
-
-    event->accept();
 }
 
 void KaraokeWidget::paintEvent(QPaintEvent *)
