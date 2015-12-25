@@ -56,30 +56,31 @@ void ActionHandler_WebServer_Handler::handle( QHttpSocket *socket )
 
     if ( !path.startsWith( "/api" ) )
     {
-        // File serving - first look up in resources
-        QString localpath = ":/html" + path;
-        QFile f( localpath );
+        // File serving - first look up in wwwroot
+        QFile f;
 
-        if ( !f.open( QIODevice::ReadOnly ) )
+        if ( !pSettings->httpDocumentRoot.isEmpty() )
         {
-            // Attempt to serve from wwwroot if defined
-            if ( !pSettings->httpDocumentRoot.isEmpty() )
-            {
-                f.setFileName( pSettings->httpDocumentRoot + path );
+            f.setFileName( pSettings->httpDocumentRoot + path );
+            f.open( QIODevice::ReadOnly );
+        }
 
-                if ( !f.open( QIODevice::ReadOnly ) )
-                {
-                    Logger::debug( "WebServer: requested path %s is not found in resources or %s", qPrintable(path), qPrintable(pSettings->httpDocumentRoot) );
-                    socket->writeError(QHttpSocket::NotFound);
-                    return;
-                }
-            }
+        if ( !f.isOpen() )
+        {
+            // Now look up in resources
+            f.setFileName( ":/html" + path );
+            f.open( QIODevice::ReadOnly );
+        }
+
+        if ( !f.isOpen() )
+        {
+            if ( pSettings->httpDocumentRoot.isEmpty() )
+                Logger::debug( "WebServer: requested path %s is not found in resources", qPrintable(path) );
             else
-            {
-                Logger::debug( "WebServer: requested path %s is not found in resources, and httpDocumentRoot is not defined", qPrintable(path) );
-                socket->writeError(QHttpSocket::NotFound);
-                return;
-            }
+                Logger::debug( "WebServer: requested path %s is not found in resources or %s", qPrintable(path), qPrintable(pSettings->httpDocumentRoot) );
+
+            socket->writeError(QHttpSocket::NotFound);
+            return;
         }
 
         QByteArray data = f.readAll();
