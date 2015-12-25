@@ -2,6 +2,7 @@
 #include <QDebug>
 #include <QFile>
 
+#include "actionhandler.h"
 #include "player.h"
 
 Player::Player()
@@ -12,6 +13,8 @@ Player::Player()
     connect( m_player, SIGNAL(error(QMediaPlayer::Error)), this, SLOT(slotError(QMediaPlayer::Error)) );
     connect( m_player, SIGNAL(mediaStatusChanged(QMediaPlayer::MediaStatus)), this, SLOT(slotMediaStatusChanged(QMediaPlayer::MediaStatus)) );
     connect( m_player, SIGNAL(mediaChanged(QMediaContent)), this, SLOT(slotMediaChanged(QMediaContent)) );
+    connect( pActionHandler, SIGNAL(playerVolumeDown()), this, SLOT(volumeDown()) );
+    connect( pActionHandler, SIGNAL(playerVolumeUp()), this, SLOT(volumeUp()) );
 }
 
 Player::~Player()
@@ -38,6 +41,16 @@ void Player::pause()
 void Player::seekTo(qint64 time)
 {
     m_player->setPosition( time );
+}
+
+void Player::volumeDown()
+{
+    m_player->setVolume( qMax( m_player->volume() - 5, 0 ) );
+}
+
+void Player::volumeUp()
+{
+    m_player->setVolume( qMin( m_player->volume() + 5, 100 ) );
 }
 
 qint64 Player::position()

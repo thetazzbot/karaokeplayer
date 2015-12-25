@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/dryicons_play.png</file>
+        <file>images/dryicons_pause.png</file>
+        <file>images/dryicons_forward.png</file>
+        <file>images/dryicons_rewind.png</file>
+        <file>images/dryicons_stop.png</file>
+    </qresource>
+</RCC>

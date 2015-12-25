@@ -7,7 +7,7 @@
 #include "settings.h"
 #include "songqueue.h"
 #include "karaokesong.h"
-#include "eventcontroller.h"
+#include "actionhandler.h"
 #include "convertermidi.h"
 
 SongQueue * pSongQueue;
@@ -218,7 +218,7 @@ void SongQueue::save()
 
     if ( !fout.open( QIODevice::WriteOnly ) )
     {
-        pController->error( "Cannot store queue: " + fout.errorString() );
+        pActionHandler->error( "Cannot store queue: " + fout.errorString() );
         return;
     }
 

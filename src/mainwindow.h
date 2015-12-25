@@ -14,15 +14,20 @@
 // - CDG, KFN, MID, LRC, Ultrastar, ZIP
 // - Timidity
 // - Video background
+// - Remote song storage, download (incl encrypted)
+// - Voice passthrough and recording
+// - Video + voice recording
+
+
+// DONE //
+// - CDG, KFN, MID, LRC, Ultrastar, ZIP
+// - Timidity
+// - Video background
 // - LIRC support
 // - Queue
 // - Song collection
 // - Per-user queue w/intelligent
-// - Remote song storage, download (incl encrypted)
-// - Voice passthrough and recording
-// - Video + voice recording
 // - Remote management through Web site and Android app
-
 
 
 #ifndef MAINWINDOW_H

@@ -2,7 +2,7 @@
 #include <math.h>
 
 #include "logger.h"
-#include "eventcontroller.h"
+#include "actionhandler.h"
 #include "settings.h"
 #include "playerbackgroundimage.h"
 
@@ -87,7 +87,7 @@ void PlayerBackgroundImage::loadNewImage()
     if ( !m_newImage.load( pSettings->m_playerBackgroundObjects[ pSettings->m_playerBackgroundLastObject ] ) )
     {
         m_newImage = QImage();
-        pController->warning( QString("BgImage: error loading image %1") .arg( pSettings->m_playerBackgroundObjects[ pSettings->m_playerBackgroundLastObject ] ) );
+        pActionHandler->warning( QString("BgImage: error loading image %1") .arg( pSettings->m_playerBackgroundObjects[ pSettings->m_playerBackgroundLastObject ] ) );
     }
 
     m_lastUpdated = QTime::currentTime();

@@ -3,18 +3,18 @@
 #include <QDebug>
 
 #include "logger.h"
-#include "eventcontroller_webserver_handler.h"
+#include "actionhandler_webserver_handler.h"
 #include "songdatabase.h"
 #include "songqueue.h"
-#include "eventcontroller.h"
+#include "actionhandler.h"
 
 
-EventController_WebServer_Handler::EventController_WebServer_Handler(QObject *parent) :
+ActionHandler_WebServer_Handler::ActionHandler_WebServer_Handler(QObject *parent) :
     QObjectHandler(parent)
 {
 }
 
-void EventController_WebServer_Handler::process(QHttpSocket *socket, const QString & )
+void ActionHandler_WebServer_Handler::process(QHttpSocket *socket, const QString & )
 {
     // Only POST requests are accepted - reject any other methods but ensure
     // that the Allow header is set in order to comply with RFC 2616
@@ -39,12 +39,12 @@ void EventController_WebServer_Handler::process(QHttpSocket *socket, const QStri
     }
 }
 
-void EventController_WebServer_Handler::onReadChannelFinished()
+void ActionHandler_WebServer_Handler::onReadChannelFinished()
 {
     handle( qobject_cast<QHttpSocket*>(sender()) );
 }
 
-void EventController_WebServer_Handler::handle( QHttpSocket *socket )
+void ActionHandler_WebServer_Handler::handle( QHttpSocket *socket )
 {
     QString path = socket->path();
 
@@ -111,7 +111,7 @@ void EventController_WebServer_Handler::handle( QHttpSocket *socket )
 }
 
 
-bool EventController_WebServer_Handler::search( QHttpSocket *socket, QJsonDocument& document )
+bool ActionHandler_WebServer_Handler::search( QHttpSocket *socket, QJsonDocument& document )
 {
     QJsonObject obj = document.object();
 
@@ -140,7 +140,7 @@ bool EventController_WebServer_Handler::search( QHttpSocket *socket, QJsonDocume
     return true;
 }
 
-bool EventController_WebServer_Handler::addsong( QHttpSocket *socket, QJsonDocument& document )
+bool ActionHandler_WebServer_Handler::addsong( QHttpSocket *socket, QJsonDocument& document )
 {
     QJsonObject obj = document.object();
 
@@ -174,7 +174,7 @@ bool EventController_WebServer_Handler::addsong( QHttpSocket *socket, QJsonDocum
     return true;
 }
 
-bool EventController_WebServer_Handler::listqueue(QHttpSocket *socket, QJsonDocument &)
+bool ActionHandler_WebServer_Handler::listqueue(QHttpSocket *socket, QJsonDocument &)
 {
     QList<SongQueue::Song> queue;
 
@@ -201,7 +201,7 @@ bool EventController_WebServer_Handler::listqueue(QHttpSocket *socket, QJsonDocu
 }
 
 
-void EventController_WebServer_Handler::sendData(QHttpSocket *socket, const QByteArray &data, const QByteArray& type )
+void ActionHandler_WebServer_Handler::sendData(QHttpSocket *socket, const QByteArray &data, const QByteArray& type )
 {
     socket->setHeader( "Content-Length", QByteArray::number( data.length() ) );
     socket->setHeader("Content-Type", type );

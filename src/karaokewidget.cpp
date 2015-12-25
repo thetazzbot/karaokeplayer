@@ -4,7 +4,7 @@
 #include "karaokesong.h"
 #include "karaokewidget.h"
 #include "songqueue.h"
-#include "eventcontroller.h"
+#include "actionhandler.h"
 #include "playerrenderer.h"
 #include "playernotification.h"
 
@@ -131,5 +131,5 @@ void KaraokeWidget::paintEvent(QPaintEvent *)
 
 void KaraokeWidget::keyPressEvent(QKeyEvent *event)
 {
-    pController->keyEvent( event );
+    pActionHandler->keyEvent( event );
 }

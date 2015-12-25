@@ -4,7 +4,7 @@
 #include <QVariant>
 #include <QTextStream>
 
-#include "eventcontroller.h"
+#include "actionhandler.h"
 #include "settings.h"
 #include "songdatabase.h"
 #include "util.h"
@@ -79,7 +79,7 @@ bool SongDatabase::init()
 {
     if ( !sqlite3_open( pSettings->songdbFilename.toUtf8().data(), &m_sqlitedb ) == SQLITE_OK )
     {
-        pController->error( QString("Error opening sqlite database: %1") .arg( sqlite3_errmsg(m_sqlitedb) ) );
+        pActionHandler->error( QString("Error opening sqlite database: %1") .arg( sqlite3_errmsg(m_sqlitedb) ) );
 
         return false;
     }
@@ -328,7 +328,7 @@ bool SongDatabase::execute( const QString &sql, const QStringList& args )
 
     if ( !stmt.prepare( m_sqlitedb, sql, args  ) )
     {
-        pController->error( QString("Error executing database command: %1\n%2").arg( sqlite3_errmsg( m_sqlitedb ) ) .arg(sql) );
+        pActionHandler->error( QString("Error executing database command: %1\n%2").arg( sqlite3_errmsg( m_sqlitedb ) ) .arg(sql) );
         return false;
     }
 
@@ -341,7 +341,7 @@ bool SongDatabase::execute( const QString &sql, const QStringList& args )
         return true;
     else
     {
-        pController->error( QString("Error executing database command: %1\n%2").arg( sqlite3_errmsg( m_sqlitedb ) ) .arg(sql) );
+        pActionHandler->error( QString("Error executing database command: %1\n%2").arg( sqlite3_errmsg( m_sqlitedb ) ) .arg(sql) );
         return false;
     }
 }

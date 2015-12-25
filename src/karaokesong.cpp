@@ -12,7 +12,7 @@
 #include "playerbackgroundvideo.h"
 #include "playerbackgroundimage.h"
 #include "karaokepainter.h"
-#include "eventcontroller.h"
+#include "actionhandler.h"
 #include "songdatabase.h"
 #include "playernotification.h"
 #include "util.h"
@@ -32,12 +32,13 @@ KaraokeSong::KaraokeSong( KaraokeWidget *w, const SongQueue::Song &song )
     m_nextRedrawTime = -1;
     m_lastRedrawTime = -1;
 
-    connect( &m_player, SIGNAL( finished()), pController, SLOT(playerSongFinished() ) );
-    connect( pController, SIGNAL( playerPauseResume()), this, SLOT(pause()) );
-    connect( pController, SIGNAL( playerForward()), this, SLOT(seekForward()) );
-    connect( pController, SIGNAL( playerBackward()), this, SLOT(seekBackward()) );
-    connect( pController, SIGNAL(playerLyricsEarlier()), this, SLOT(lyricEarlier()) );
-    connect( pController, SIGNAL(playerLyricsLater()), this, SLOT(lyricLater()) );
+    connect( &m_player, SIGNAL( finished()), pActionHandler, SLOT(playerSongFinished() ) );
+
+    connect( pActionHandler, SIGNAL( playerPauseResume()), this, SLOT(pause()) );
+    connect( pActionHandler, SIGNAL( playerForward()), this, SLOT(seekForward()) );
+    connect( pActionHandler, SIGNAL( playerBackward()), this, SLOT(seekBackward()) );
+    connect( pActionHandler, SIGNAL(playerLyricsEarlier()), this, SLOT(lyricEarlier()) );
+    connect( pActionHandler, SIGNAL(playerLyricsLater()), this, SLOT(lyricLater()) );
 }
 
 KaraokeSong::~KaraokeSong()

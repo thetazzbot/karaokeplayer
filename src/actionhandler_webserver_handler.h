@@ -4,12 +4,12 @@
 #include <QJsonDocument>
 #include "libqhttpengine/QHttpEngine/QObjectHandler"
 
-class EventController_WebServer_Handler : public QObjectHandler
+class ActionHandler_WebServer_Handler : public QObjectHandler
 {
     Q_OBJECT
 
     public:
-        EventController_WebServer_Handler( QObject *parent = 0 );
+        ActionHandler_WebServer_Handler( QObject *parent = 0 );
 
         void    process( QHttpSocket *socket, const QString &path );
 

@@ -26,20 +26,23 @@ SOURCES += main.cpp\
     playerlyrictext_line.cpp \
     karaokepainter.cpp \
     playerbackgroundvideo.cpp \
-    eventcontroller.cpp \
-    eventcontroller_dbus.cpp \
     songenqueuedialog.cpp \
     playernotification.cpp \
     playerrenderer.cpp \
     songsearchdialog.cpp \
-    eventcontroller_lirc.cpp \
-    eventcontroller_webserver.cpp \
-    eventcontroller_webserver_handler.cpp \
     logger.cpp \
     playerbackgroundimage.cpp \
     convertermidi.cpp \
     karaokewidget.cpp \
-    karaokesong.cpp
+    karaokesong.cpp \
+    playerwidget.cpp \
+    playerbutton.cpp \
+    currentstate.cpp \
+    actionhandler.cpp \
+    actionhandler_dbus.cpp \
+    actionhandler_lirc.cpp \
+    actionhandler_webserver.cpp \
+    actionhandler_webserver_handler.cpp
 
 HEADERS  += mainwindow.h \
     playerbackground.h \
@@ -54,25 +57,30 @@ HEADERS  += mainwindow.h \
     playerlyrictext_line.h \
     karaokepainter.h \
     playerbackgroundvideo.h \
-    eventcontroller.h \
-    eventcontroller_dbus.h \
     songenqueuedialog.h \
     playernotification.h \
     playerrenderer.h \
     songsearchdialog.h \
-    eventcontroller_lirc.h \
-    eventcontroller_webserver.h \
-    eventcontroller_webserver_handler.h \
     logger.h \
     util.h \
     playerbackgroundimage.h \
     convertermidi.h \
     karaokewidget.h \
-    karaokesong.h
+    karaokesong.h \
+    playerwidget.h \
+    playerbutton.h \
+    currentstate.h \
+    actionhandler.h \
+    actionhandler_dbus.h \
+    actionhandler_lirc.h \
+    actionhandler_webserver.h \
+    actionhandler_webserver_handler.h
 
 FORMS    += mainwindow.ui \
     songenqueuedialog.ui \
-    songsearchdialog.ui
+    songsearchdialog.ui \
+    playerwidget.ui
+RESOURCES += resources.qrc
 INCLUDEPATH += .. ../libqhttpengine/QHttpEngine ../libqhttpengine
 LIBS += -L ../libkaraokelyrics/ -lkaraokelyrics -L../libqhttpengine/ -lqhttpengine -lsqlite3
 POST_TARGETDEPS += ../libkaraokelyrics/libkaraokelyrics.a ../libqhttpengine/libqhttpengine.a

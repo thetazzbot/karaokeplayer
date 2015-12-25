@@ -5,14 +5,14 @@
 #include <QObject>
 #include <QLocalSocket>
 
-#include "eventcontroller.h"
+#include "actionhandler.h"
 
-class EventController_LIRC : public QObject
+class ActionHandler_LIRC : public QObject
 {
     Q_OBJECT
 
     public:
-        explicit EventController_LIRC(QObject *parent = 0);
+        explicit ActionHandler_LIRC(QObject *parent = 0);
 
     signals:
         void    lircEvent( int event );

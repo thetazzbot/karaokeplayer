@@ -2,7 +2,7 @@
 
 #include "settings.h"
 #include "karaokepainter.h"
-#include "eventcontroller.h"
+#include "actionhandler.h"
 #include "playerbackgroundvideo.h"
 
 

@@ -14,7 +14,8 @@
 #include "songqueue.h"
 #include "songdatabase.h"
 #include "playernotification.h"
-#include "eventcontroller.h"
+#include "actionhandler.h"
+#include "currentstate.h"
 #include "convertermidi.h"
 
 
@@ -32,8 +33,11 @@ MainWindow::MainWindow(QWidget *parent) :
     // Settings should be created first
     pSettings = new Settings();
 
+    // Current state doesn't connect to anything
+    pCurrentState = new CurrentState( this );
+
     // Controller the second
-    pController = new EventController();
+    pActionHandler = new ActionHandler();
 
     // Then notification
     pNotification = new PlayerNotification( 0 );
@@ -64,15 +68,15 @@ MainWindow::MainWindow(QWidget *parent) :
     pSongDatabase->init();
 
     // Initialize the controller
-    pController->start();
+    pActionHandler->start();
 
     // Connect slots
-    connect( pController, SIGNAL(playerStart()), this, SLOT(queueStart()) );
-    connect( pController, SIGNAL(playerStop()), this, SLOT(queueStop()) );
-    connect( pController, SIGNAL(queueAdd(QString,QString,int)), this, SLOT(queueAdd(QString,QString,int)) );
-    connect( pController, SIGNAL(queueNext()), this, SLOT(queueNext()) );
-    connect( pController, SIGNAL(queuePrevious()), this, SLOT(queuePrevious()) );
-    connect( pController, SIGNAL(queueClear()), pSongQueue, SLOT(clear()) );
+    connect( pActionHandler, SIGNAL(playerStart()), this, SLOT(queueStart()) );
+    connect( pActionHandler, SIGNAL(playerStop()), this, SLOT(queueStop()) );
+    connect( pActionHandler, SIGNAL(queueAdd(QString,QString,int)), this, SLOT(queueAdd(QString,QString,int)) );
+    connect( pActionHandler, SIGNAL(queueNext()), this, SLOT(queueNext()) );
+    connect( pActionHandler, SIGNAL(queuePrevious()), this, SLOT(queuePrevious()) );
+    connect( pActionHandler, SIGNAL(queueClear()), pSongQueue, SLOT(clear()) );
 
     connect( pConverterMIDI, SIGNAL(finished(QString,bool)), pSongQueue, SLOT(processingFinished(QString,bool)) );
 }
@@ -107,7 +111,7 @@ void MainWindow::queuePrevious()
 {
     if ( m_widget->position() > 10000 )
     {
-        pController->cmdEvent( EventController::EVENT_PLAYER_BACKWARD );
+        pActionHandler->cmdAction( ActionHandler::ACTION_PLAYER_SEEK_BACK );
         return;
     }
 
@@ -164,12 +168,12 @@ void MainWindow::playCurrentItem()
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-    pController->keyEvent( event );
+    pActionHandler->keyEvent( event );
 }
 
 void MainWindow::closeEvent(QCloseEvent *)
 {
     m_widget->stopKaraoke();
-    pController->stop();
+    pActionHandler->stop();
     pSettings->save();
 }

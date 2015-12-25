@@ -1,9 +1,9 @@
 #include "settings.h"
 #include "logger.h"
 #include "util.h"
-#include "eventcontroller_lirc.h"
+#include "actionhandler_lirc.h"
 
-EventController_LIRC::EventController_LIRC(QObject *parent) :
+ActionHandler_LIRC::ActionHandler_LIRC(QObject *parent) :
     QObject(parent)
 {
     m_socket.connectToServer( pSettings->lircDevicePath );
@@ -16,12 +16,12 @@ EventController_LIRC::EventController_LIRC(QObject *parent) :
     readMap();
 }
 
-void EventController_LIRC::connected()
+void ActionHandler_LIRC::connected()
 {
     Logger::debug( "LIRC: connected" );
 }
 
-void EventController_LIRC::disconnected()
+void ActionHandler_LIRC::disconnected()
 {
     Logger::debug( "LIRC: disconnected" );
 
@@ -29,12 +29,12 @@ void EventController_LIRC::disconnected()
     m_socket.connectToServer( pSettings->lircDevicePath );
 }
 
-void EventController_LIRC::error(QLocalSocket::LocalSocketError socketError)
+void ActionHandler_LIRC::error(QLocalSocket::LocalSocketError socketError)
 {
 
 }
 
-void EventController_LIRC::readyRead()
+void ActionHandler_LIRC::readyRead()
 {
     m_buffer.append( m_socket.readAll() );
 
@@ -59,7 +59,7 @@ void EventController_LIRC::readyRead()
             continue;
 
         const char * keyname = data[2].data();
-        int eventcode = EventController::eventByName( keyname );
+        int eventcode = ActionHandler::actionByName( keyname );
 
         if ( eventcode == -1 )
         {
@@ -79,13 +79,13 @@ void EventController_LIRC::readyRead()
     }
 }
 
-void EventController_LIRC::readMap()
+void ActionHandler_LIRC::readMap()
 {
     QFile f( pSettings->lircMappingFile );
 
     if ( !f.open( QIODevice::ReadOnly ) )
     {
-        pController->warning( tr("Can't open LIRC mapping file %1: remote might not work") .arg( pSettings->lircMappingFile ) );
+        pActionHandler->warning( tr("Can't open LIRC mapping file %1: remote might not work") .arg( pSettings->lircMappingFile ) );
         return;
     }
 
@@ -104,11 +104,11 @@ void EventController_LIRC::readMap()
 
         QByteArray cmd = line.left( i );
         QByteArray event = line.mid( i + 1 ).trimmed();
-        int eventcode = EventController::eventByName( event.data() );
+        int eventcode = ActionHandler::actionByName( event.data() );
 
         if ( eventcode == -1 )
         {
-            pController->warning( tr("Invalid event name %1") .arg( event.data() ) );
+            pActionHandler->warning( tr("Invalid event name %1") .arg( event.data() ) );
             continue;
         }
 

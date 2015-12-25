@@ -5,12 +5,14 @@
 #include <QThread>
 
 // A built-in web server running in a dedicated thread (so it doesn't block our main thread)
-class EventController_WebServer : public QThread
+class ActionHandler_WebServer : public QThread
 {
     Q_OBJECT
 
     public:
-        EventController_WebServer( QObject * parent );
+        ActionHandler_WebServer( QObject * parent );
+
+        QString webURL() const;
 
     private:
         void run();

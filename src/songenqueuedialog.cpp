@@ -1,7 +1,7 @@
 #include <QFileDialog>
 
 #include "songenqueuedialog.h"
-#include "eventcontroller.h"
+#include "actionhandler.h"
 
 SongEnqueueDialog::SongEnqueueDialog(QWidget *parent) :
     QDialog(parent), Ui::SongEnqueueDialog()
