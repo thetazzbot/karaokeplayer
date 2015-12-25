@@ -109,7 +109,7 @@ qint64 PlayerLyricsText::nextUpdate() const
 
 void PlayerLyricsText::calculateFontSize()
 {
-    int fontsize = KaraokePainter::largetsFontSize( pSettings->playerLyricsFont,
+    int fontsize = KaraokePainter::largestFontSize( pSettings->playerLyricsFont,
                                                     m_usedImageSize.width(),
                                                     m_lines[m_longestLine].fullLine() );
 
@@ -119,8 +119,8 @@ void PlayerLyricsText::calculateFontSize()
 
 void PlayerLyricsText::renderTitle( KaraokePainter &p )
 {
-    int fs_artist = p.largetsFontSize( m_artist );
-    int fs_title = p.largetsFontSize( m_title );
+    int fs_artist = p.largestFontSize( m_artist );
+    int fs_title = p.largestFontSize( m_title );
 
     // Use the smallest size so we can fit for sure
     m_renderFont.setPointSize( qMin( fs_artist, fs_title ) );
@@ -147,15 +147,13 @@ void PlayerLyricsText::drawNotification(KaraokePainter &p, qint64 timeleft)
 {
     p.setPen( Qt::black );
     p.setBrush( Qt::white );
-    p.drawRect( 0, 0, timeleft * p.rect().width() / MAX_NOTIFICATION_DURATION, 10 );
+    p.drawRect( p.textRect().x(), p.textRect().y(), timeleft * p.textRect().width() / MAX_NOTIFICATION_DURATION, 10 );
 }
 
 
 bool PlayerLyricsText::render(KaraokePainter &p)
 {
     qint64 timems = p.time();
-
-    p.setClipAreaText();
 
     // Title time?
     if ( m_showTitleTime > 0 && timems < m_showTitleTime )
@@ -192,8 +190,8 @@ bool PlayerLyricsText::render(KaraokePainter &p)
     p.setFont( m_renderFont );
 
     // Draw current line(s)
-    int yoffset = 0;
-    int ybottom = p.rect().height() - yoffset;
+    int yoffset = p.textRect().y();
+    int ybottom = p.textRect().height() - yoffset;
     yoffset += + fm.height();
 
     int scroll_passed = 0, scroll_total = 0;

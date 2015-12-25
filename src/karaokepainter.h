@@ -25,17 +25,17 @@ class KaraokePainter : public QPainter
         // Returns the notification area rect
         QRect   notificationRect() const;
 
+        // Returns the text area rect (to render text lyrics)
+        QRect   textRect() const;
+
         // Sets clipping/translation to draw on the main area (no notifications)
         void    setClipAreaMain();
 
-        // Sets clipping/translation to draw text on the main area (extra padding)
-        void    setClipAreaText();
-
         // Returns the largest font size the textline could fit the current area lenght-wise
-        int     largetsFontSize( const QString& textline );
+        int     largestFontSize( const QString& textline );
 
         // Same but also using the specific font and specific width
-        static int     largetsFontSize( const QFont& font, int width, const QString& textline );
+        static int     largestFontSize( const QFont& font, int width, const QString& textline );
 
         // Returns the tallest font size which could fit into the specified height
         static int     tallestFontSize( QFont &font, int height );
@@ -54,6 +54,7 @@ class KaraokePainter : public QPainter
         qint64      m_time;
         qint64      m_duration;
         QImage  *   m_image;
+        QRect       m_textRect;
 };
 
 #endif // KARAOKEPAINTER_H

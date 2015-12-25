@@ -17,6 +17,8 @@ class CurrentState : public QObject
     public:
         explicit CurrentState(QObject *parent = 0);
 
+        QString     webserverURL;
+
     signals:
 
     public slots:

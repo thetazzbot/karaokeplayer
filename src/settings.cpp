@@ -24,6 +24,8 @@ Settings::Settings()
     if ( !songPathPrefix.isEmpty() && !songPathPrefix.endsWith( QDir::separator() ) )
         songPathPrefix.append( QDir::separator() );
 
+    customBackground = "/home/tim/work/my/karaokeplayer/test/background.jpg";
+
     /*    playerBackgroundType = BACKGROUND_TYPE_VIDEO;
         playerBackgroundObjects << "/home/tim/work/my/karaokeplayer/test/bgvideos";
 
@@ -84,6 +86,8 @@ void Settings::load()
 
     httpListenPort = settings.value( "http/ListenPort", 0 ).toInt();
 
+    customBackground = settings.value( "general/CustomBackground", "" ).toString();
+
     m_playerBackgroundLastObject = settings.value( "temp/playerBackgroundLastObject", 0 ).toInt();
     m_playerBackgroundLastVideoTime = settings.value( "temp/playerBackgroundLastVideoTime", 0 ).toInt();
 }
@@ -114,6 +118,8 @@ void Settings::save()
     settings.setValue( "lirc/MappingFile", lircMappingFile );
 
     settings.setValue( "http/ListenPort", httpListenPort );
+
+    settings.setValue( "general/CustomBackground", customBackground );
 
     settings.setValue( "temp/playerBackgroundLastObject", m_playerBackgroundLastObject );
     settings.setValue( "temp/playerBackgroundLastVideoTime", m_playerBackgroundLastVideoTime );

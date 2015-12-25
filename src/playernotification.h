@@ -15,6 +15,8 @@ class PlayerNotification : public QObject
     public:
         PlayerNotification( QObject * parent );
 
+        void showStopped();
+
         // Draws the notification on the painter. Returns time for the next update
         // when the image will change.
         qint64  drawTop( KaraokePainter& p, qint64 remainingms );
@@ -50,6 +52,8 @@ class PlayerNotification : public QObject
         QFont           m_customFont;
         QString         m_customMessage;
 
+        // For custom message background
+        QImage          m_customBackground;
 };
 
 extern PlayerNotification * pNotification;

@@ -8,6 +8,8 @@
 #include "songsearchdialog.h"
 #include "songdatabase.h"
 #include "settings.h"
+#include "currentstate.h"
+
 
 #if defined (HAS_LIRC_SUPPORT)
     #include "actionhandler_lirc.h"
@@ -68,6 +70,8 @@ void ActionHandler::start()
     {
         m_webserver = new ActionHandler_WebServer( this );
         m_webserver->start();
+
+        pCurrentState->webserverURL = m_webserver->webURL();
     }
 #endif
 }

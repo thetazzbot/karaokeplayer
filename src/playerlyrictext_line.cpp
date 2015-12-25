@@ -49,7 +49,7 @@ qint64 PlayerLyricTextLine::draw( KaraokePainter& p, int yoffset )
     if ( m_line.isEmpty() )
         return 0;
 
-    int x = (p.rect().width() - p.fontMetrics().boundingRect( m_text ).width()) / 2;
+    int x = (p.textRect().width() - p.fontMetrics().boundingRect( m_text ).width()) / 2 + p.textRect().x();
 \
     // Draw the text string
     for ( int i = 0; i < m_line.size(); i++ )
@@ -76,7 +76,7 @@ void PlayerLyricTextLine::drawDisappear(KaraokePainter& p, int percentage, int y
     p.save();
     p.scale( scale_level, scale_level );
 
-    int x = (p.rect().width() - p.fontMetrics().boundingRect( m_text ).width()) / 2;
+    int x = (p.textRect().width() - p.fontMetrics().boundingRect( m_text ).width()) / 2 + p.textRect().x();
 
     // Draw the text string
     for ( int i = 0; i < m_line.size(); i++ )

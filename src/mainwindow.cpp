@@ -70,6 +70,9 @@ MainWindow::MainWindow(QWidget *parent) :
     // Initialize the controller
     pActionHandler->start();
 
+    // Init the notification
+    pNotification->showStopped();
+
     // Connect slots
     connect( pActionHandler, SIGNAL(playerStart()), this, SLOT(queueStart()) );
     connect( pActionHandler, SIGNAL(playerStop()), this, SLOT(queueStop()) );
@@ -96,6 +99,7 @@ void MainWindow::queueAdd(QString file, QString singer, int id)
 void MainWindow::queueStop()
 {
     m_widget->stopKaraoke();
+    pNotification->showStopped();
 }
 
 void MainWindow::queueNext()

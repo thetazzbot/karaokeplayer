@@ -16,6 +16,15 @@ KaraokePainter::KaraokePainter(QImage *img)
     m_rect = img->rect();
     m_time = 0;
     m_duration = 0;
+
+    // More clipping
+    int xspacing = (m_rect.width() * TEXTLYRICS_SPACING_LEFTRIGHT) / 100;
+    int yspacing = (m_rect.height() * TEXTLYRICS_SPACING_TOPBOTTOM) / 100;
+
+    int textwidth = m_rect.width() - xspacing * 2;
+    int textheight = m_rect.height() - yspacing * 2;
+
+    m_textRect = QRect( xspacing, yspacing, textwidth, textheight );
 }
 
 void KaraokePainter::setTimes(qint64 position, qint64 duration)
@@ -30,6 +39,11 @@ QRect KaraokePainter::notificationRect() const
     return QRect( 0, 0, m_image->width(), toparea );
 }
 
+QRect KaraokePainter::textRect() const
+{
+    return m_textRect;
+}
+
 void KaraokePainter::setClipAreaMain()
 {
     // Keep the top off the renderer
@@ -38,20 +52,7 @@ void KaraokePainter::setClipAreaMain()
     translate( 0, h );
 }
 
-void KaraokePainter::setClipAreaText()
-{
-    // More clipping
-    int xspacing = (m_rect.width() * TEXTLYRICS_SPACING_LEFTRIGHT) / 100;
-    int yspacing = (m_rect.height() * TEXTLYRICS_SPACING_TOPBOTTOM) / 100;
-
-    int textwidth = m_rect.width() - xspacing * 2;
-    int textheight = m_rect.height() - yspacing * 2;
-
-    m_rect = QRect( 0, 0, textwidth, textheight );
-    translate( xspacing, yspacing );
-}
-
-int KaraokePainter::largetsFontSize(const QFont &font, int width, const QString &textline)
+int KaraokePainter::largestFontSize(const QFont &font, int width, const QString &textline)
 {
     int maxsize = 128;
     int minsize = 8;
@@ -98,27 +99,28 @@ int KaraokePainter::tallestFontSize( QFont &font, int height )
     return cursize;
 }
 
-int KaraokePainter::largetsFontSize( const QString &textline )
+int KaraokePainter::largestFontSize( const QString &textline )
 {
-    return largetsFontSize( font(), m_rect.width(), textline );
+    return largestFontSize( font(), textRect().width(), textline );
 }
 
 void KaraokePainter::drawOutlineText(int x, int y, const QColor &color, const QString &text)
 {
-    setPen( Qt::black );
-    drawText( x-1, y-1, text );
-    drawText( x-1, y+1, text );
-    drawText( x+1, y-1, text );
-    drawText( x+1, y+1, text );
+    QPainterPath path;
+    path.addText( x, y, font(), text );
 
-    setPen( color );
-    drawText( x, y, text );
+    QPen pen( Qt::black );
+    pen.setWidth( qMax( 1, font().pointSize() / 30 ) );
+
+    setPen( pen );
+    setBrush( color );
+    drawPath( path );
 }
 
 void KaraokePainter::drawCenteredOutlineText(int ypercentage, const QColor &color, const QString &text)
 {
-    int x = (m_rect.width() - fontMetrics().width( text ) ) / 2;
-    int y = (m_rect.height() * ypercentage / 100 ) + fontMetrics().height();
+    int x = (m_textRect.width() - fontMetrics().width( text ) ) / 2 + m_textRect.x();
+    int y = (m_textRect.height() * ypercentage / 100 ) + fontMetrics().height() + m_textRect.y();
 
     drawOutlineText( x, y, color, text );
 }

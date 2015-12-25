@@ -1,3 +1,5 @@
+#include "settings.h"
+#include "currentstate.h"
 #include "songqueue.h"
 #include "playernotification.h"
 
@@ -10,8 +12,15 @@ PlayerNotification::PlayerNotification(QObject *parent)
     m_lastScreenHeight = 0;
     m_notificationLine = m_firstItem = tr("Queue is empty");
 
-    m_customMessage = "Please select a song";
+    if ( !pSettings->customBackground.isEmpty() )
+        m_customBackground.load( pSettings->customBackground );
+
     reset();
+}
+
+void PlayerNotification::showStopped()
+{
+    m_customMessage = pCurrentState->webserverURL.isEmpty() ? "Please select a song" : pCurrentState->webserverURL;
 }
 
 qint64 PlayerNotification::drawTop(KaraokePainter &p, qint64 remainingms)
@@ -49,9 +58,17 @@ qint64 PlayerNotification::drawTop(KaraokePainter &p, qint64 remainingms)
 
 qint64 PlayerNotification::drawRegular(KaraokePainter &p)
 {
-    m_customFont.setPointSize( p.largetsFontSize( m_customFont, p.rect().width(), m_customMessage ));
-    p.setFont( m_customFont );
-    p.drawCenteredOutlineText( 50, Qt::white, m_customMessage );
+    if ( !m_customMessage.isEmpty() )
+    {
+        if ( !m_customBackground.isNull() )
+            p.drawImage( p.rect(), m_customBackground, m_customBackground.rect() );
+
+        m_customFont.setPointSize( p.largestFontSize( m_customFont, p.textRect().width(), m_customMessage ));
+
+        p.setFont( m_customFont );
+        p.drawCenteredOutlineText( 50, Qt::white, m_customMessage );
+    }
+
     return 0;
 }
 

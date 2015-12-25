@@ -74,7 +74,6 @@ void PlayerRenderer::run()
         m_widget->m_karaokeMutex.unlock();
 
         // And subsequent notifications, if any (they must go on top of lyrics)
-        p.setClipAreaText();
         m_notification->drawRegular( p );
         p.end();
 

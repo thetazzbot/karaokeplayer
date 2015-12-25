@@ -57,6 +57,9 @@ class Settings
         // HTTP port
         unsigned int    httpListenPort;
 
+        // Custom background for notifications
+        QString         customBackground;
+
     public:
         void    load();
         void    save();
