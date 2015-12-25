@@ -1,0 +1,6 @@
+The qhttpengine project is copyrighted by Nathan Osman, and has been taken from https://github.com/nitroshare/qhttpengine
+
+The following changes were made by gyunaev@ulduzsoft.com:
+
+- added .pro file to build it as part of my project
+
