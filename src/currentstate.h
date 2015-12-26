@@ -49,7 +49,6 @@ class CurrentState : public QObject
         //QList<SongQueue::Song>  songQueue;
 
         // If true, this is a single-window mode
-        bool                    modeSingleWindow;
         bool                    modeFullscreen;
 
     signals:

@@ -28,7 +28,7 @@ class KaraokeWidget : public QWidget
         void    stopEverything();
 
     protected:
-        void    paintEvent(QPaintEvent * event);
+        void    paintEvent(QPaintEvent *);
         void    keyPressEvent(QKeyEvent * event);
 
     private:
@@ -59,13 +59,6 @@ class KaraokeWidget : public QWidget
         // Protects m_karaoke while being rendered - used both from widget and rendering thread
         mutable QMutex  m_karaokeMutex;
 
-};
-
-
-class KaraokeDockWidget : public QDockWidget
-{
-    public:
-        KaraokeDockWidget( QWidget * w );
 };
 
 #endif // KARAOKEWIDGET_H

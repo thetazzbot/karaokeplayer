@@ -53,22 +53,11 @@ MainWindow::MainWindow(QWidget *parent) :
     pConverterMIDI = new ConverterMIDI( this );
 
     // Lyrics window should be created depending on the mode we use
-    //KaraokeDockWidget
-    if ( pCurrentState->modeSingleWindow )
-    {
-        m_widget = new KaraokeWidget( this );
-        setCentralWidget( m_widget );
+    m_widget = new KaraokeWidget( this );
+    setCentralWidget( m_widget );
 
-        if ( pCurrentState->modeFullscreen )
-            menuToggleFullscreen();
-    }
-
-//    m_widgetStack->addWidget( m_widget );
-//    m_widgetStack->setCurrentWidget( m_widget );
-//    m_widget->show();
-
-//    m_widgetStack = new QStackedWidget();
-//
+    if ( pCurrentState->modeFullscreen )
+        menuToggleFullscreen();
 
     // Song queue should be created last, as it emits signals intercepted by other modules
     pSongQueue = new SongQueue( this );

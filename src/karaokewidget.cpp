@@ -9,7 +9,7 @@
 #include "playernotification.h"
 
 
-KaraokeWidget::KaraokeWidget( QWidget *parent )
+KaraokeWidget::KaraokeWidget(QWidget *parent )
     : QWidget(parent)
 {
     m_karaoke = 0;
@@ -111,13 +111,4 @@ void KaraokeWidget::paintEvent(QPaintEvent *)
 void KaraokeWidget::keyPressEvent(QKeyEvent *event)
 {
     pActionHandler->keyEvent( event );
-}
-
-
-KaraokeDockWidget::KaraokeDockWidget( QWidget * parent )
-    : QDockWidget( parent )
-{
-    setFloating( true );
-
-    KaraokeWidget * w = new KaraokeWidget( this );
 }

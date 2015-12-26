@@ -8,19 +8,14 @@ CurrentState::CurrentState(QObject *parent) :
     QObject(parent)
 {
     msecPerFrame = 1000 / pSettings->playerRenderFPS;
-    modeSingleWindow = false;
     modeFullscreen = false;
 
     for ( int i = 1; i < qApp->arguments().size(); i++ )
     {
-        if ( qApp->arguments()[i] == "-single" )
-            modeSingleWindow = true;
-
         if ( qApp->arguments()[i] == "-fs" )
             modeFullscreen = true;
     }
 
-    modeSingleWindow = true;
-    //modeFullscreen = true;
+    modeFullscreen = true;
 }
 
