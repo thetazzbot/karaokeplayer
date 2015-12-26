@@ -102,6 +102,10 @@ void PlayerNotification::queueUpdated()
     // Get the song list
     pSongQueue->exportQueue( queue );
 
+    m_notificationLine.clear();
+    m_firstItem.clear();
+    m_textQueueSize.clear();
+
     if ( !queue.isEmpty() )
     {
         m_notificationLine.clear();
@@ -121,12 +125,6 @@ void PlayerNotification::queueUpdated()
         }
 
         m_textQueueSize = tr("[%1]").arg( elements );
-    }
-    else
-    {
-        m_notificationLine.clear();
-        m_firstItem.clear();
-        m_textQueueSize.clear();
     }
 
     reset();
