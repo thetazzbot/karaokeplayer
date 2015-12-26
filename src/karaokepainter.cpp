@@ -65,7 +65,7 @@ void KaraokePainter::setClipAreaMain()
 
 int KaraokePainter::largestFontSize(const QFont &font, int width, const QString &textline)
 {
-    int maxsize = 128;
+    int maxsize = 256;
     int minsize = 8;
     int cursize;
     QFont testfont( font );
@@ -84,6 +84,7 @@ int KaraokePainter::largestFontSize(const QFont &font, int width, const QString 
             maxsize = cursize;
     }
 
+    //qDebug("Chosen font size %d for font %s, width %d", cursize, qPrintable(font.family()), width );
     return cursize;
 }
 
