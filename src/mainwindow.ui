@@ -14,7 +14,7 @@
    <string>Ulduzsoft Karaoke Player</string>
   </property>
   <widget class="QWidget" name="centralWidget"/>
-  <widget class="QMenuBar" name="menuBar">
+  <widget class="QMenuBar" name="mainMenuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
@@ -57,7 +57,6 @@
     <bool>false</bool>
    </attribute>
   </widget>
-  <widget class="QStatusBar" name="statusBar"/>
   <action name="actionPlay_file">
    <property name="text">
     <string>Play file...</string>

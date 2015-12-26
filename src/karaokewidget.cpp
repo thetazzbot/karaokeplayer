@@ -112,3 +112,12 @@ void KaraokeWidget::keyPressEvent(QKeyEvent *event)
 {
     pActionHandler->keyEvent( event );
 }
+
+
+KaraokeDockWidget::KaraokeDockWidget( QWidget * parent )
+    : QDockWidget( parent )
+{
+    setFloating( true );
+
+    KaraokeWidget * w = new KaraokeWidget( this );
+}

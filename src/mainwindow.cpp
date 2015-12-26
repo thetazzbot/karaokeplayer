@@ -52,14 +52,23 @@ MainWindow::MainWindow(QWidget *parent) :
     // MIDI converter
     pConverterMIDI = new ConverterMIDI( this );
 
-    m_widgetStack = new QStackedWidget();
-    setCentralWidget( m_widgetStack );
+    // Lyrics window should be created depending on the mode we use
+    //KaraokeDockWidget
+    if ( pCurrentState->modeSingleWindow )
+    {
+        m_widget = new KaraokeWidget( this );
+        setCentralWidget( m_widget );
 
-    // Lyrics window should be created
-    m_widget = new KaraokeWidget( this );
-    m_widgetStack->addWidget( m_widget );
-    m_widgetStack->setCurrentWidget( m_widget );
-    m_widget->show();
+        if ( pCurrentState->modeFullscreen )
+            menuToggleFullscreen();
+    }
+
+//    m_widgetStack->addWidget( m_widget );
+//    m_widgetStack->setCurrentWidget( m_widget );
+//    m_widget->show();
+
+//    m_widgetStack = new QStackedWidget();
+//
 
     // Song queue should be created last, as it emits signals intercepted by other modules
     pSongQueue = new SongQueue( this );
@@ -228,12 +237,26 @@ void MainWindow::menuAbout()
     dlg.exec();
 }
 
+void MainWindow::menuToggleFullscreen()
+{
+    if ( isFullScreen() )
+    {
+        mainMenuBar->show();
+        showNormal();
+    }
+    else
+    {
+        mainMenuBar->hide();
+        showFullScreen();
+    }
+}
+
 
 void MainWindow::dockWindowClosed(QObject *widget)
 {
     if ( widget == m_playerWindow )
     {
-        // Player dock window closed
+        // Player dock window closed, and is already destroyed (no need to delete it)
         m_playerWindow = 0;
         action_Player_window->setChecked( false );
     }

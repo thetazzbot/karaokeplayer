@@ -1,6 +1,7 @@
 #ifndef KARAOKEWIDGET_H
 #define KARAOKEWIDGET_H
 
+#include <QDockWidget>
 #include <QWidget>
 #include <QMutex>
 
@@ -58,6 +59,13 @@ class KaraokeWidget : public QWidget
         // Protects m_karaoke while being rendered - used both from widget and rendering thread
         mutable QMutex  m_karaokeMutex;
 
+};
+
+
+class KaraokeDockWidget : public QDockWidget
+{
+    public:
+        KaraokeDockWidget( QWidget * w );
 };
 
 #endif // KARAOKEWIDGET_H

@@ -8,7 +8,7 @@
 #include "songdatabase.h"
 #include "settings.h"
 #include "currentstate.h"
-
+#include "mainwindow.h"
 
 #if defined (HAS_LIRC_SUPPORT)
     #include "actionhandler_lirc.h"
@@ -172,6 +172,9 @@ bool ActionHandler::cmdAction(int event )
 
 void ActionHandler::keyEvent(QKeyEvent *event)
 {
+    if ( event->key() == Qt::Key_F )
+        pMainWindow->menuToggleFullscreen();
+
     if ( event->key() == Qt::Key_Space )
         cmdAction( ACTION_PLAYER_PAUSERESUME );
 

@@ -46,7 +46,11 @@ class CurrentState : public QObject
         int                     playerVolume;
 
         // Current singer queue (read-only; any modifications will be overwritten)
-        QList<SongQueue::Song>  songQueue;
+        //QList<SongQueue::Song>  songQueue;
+
+        // If true, this is a single-window mode
+        bool                    modeSingleWindow;
+        bool                    modeFullscreen;
 
     signals:
 

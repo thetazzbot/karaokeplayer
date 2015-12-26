@@ -67,6 +67,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
         void    menuSettings();
         void    menuToggleWindowPlayer();
         void    menuAbout();
+        void    menuToggleFullscreen();
 
         // Handling dock window closures
         void    dockWindowClosed( QObject* widget );
@@ -77,7 +78,6 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 
     private:
         KaraokeWidget *  m_widget;
-        QStackedWidget* m_widgetStack;
         PlayerWidget *  m_playerWindow;
 };
 
