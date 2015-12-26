@@ -27,6 +27,7 @@
 #include "songdatabase.h"
 #include "util.h"
 #include "sqlite3.h"
+#include "logger.h"
 
 SongDatabase * pSongDatabase;
 
@@ -121,15 +122,19 @@ bool SongDatabase::init()
         // Set the settings
         if ( !execute( QString("INSERT INTO settings VALUES( %1, ?, %2)") .arg( m_currentVersion) .arg(m_lastUpdate), QStringList() << m_identifier ) )
             return false;
+
+        Logger::debug( "Initialized new karaoke song database at %s", qPrintable(pSettings->songdbFilename) );
     }
     else
     {
         m_currentVersion = stmt.columnInt64( 0 );
         m_identifier = stmt.columnText( 1 );
         m_lastUpdate = stmt.columnInt64( 2 );
+
+        Logger::debug( "Loaded existing karaoke song database at %s", qPrintable(pSettings->songdbFilename) );
     }
 
-    //importFromText( "/home/tim/work/my/karaokeplayer/test/karaoke.text", "/mnt/karaoke" );
+    //importFromText( "karaoke.text", "/mnt/karaoke" );
     return true;
 }
 
