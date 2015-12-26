@@ -46,14 +46,14 @@ void Player::seekTo(qint64 time)
 
 void Player::volumeDown()
 {
-    int newvolume = qMax( m_player->volume() - 5, 0 );
+    int newvolume = qMax( m_player->volume() - 10, 0 );
     m_player->setVolume( newvolume );
     pCurrentState->playerVolume = newvolume;
 }
 
 void Player::volumeUp()
 {
-    int newvolume = qMin( m_player->volume() + 5, 100 );
+    int newvolume = qMin( m_player->volume() + 10, 100 );
     m_player->setVolume( newvolume );
     pCurrentState->playerVolume = newvolume;
 }
