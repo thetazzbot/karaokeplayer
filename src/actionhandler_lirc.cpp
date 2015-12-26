@@ -45,7 +45,7 @@ void ActionHandler_LIRC::readyRead()
     {
         QByteArray str = m_buffer.left( pos );
 
-        Logger::debug( QString("LIRC: received from remote %1") .arg( str.data() ) );
+        //Logger::debug( QString("LIRC: received from remote %1") .arg( str.data() ) );
         m_buffer.remove( 0, pos + 1 );
 
         // Parse the data
