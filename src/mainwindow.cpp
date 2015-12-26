@@ -249,6 +249,7 @@ void MainWindow::menuToggleFullscreen()
 {
     if ( isFullScreen() )
     {
+        QApplication::restoreOverrideCursor();
         mainMenuBar->show();
         showNormal();
     }
@@ -260,6 +261,9 @@ void MainWindow::menuToggleFullscreen()
         // In case we run without screen manager
         move( 0, 0 );
         resize( QApplication::desktop()->size() );
+
+        // Hide the mouse cursor
+        QApplication::setOverrideCursor( Qt::BlankCursor );
     }
 }
 
