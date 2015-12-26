@@ -18,7 +18,7 @@ while [ true ]; do
     date=`date`
     
     if [ -n "$core" ]; then
-        gdb -batch -ex "bt" $PROGRAM $core 2>&1
+        gdb -batch -ex "thread apply all bt full" $PROGRAM $core 2>&1
         mv $core cores/"$date.core"
     fi
     

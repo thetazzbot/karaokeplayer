@@ -15,6 +15,4 @@ CurrentState::CurrentState(QObject *parent)
         if ( qApp->arguments()[i] == "-fs" )
             modeFullscreen = true;
     }
-
-    modeFullscreen = true;
 }
