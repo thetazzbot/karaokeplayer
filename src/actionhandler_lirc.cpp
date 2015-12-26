@@ -24,14 +24,16 @@
 ActionHandler_LIRC::ActionHandler_LIRC(QObject *parent) :
     QObject(parent)
 {
-    m_socket.connectToServer( pSettings->lircDevicePath );
+    Logger::debug( "LIRC: initializing" );
+    readMap();
 
+    // Connect first, as we otherwise would miss the signals
     connect( &m_socket, SIGNAL(connected()), this, SLOT(connected()) );
     connect( &m_socket, SIGNAL(disconnected()), this, SLOT(disconnected()) );
     connect( &m_socket, SIGNAL(readyRead()), this, SLOT(readyRead()) );
     connect( &m_socket, SIGNAL(error(QLocalSocket::LocalSocketError)), this, SLOT(error(QLocalSocket::LocalSocketError)) );
 
-    readMap();
+    m_socket.connectToServer( pSettings->lircDevicePath );
 }
 
 void ActionHandler_LIRC::connected()
@@ -47,9 +49,9 @@ void ActionHandler_LIRC::disconnected()
     m_socket.connectToServer( pSettings->lircDevicePath );
 }
 
-void ActionHandler_LIRC::error(QLocalSocket::LocalSocketError socketError)
+void ActionHandler_LIRC::error(QLocalSocket::LocalSocketError )
 {
-
+    Logger::debug( "LIRC: error connecting to the socket: %s", qPrintable( m_socket.errorString()) );
 }
 
 void ActionHandler_LIRC::readyRead()

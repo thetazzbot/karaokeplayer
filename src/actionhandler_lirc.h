@@ -38,7 +38,7 @@ class ActionHandler_LIRC : public QObject
     private slots:
         void	connected();
         void	disconnected();
-        void	error( QLocalSocket::LocalSocketError socketError );
+        void	error(QLocalSocket::LocalSocketError);
         void	readyRead();
 
     private:
