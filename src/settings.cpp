@@ -19,6 +19,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QSettings>
+#include <QStandardPaths>
 
 #include "settings.h"
 #include "logger.h"
@@ -28,8 +29,30 @@ Settings * pSettings;
 
 Settings::Settings()
 {
-    songdbFilename = "/home/tim/work/my/karaokeplayer/test/karaoke.db";
-    queueFilename = "/home/tim/work/my/karaokeplayer/test/queue.dat";
+    m_appDataPath = QStandardPaths::writableLocation( QStandardPaths::AppDataLocation );
+
+    if ( m_appDataPath.isEmpty() )
+        m_appDataPath = ".";
+
+    if ( !m_appDataPath.endsWith( QDir::separator() ) )
+        m_appDataPath += QDir::separator();
+
+    songdbFilename = m_appDataPath + "karaoke.db";
+    queueFilename = m_appDataPath + "queue.dat";
+
+    // Create the application data dir if it doesn't exist
+    if ( !QFile::exists( m_appDataPath ) )
+    {
+        if ( !QDir().mkpath( m_appDataPath ) )
+            qCritical("Cannot create application data directory %s", qPrintable(m_appDataPath) );
+    }
+
+    // Create the cache data dir if it doesn't exist
+    if ( !QFile::exists( QStandardPaths::writableLocation( QStandardPaths::CacheLocation ) ) )
+    {
+        if ( !QDir().mkpath( QStandardPaths::writableLocation( QStandardPaths::CacheLocation ) ) )
+            qCritical("Cannot create application cache directory %s", qPrintable(QStandardPaths::writableLocation( QStandardPaths::AppDataLocation )) );
+    }
 
     load();
 
@@ -37,11 +60,12 @@ Settings::Settings()
     if ( playerBackgroundType == BACKGROUND_TYPE_IMAGE || playerBackgroundType == BACKGROUND_TYPE_VIDEO )
         loadBackgroundObjects();
 
+    // songPathPrefix should follow directory separator
     if ( !songPathPrefix.isEmpty() && !songPathPrefix.endsWith( QDir::separator() ) )
         songPathPrefix.append( QDir::separator() );
 
-    customBackground = "/home/tim/work/my/karaokeplayer/test/background.jpg";
-    httpDocumentRoot = "/home/tim/work/my/karaokeplayer/test/wwwroot";
+    //customBackground = m_appDataPath + "background.jpg";
+    //httpDocumentRoot = m_appDataPath + "wwwroot";
 
     /*    playerBackgroundType = BACKGROUND_TYPE_VIDEO;
         playerBackgroundObjects << "/home/tim/work/my/karaokeplayer/test/bgvideos";
@@ -121,7 +145,6 @@ void Settings::load()
     playerCDGbackgroundTransparent = settings.value( "player/CDGbackgroundTransparent", false ).toBool();
     playerMusicLyricDelay = settings.value( "player/MusicLyricDelay", 0 ).toInt();
 
-    cacheDir = settings.value( "player/cacheDir", "" ).toString();
     convertMidiFiles = settings.value( "player/convertMidiFiles", false ).toBool();
 
     queueAddNewSingersNext = settings.value( "queue/AddNewSingersNext", false ).toBool();
@@ -134,7 +157,9 @@ void Settings::load()
     httpListenPort = settings.value( "http/ListenPort", 0 ).toInt();
     httpDocumentRoot = settings.value( "http/DocumentRoot", "" ).toString();
 
-    customBackground = settings.value( "general/CustomBackground", "" ).toString();
+    customBackground = settings.value( "mainmenu/CustomBackground", "" ).toString();
+
+    cacheDir = settings.value( "player/cacheDir", QStandardPaths::writableLocation( QStandardPaths::CacheLocation ) ).toString();
 
     m_playerBackgroundLastObject = settings.value( "temp/playerBackgroundLastObject", 0 ).toInt();
     m_playerBackgroundLastVideoTime = settings.value( "temp/playerBackgroundLastVideoTime", 0 ).toInt();
@@ -153,7 +178,7 @@ void Settings::save()
     settings.setValue( "player/LyricsTextBeforeColor", playerLyricsTextBeforeColor.name() );
     settings.setValue( "player/LyricsTextAfterColor", playerLyricsTextAfterColor.name() );
     settings.setValue( "player/LyricsTextEachCharacter", playerLyricsTextEachCharacter );
-    settings.setValue( "player/cacheDir", cacheDir );
+
     settings.setValue( "player/convertMidiFiles", convertMidiFiles );
     settings.setValue( "player/CDGbackgroundTransparent", playerCDGbackgroundTransparent );
     settings.setValue( "player/MusicLyricDelay", playerMusicLyricDelay );
@@ -168,8 +193,12 @@ void Settings::save()
     settings.setValue( "http/ListenPort", httpListenPort );
     settings.setValue( "http/DocumentRoot", httpDocumentRoot );
 
-    settings.setValue( "general/CustomBackground", customBackground );
+    settings.setValue( "mainmenu/CustomBackground", customBackground );
 
     settings.setValue( "temp/playerBackgroundLastObject", m_playerBackgroundLastObject );
     settings.setValue( "temp/playerBackgroundLastVideoTime", m_playerBackgroundLastVideoTime );
+
+    // Store the cache dir only if the location is changed (i.e. not standard)
+    if ( QStandardPaths::writableLocation( QStandardPaths::CacheLocation ) != cacheDir )
+        settings.setValue( "player/cacheDir", cacheDir );
 }

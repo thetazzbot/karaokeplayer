@@ -83,6 +83,8 @@ class Settings
 
     private:
         void    loadBackgroundObjects();
+
+        QString         m_appDataPath;
 };
 
 extern Settings * pSettings;
