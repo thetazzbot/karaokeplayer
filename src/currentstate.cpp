@@ -27,6 +27,7 @@ CurrentState::CurrentState(QObject *parent)
 {
     msecPerFrame = 1000 / pSettings->playerRenderFPS;
     modeFullscreen = false;
+    playerVolume = 0;
 
     for ( int i = 1; i < qApp->arguments().size(); i++ )
     {

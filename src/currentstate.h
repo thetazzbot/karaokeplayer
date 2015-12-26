@@ -37,7 +37,8 @@ class CurrentState : public QObject
     public:
         enum
         {
-            // Check Player widget when modifying this enum (it checks for ==PLAYERSTATE_PLAYING)!
+            // Many checks assume that if playback is not PLAYERSTATE_STOPPED, we're playing.
+            // Hence please do not add here something like PLAYERSTATE_QUEUE_EMPTY
             PLAYERSTATE_STOPPED,
             PLAYERSTATE_PLAYING,
             PLAYERSTATE_PAUSED
@@ -60,19 +61,10 @@ class CurrentState : public QObject
         // Current song parameters (not valid if playerState is STOPPED) - updated from another thread!
         QAtomicInt              playerPosition;
         QAtomicInt              playerDuration;
-
         int                     playerVolume;
 
-        // Current singer queue (read-only; any modifications will be overwritten)
-        //QList<SongQueue::Song>  songQueue;
-
-        // If true, this is a single-window mode
+        // If true, we should start in a full screen mode (but this doesn't mean NOW is a fullscreen mode)
         bool                    modeFullscreen;
-
-    signals:
-
-    public slots:
-
 };
 
 extern CurrentState * pCurrentState;
