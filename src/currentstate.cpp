@@ -4,8 +4,8 @@
 
 CurrentState * pCurrentState;
 
-CurrentState::CurrentState(QObject *parent) :
-    QObject(parent)
+CurrentState::CurrentState(QObject *parent)
+    : QObject(parent)
 {
     msecPerFrame = 1000 / pSettings->playerRenderFPS;
     modeFullscreen = false;
@@ -18,4 +18,3 @@ CurrentState::CurrentState(QObject *parent) :
 
     modeFullscreen = true;
 }
-

@@ -15,5 +15,6 @@ int main(int argc, char *argv[])
     QScopedPointer<MainWindow> p (new MainWindow());
     p.data()->show();
 
-    return a.exec();
+    a.exec();
+    return 0;
 }
