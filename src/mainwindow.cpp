@@ -24,6 +24,7 @@
 #include <QMessageBox>
 #include <QDialog>
 #include <QTimer>
+#include <QDesktopWidget>
 
 #include "settings.h"
 #include "mainwindow.h"
@@ -255,6 +256,10 @@ void MainWindow::menuToggleFullscreen()
     {
         mainMenuBar->hide();
         showFullScreen();
+
+        // In case we run without screen manager
+        move( 0, 0 );
+        resize( QApplication::desktop()->size() );
     }
 }
 
