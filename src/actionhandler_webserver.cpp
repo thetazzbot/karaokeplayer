@@ -37,7 +37,7 @@ void ActionHandler_WebServer::run()
 {
     ActionHandler_WebServer_Handler serverHandler;
 
-    connect( &serverHandler, SIGNAL(queueAdd(QString,QString,int)), pMainWindow, SLOT(queueAdd(QString,QString,int)) );
+    connect( &serverHandler, SIGNAL(queueAdd(QString,QString,int)), pMainWindow, SLOT(queueAdd(QString,QString,int)), Qt::QueuedConnection );
 
     QHttpServer server( &serverHandler );
 
