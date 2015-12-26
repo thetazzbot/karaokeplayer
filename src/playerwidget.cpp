@@ -1,7 +1,6 @@
 /**************************************************************************
- *  Karlyriceditor - a lyrics editor and CD+G / video export for Karaoke  *
- *  songs.                                                                *
- *  Copyright (C) 2009-2013 George Yunaev, support@ulduzsoft.com          *
+ *  Ulduzsoft Karaoke PLayer - cross-platform desktop karaoke player      *
+ *  Copyright (C) 2015-2016 George Yunaev, support@ulduzsoft.com          *
  *                                                                        *
  *  This program is free software: you can redistribute it and/or modify  *
  *  it under the terms of the GNU General Public License as published by  *

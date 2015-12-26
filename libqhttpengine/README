@@ -1,6 +1,6 @@
-The qhttpengine project is copyrighted by Nathan Osman, and has been taken from https://github.com/nitroshare/qhttpengine
+The original qhttpengine project is copyrighted by Nathan Osman, this code was taken from https://github.com/nitroshare/qhttpengine
 
 The following changes were made by gyunaev@ulduzsoft.com:
 
-- added .pro file to build it as part of my project
-
+- added .pro file to build it as part of my project.
+- changed QHTTPHandler to pass the socket to my process() function.
