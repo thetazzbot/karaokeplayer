@@ -26,13 +26,16 @@
 #include "libkaraokelyrics/lyricsloader.h"
 
 
-PlayerLyricsText::PlayerLyricsText()
+PlayerLyricsText::PlayerLyricsText(const QString &artist, const QString &title)
+    : PlayerLyrics()
 {
     m_nextUpdateTime = 0;
     m_currentLine = 0;
     m_longestLine = 0;
 
     m_renderFont = pSettings->playerLyricsFont;
+    m_artist = artist;
+    m_title = title;
 }
 
 bool PlayerLyricsText::load( QIODevice * file, const QString& filename )

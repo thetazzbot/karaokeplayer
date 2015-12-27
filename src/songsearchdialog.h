@@ -22,6 +22,8 @@
 #include <QDialog>
 #include "ui_songsearchdialog.h"
 
+class SongDatabaseInfo;
+
 class SongSearchDialog : public QDialog, public Ui::SongSearchDialog
 {
     Q_OBJECT
@@ -30,7 +32,7 @@ class SongSearchDialog : public QDialog, public Ui::SongSearchDialog
         explicit SongSearchDialog(QWidget *parent = 0);
 
         // returns 0 if nothing is selected, which shouldn't happen
-        int selectedSongId() const;
+        SongDatabaseInfo * selectedSong() const;
 
     public slots:
         void    accept();

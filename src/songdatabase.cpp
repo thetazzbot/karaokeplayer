@@ -72,12 +72,47 @@ class SQLiteStatement
 
         int step() { return sqlite3_step( stmt ); }
 
+        // Two functions below must be in sync regarding the column order
+        bool prepareSongQuery( sqlite3 * db, const QString& wheresql, const QStringList& args = QStringList() )
+        {
+            QString query = "SELECT id, path, artist, title, type, played, strftime('%s', lastplayed), lyricdelay, strftime('%s', added), rating FROM songs ";
+            return prepare( db, query + wheresql, args );
+        }
+
+        SongDatabaseInfo getRowSongInfo()
+        {
+            SongDatabaseInfo info;
+
+            info.id = columnInt64( 0 );
+            info.filePath = pSettings->songPathPrefix + columnText( 1 );
+            info.artist = columnText( 2 );
+            info.title = columnText( 3 );
+            info.type = columnText( 4 );
+            info.playedTimes = columnInt( 5 );
+            info.lastPlayed = columnInt64( 6 );
+            info.lyricDelay = columnInt( 7 );
+            info.added = columnInt64( 8 );
+            info.rating = columnInt( 9 );
+
+            return info;
+        }
+
     public:
         sqlite3_stmt * stmt;
 
         // Stores UTF-8 strings of args as sqlite needs them to live until the statement is executed
         QList<QByteArray>   m_args;
 };
+
+SongDatabaseInfo::SongDatabaseInfo()
+{
+    id = 0;
+    playedTimes = 0;
+    lastPlayed = 0;
+    lyricDelay = 0;
+    added = 0;
+    rating = 0;
+}
 
 
 SongDatabase::SongDatabase(QObject *parent)
@@ -103,9 +138,10 @@ bool SongDatabase::init()
         return false;
     }
 
+    // CREATE TABLE IF NOT EXISTS songs( id INTEGER PRIMARY KEY, path TEXT, artist TEXT, title TEXT, type TEXT, search TEXT, played INT, lastplayed INT, lyricdelay INT, added INT, rating INT
     // Create tables/indexes if not there
     if ( !execute( "CREATE TABLE IF NOT EXISTS songs( id INTEGER PRIMARY KEY, path TEXT, artist TEXT, title TEXT,"
-                  "type TEXT, search TEXT, played INT, lastplayed INT, lyricdelay INT, added INT, data BLOB )" )
+                  "type TEXT, search TEXT, played INT, lastplayed INT, lyricdelay INT, added INT, rating INT )" )
          || !execute( "CREATE INDEX IF NOT EXISTS idxSearch ON songs(search)" )
          || !execute( "CREATE TABLE IF NOT EXISTS settings( version INTEGER, identifier TEXT, lastupdated INT)" ) )
         return false;
@@ -113,7 +149,7 @@ bool SongDatabase::init()
     // Verify/update version
     SQLiteStatement stmt;
 
-    if ( !stmt.prepare( m_sqlitedb, "SELECT version,identifier,lastupdated,pathprefix FROM settings" ) || stmt.step() != SQLITE_ROW )
+    if ( !stmt.prepare( m_sqlitedb, "SELECT version,identifier,lastupdated FROM settings" ) || stmt.step() != SQLITE_ROW )
     {
         m_identifier = QUuid::createUuid().toString().mid( 1, 36 );
         m_currentVersion = 1;
@@ -185,7 +221,7 @@ bool SongDatabase::importFromText(const QString &filename, const QString& pathPr
         params << path << artist << title << type << search;
 
         // id INTEGER PRIMARY KEY, path TEXT, artist TEXT, title TEXT type TEXT, search TEXT, played INT, lastplayed INT, lyricdelay INT, data BLOB
-        if ( !execute( QString("INSERT OR REPLACE INTO songs VALUES( %1, ?, ?, ?, ?, ?, 0, 0, 0, DATETIME(), NULL )").arg( id ), params ) )
+        if ( !execute( QString("INSERT OR REPLACE INTO songs VALUES( %1, ?, ?, ?, ?, ?, 0, 0, 0, 0, DATETIME(), NULL )").arg( id ), params ) )
             continue;
     }
 
@@ -201,59 +237,24 @@ bool SongDatabase::importFromText(const QString &filename, const QString& pathPr
     return true;
 }
 
-/*
-bool SongDatabase::exportToText(const QString &filename)
-{
-    QFile fout( filename );
 
-    if ( !fout.open( QIODevice::WriteOnly ) )
+bool SongDatabase::songById(int id, SongDatabaseInfo &info)
+{
+    SQLiteStatement stmt;
+
+    if ( !stmt.prepareSongQuery( m_sqlitedb, QString("WHERE id=%1") .arg(id) ) )
         return false;
 
-    QTextStream stream( &fout );
-    stream.setCodec( "utf-8" );
+    if ( stmt.step() != SQLITE_ROW )
+        return false;
 
-    stream << "$IDENTIFIER " << m_identifier << "\n";
-    stream << "$VERSION " << m_currentVersion << "\n";
-    stream << "$LASTUPDATE " << m_lastUpdate << "\n";
-
-    for ( QMap<int, Record>::const_iterator it = m_database.begin(); it != m_database.end(); ++it )
-    {
-        stream.setFieldWidth( 5 );
-        stream.setPadChar( '0' );
-        stream << it.key();
-        stream.reset();
-        stream << " " << it.value().type;
-        stream << " " << it.value().filename;
-        stream << "\n";
-    }
-
+    info = stmt.getRowSongInfo();
     return true;
 }
-*/
 
-QString SongDatabase::pathForId(int id)
+void SongDatabase::updatePlayedSong(int id, int newdelay, int newrating)
 {
-    SQLiteStatement stmt;
-
-    if ( !stmt.prepare( m_sqlitedb, QString("SELECT path FROM songs WHERE id=%1") .arg(id)) || stmt.step() != SQLITE_ROW )
-        return "";
-
-    return pSettings->songPathPrefix + stmt.columnText( 0 );
-}
-
-int SongDatabase::getLyricDelay(int id)
-{
-    SQLiteStatement stmt;
-
-    if ( !stmt.prepare( m_sqlitedb, QString("SELECT lyricdelay FROM songs WHERE id=%1") .arg(id)) || stmt.step() != SQLITE_ROW )
-        return 0;
-
-    return stmt.columnInt( 0 );
-}
-
-void SongDatabase::updatePlayedSong(int id, int newdelay)
-{
-    execute( QString("UPDATE songs SET lyricdelay=%1,played=played+1,lastplayed=DATETIME() WHERE id=%2") .arg( newdelay) .arg(id) );
+    execute( QString("UPDATE songs SET lyricdelay=%1,played=played+1,lastplayed=DATETIME(),rating=%2 WHERE id=%3") .arg( newdelay) .arg(newrating) .arg(id) );
 }
 
 bool SongDatabase::pathToArtistTitle(const QString &path, QString &artist, QString &title)
@@ -277,74 +278,6 @@ bool SongDatabase::pathToArtistTitle(const QString &path, QString &artist, QStri
     return true;
 }
 
-/*
-bool SongDatabase::queryRow(const QString &sql, QMap<QString, QVariant> &output )
-{
-    sqlite3_stmt *stmt;
-
-    if ( sqlite3_prepare_v2( m_sqlitedb, qPrintable(sql), -1, &stmt, 0 ) != SQLITE_OK )
-    {
-        pController->error( QString("Error querying sqlite database: %1").arg( sqlite3_errmsg(m_sqlitedb)) );
-        return false;
-    }
-
-    int res = sqlite3_step( stmt );
-
-    if ( res == SQLITE_DONE )
-    {
-        sqlite3_finalize( stmt );
-        return true;
-    }
-
-    if ( res != SQLITE_ROW )
-    {
-        pController->error( QString("Error querying sqlite database: %1").arg( sqlite3_errmsg(m_sqlitedb)) );
-        sqlite3_finalize( stmt );
-        return false;
-    }
-
-    for ( int i = 0; i < sqlite3_column_count( stmt ); i++ )
-    {
-        const char * colname = sqlite3_column_name( stmt, i );
-
-        if ( colname == 0 )
-        {
-            pController->error( QString("Error querying sqlite column name: %1").arg( sqlite3_errmsg(m_sqlitedb)) );
-            sqlite3_finalize( stmt );
-            return false;
-        }
-
-        QVariant value;
-
-        switch ( sqlite3_column_type( stmt, i ) )
-        {
-        case SQLITE_INTEGER:
-            value.setValue( sqlite3_column_int64( stmt, i ) );
-            break;
-
-        case SQLITE_FLOAT:
-            value.setValue( sqlite3_column_double( stmt, i ) );
-            break;
-
-        case SQLITE_TEXT:
-            value.setValue( QString::fromUtf8( (const char*) sqlite3_column_text( stmt, i ), sqlite3_column_bytes( stmt, i ) ) );
-            break;
-
-        case SQLITE_BLOB:
-            value.setValue( QByteArray( (const char*) sqlite3_column_blob( stmt, i ), sqlite3_column_bytes( stmt, i ) ) );
-            break;
-
-        case SQLITE_NULL:
-            break;
-        }
-
-        output[ QString::fromUtf8( colname ) ] = value;
-    }
-
-    sqlite3_finalize( stmt );
-    return true;
-}
-*/
 bool SongDatabase::execute( const QString &sql, const QStringList& args )
 {
     SQLiteStatement stmt;
@@ -369,24 +302,19 @@ bool SongDatabase::execute( const QString &sql, const QStringList& args )
     }
 }
 
-bool SongDatabase::search(const QString &substr, QList<SongDatabase::SearchResult> &results, unsigned int limit)
+bool SongDatabase::search(const QString &substr, QList<SongDatabaseInfo> &results, unsigned int limit)
 {
     results.clear();
 
     SQLiteStatement stmt;
 
-    if ( !stmt.prepare( m_sqlitedb, "SELECT id,artist,title,type FROM songs WHERE search LIKE ? ORDER BY artist,title", QStringList() << "%" + substr.toUpper() + "%" ) )
+    if ( !stmt.prepareSongQuery( m_sqlitedb, "WHERE search LIKE ? ORDER BY artist,title", QStringList() << "%" + substr.toUpper() + "%" ) )
         return false;
 
     while ( stmt.step() == SQLITE_ROW )
     {
-        SearchResult res;
-
-        res.id = stmt.columnInt64( 0 );
-        res.artist = stmt.columnText( 1 );
-        res.title = stmt.columnText( 2 );
-
-        results.append( res );
+        SongDatabaseInfo info = stmt.getRowSongInfo();
+        results.append( info );
 
         if ( --limit == 0 )
             break;

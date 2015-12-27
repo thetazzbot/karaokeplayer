@@ -22,12 +22,10 @@
 class SongSearchResult : public QTreeWidgetItem
 {
     public:
-        SongSearchResult( QTreeWidget *view, int id_,  const QString& artist_, const QString& title_ )
+        SongSearchResult( QTreeWidget *view, const SongDatabaseInfo& info_ )
             : QTreeWidgetItem( view)
         {
-            id = id_;
-            artist = artist_;
-            title = title_;
+            info = info_;
         }
 
         int columnCount() const
@@ -40,17 +38,15 @@ class SongSearchResult : public QTreeWidgetItem
             if ( role == Qt::DisplayRole )
             {
                 if ( column == 0 )
-                    return artist;
+                    return info.artist;
                 else
-                    return title;
+                    return info.title;
             }
 
             return QVariant();
         }
 
-        int         id;
-        QString     artist;
-        QString     title;
+        SongDatabaseInfo    info;
 };
 
 
@@ -64,14 +60,14 @@ SongSearchDialog::SongSearchDialog(QWidget *parent) :
     treeWidget->header()->setSectionResizeMode( QHeaderView::Stretch );
 }
 
-int SongSearchDialog::selectedSongId() const
+SongDatabaseInfo * SongSearchDialog::selectedSong() const
 {
     SongSearchResult * r = (SongSearchResult *) treeWidget->currentItem();
 
     if ( !r )
         return 0;
 
-    return r->id;
+    return &r->info;
 }
 
 void SongSearchDialog::accept()
@@ -90,11 +86,11 @@ void SongSearchDialog::buttonSearch()
     //if ( listResults->currentItem() )
     treeWidget->clear();
 
-    QList< SongDatabase::SearchResult > results;
+    QList< SongDatabaseInfo > results;
 
     if ( !pSongDatabase->search( leSearch->text(), results ) )
         return;
 
-    Q_FOREACH( const SongDatabase::SearchResult& res, results )
-        new SongSearchResult( treeWidget, res.id, res.artist, res.title );
+    Q_FOREACH( const SongDatabaseInfo& res, results )
+        new SongSearchResult( treeWidget, res );
 }

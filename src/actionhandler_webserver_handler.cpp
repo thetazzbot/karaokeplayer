@@ -148,12 +148,12 @@ bool ActionHandler_WebServer_Handler::search( QHttpSocket *socket, QJsonDocument
     if ( !obj.contains( "q" ) )
         return false;
 
-    QList< SongDatabase::SearchResult > results;
+    QList< SongDatabaseInfo > results;
     QJsonArray out;
 
     if ( pSongDatabase->search( obj["q"].toString(), results ) )
     {
-        Q_FOREACH( const SongDatabase::SearchResult& res, results )
+        Q_FOREACH( const SongDatabaseInfo& res, results )
         {
             QJsonObject rec;
 
@@ -179,11 +179,12 @@ bool ActionHandler_WebServer_Handler::addsong( QHttpSocket *socket, QJsonDocumen
 
     int id = obj["i"].toInt();
     QString singer = obj["s"].toString();
-    QString path = pSongDatabase->pathForId( id );
 
-    if ( path.isEmpty() || singer.isEmpty() )
+    SongDatabaseInfo info;
+
+    if ( !pSongDatabase->songById( id, info ) || singer.isEmpty() )
     {
-        Logger::debug("WebServer: failed to add song %d: %s", path.isEmpty() ? "path not found" : "singer is empty");
+        Logger::debug("WebServer: failed to add song %d: %s", singer.isEmpty() ? "singer is empty" : "song not found" );
 
         QJsonObject out;
         out["result"] = 0;
@@ -193,11 +194,13 @@ bool ActionHandler_WebServer_Handler::addsong( QHttpSocket *socket, QJsonDocumen
         return true;
     }
 
-    Logger::debug("WebServer: %s added song %d: %s", qPrintable(singer), id, qPrintable(path) );
-    emit queueAdd( path, singer, id );
+    Logger::debug("WebServer: %s added song %d: %s", qPrintable(singer), id, qPrintable( info.filePath ) );
+    emit queueAdd( info.filePath, singer, id );
 
     QJsonObject out;
     out["result"] = 1;
+    out["title"] = info.title;
+    out["artist"] = info.artist;
 
     sendData( socket, QJsonDocument( out ).toJson() );
     socket->close();
@@ -234,9 +237,9 @@ bool ActionHandler_WebServer_Handler::listqueue(QHttpSocket *socket, QJsonDocume
 void ActionHandler_WebServer_Handler::sendData(QHttpSocket *socket, const QByteArray &data, const QByteArray& type )
 {
     socket->setHeader( "Content-Length", QByteArray::number( data.length() ) );
-    socket->setHeader("Content-Type", type );
-    socket->setHeader("Cache-Control", "max-age=0, no-cache" );
-    socket->setHeader("Expires", "Thu, 01 Jan 1970 00:00:01 GMT" );
+    socket->setHeader( "Content-Type", type );
+    socket->setHeader( "Cache-Control", "max-age=0, no-cache" );
+    socket->setHeader( "Expires", "Thu, 01 Jan 1970 00:00:01 GMT" );
 
     socket->write(data);
 }

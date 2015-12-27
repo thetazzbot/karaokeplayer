@@ -84,6 +84,9 @@ class KaraokeSong : public QObject
         // Song info
         SongQueue::Song     m_song;
 
+        // Song rating
+        int                 m_rating;
+
         static bool isMidiFile( const QString& filename );
         static bool isSupportedMusicFile( const QString& filename );
         static bool isSupportedLyricFile( const QString& filename );

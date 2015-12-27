@@ -226,13 +226,13 @@ void ActionHandler::keyEvent(QKeyEvent *event)
 
         if ( dlg.exec() == QDialog::Accepted )
         {
-            QString path = pSongDatabase->pathForId( dlg.selectedSongId() );
+            SongDatabaseInfo * info = dlg.selectedSong();
 
-            if ( path.isEmpty() )
+            if ( !info )
                 return;
 
             QString singer = QInputDialog::getText( 0, "Enter singer name", "Singer name:" );
-            emit queueAdd( path, singer, dlg.selectedSongId() );
+            emit queueAdd( info->filePath, singer, info->id );
         }
     }
 

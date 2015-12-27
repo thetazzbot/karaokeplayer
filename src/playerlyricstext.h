@@ -48,7 +48,7 @@ class PlayerLyricsText : public PlayerLyrics
             MAX_NOTIFICATION_DURATION = 5000,
         };
 
-        PlayerLyricsText();
+        PlayerLyricsText( const QString& artist, const QString& title );
 
         // Load the lyrics from the QIODevice (which could be an original file or an archive entry)
         // Returns true if load succeed, otherwise must return false and set m_errorMsg to the reason

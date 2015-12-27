@@ -25,6 +25,25 @@
 
 struct sqlite3;
 
+// Returned as result for the database query
+class SongDatabaseInfo
+{
+    public:
+        SongDatabaseInfo();
+
+        int         id;
+        QString     artist;
+        QString     title;
+        QString     filePath;
+        QString     type;
+        int         playedTimes;
+        time_t      lastPlayed;
+        int         lyricDelay;
+        time_t      added;
+        int         rating;
+};
+
+
 // Initial design used SQLite, but since even the largest collections were below 2Mb in size,
 // this made no sense. Only when we move to Android this might switch back to SQLite.
 class SongDatabase : public QObject
@@ -32,14 +51,6 @@ class SongDatabase : public QObject
     Q_OBJECT
 
     public:
-        class SearchResult
-        {
-        public:
-            int         id;
-            QString     artist;
-            QString     title;
-        };
-
         SongDatabase( QObject * parent );
         ~SongDatabase();
 
@@ -49,20 +60,16 @@ class SongDatabase : public QObject
         bool    importFromText(const QString& filename , const QString &pathPrefix);
         //bool    exportToText( const QString& filename );
 
-        bool    search( const QString& substr, QList<SearchResult>& results, unsigned int limit = 100 );
+        bool    search( const QString& substr, QList<SongDatabaseInfo>& results, unsigned int limit = 100 );
 
-        // Queries the song file path
-        QString pathForId( int id );
-
-        // Returns the song lyric delay
-        int     getLyricDelay( int id );
+        // Queries the song by ID
+        bool    songById( int id, SongDatabaseInfo& info );
 
         // Updates the song playing stats and delay
-        void    updatePlayedSong( int id, int newdelay );
+        void    updatePlayedSong( int id, int newdelay, int newrating );
 
     private:
         bool    pathToArtistTitle( const QString& path, QString& artist, QString& title );
-        //bool    queryRow( const QString& sql, QMap<QString, QVariant> &output );
         bool    execute( const QString& sql, const QStringList& args = QStringList() );
 
     private:

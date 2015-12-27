@@ -46,6 +46,7 @@ KaraokeSong::KaraokeSong( KaraokeWidget *w, const SongQueue::Song &song )
 
     m_lyrics = 0;
     m_background = 0;
+    m_rating = 0;
 
     m_nextRedrawTime = -1;
     m_lastRedrawTime = -1;
@@ -166,10 +167,19 @@ bool KaraokeSong::open()
         lyricFileRead = lfile;
     }
 
+    // If we have song ID, query the DB
+    SongDatabaseInfo info;
+
+    if ( m_song.songid != 0 && pSongDatabase->songById( m_song.songid, info ) )
+        m_rating = info.rating;
+    else
+        m_rating = 0;
+
+
     if ( lyricFile.endsWith( ".cdg", Qt::CaseInsensitive ) )
         m_lyrics = new PlayerLyricsCDG();
     else
-        m_lyrics = new PlayerLyricsText();
+        m_lyrics = new PlayerLyricsText( info.artist, info.title );
 
     if ( !m_lyrics->load( lyricFileRead, lyricFile ) )
         throw( QObject::tr("Can't load lyrics file %1: %2") .arg( lyricFile ) .arg( m_lyrics->errorMsg() ) );
@@ -177,9 +187,8 @@ bool KaraokeSong::open()
     lyricFileRead->close();
     delete lyricFileRead;
 
-    // If we have song ID, query the DB if it has a delay for those lyrics
-    if ( m_song.songid != 0 )
-        m_lyrics->setDelay( pSongDatabase->getLyricDelay( m_song.songid ) );
+    // Set the lyric delay
+    m_lyrics->setDelay( info.lyricDelay );
 
     // Which background should we use?
     switch ( pSettings->playerBackgroundType )
@@ -270,7 +279,7 @@ void KaraokeSong::stop()
     pSongQueue->statusChanged( m_song.id, false );
 
     if ( m_song.songid )
-        pSongDatabase->updatePlayedSong( m_song.songid, m_lyrics->delay() );
+        pSongDatabase->updatePlayedSong( m_song.songid, m_lyrics->delay(), m_rating );
 }
 
 void KaraokeSong::lyricEarlier()
