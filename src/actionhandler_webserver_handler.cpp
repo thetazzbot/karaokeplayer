@@ -160,6 +160,8 @@ bool ActionHandler_WebServer_Handler::search( QHttpSocket *socket, QJsonDocument
             rec[ "i" ] = res.id;
             rec[ "a" ] = res.artist;
             rec[ "t"] = res.title;
+            rec[ "y"] = res.type;
+            rec[ "r"] = res.rating;
 
             out.append( rec );
         }
