@@ -235,5 +235,8 @@ void ActionHandler_WebServer_Handler::sendData(QHttpSocket *socket, const QByteA
 {
     socket->setHeader( "Content-Length", QByteArray::number( data.length() ) );
     socket->setHeader("Content-Type", type );
+    socket->setHeader("Cache-Control", "max-age=0, no-cache" );
+    socket->setHeader("Expires", "Thu, 01 Jan 1970 00:00:01 GMT" );
+
     socket->write(data);
 }
