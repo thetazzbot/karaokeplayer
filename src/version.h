@@ -35,8 +35,7 @@
 // - Video screen capture/webcam capture
 //
 
-// -  KFN, MID, Ultrastar, ZIP
-// - Timidity
+// -  KFN
 // - Remote song storage, download (incl encrypted)
 // - Voice passthrough and recording
 // - Video + voice recording
@@ -50,6 +49,7 @@
 // - LIRC support
 // - Smart queue w/intelligent management
 // - Song collection
+// - Full ZIP support is now there, working not only with MP3+G, but others such as packed Ultrastar archives
 // - Remote management through Web site and Android app
 
 #define APP_NAME			"Ulduzsoft Karaoke Player"

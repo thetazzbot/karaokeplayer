@@ -5,25 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Karaoke Song Selector</title>
     <style>
-        body { background-color: linen; font: 200 20px/1.5 Helvetica, Verdana, sans-serif;   }
-        input { font: 200 20px/1.5 Helvetica, Verdana, sans-serif }
+        body { background-color: linen; font: 30px/1.5 Helvetica, Verdana, sans-serif;   }
+        input { font: 30px/1.5 Helvetica, Verdana, sans-serif }
         input[type=text] { width: 80%; }
         div { text-align: center; }
         .hiddendiv {display:none; width: 100% }
         .visiblediv {display:block; width: 100% }
 
         ul { list-style-type: none; margin: 0; padding: 0; }
-        li {  font: 200 20px/1.5 Helvetica, Verdana, sans-serif;  border-bottom: 1px solid #ccc; }
+        li {  font: 200 30px/1.5 Helvetica, Verdana, sans-serif;  border-bottom: 1px solid #ccc; }
         li:last-child { border: none; }
-        li a {  text-decoration: none; color: #000; display: block; 
-            -webkit-transition: font-size 0.3s ease, background-color 0.3s ease;
-            -moz-transition: font-size 0.3s ease, background-color 0.3s ease;
-            -o-transition: font-size 0.3s ease, background-color 0.3s ease;
-            -ms-transition: font-size 0.3s ease, background-color 0.3s ease;
-            transition: font-size 0.3s ease, background-color 0.3s ease;
-            }
- 
-        li a:hover { font-size: 30px; background: #f6f6f6; }
+
     </style>
 
     <script type="text/javascript">
@@ -57,7 +49,7 @@
                 for ( var i = 0; i < obj.length; i++ )
                 {
                     var item = obj[i].a + " - " + obj[i].t;
-                    list += "<li><a href='#' onclick=\"addsong( " + obj[i].i + ");\">" + item + "</a></li>";
+                    list += "<li><a href='#' onclick=\"addsong( " + obj[i].i + ");\">" + item + "</a>" + "  [" + obj[i].y + "]" + "</li>";
                 }
                 
                 list += "</ul>"
@@ -79,9 +71,11 @@
             var data = JSON.parse( xhttp.responseText );
 
             if ( data["result"] == 1 )
-                document.getElementById("songlist").innerHTML = "Queued successfully";
+                document.getElementById("songlist").innerHTML = "<b>" + data["t"] + "</b> by <b>" + data["a"] + "</b> is successfully enqueued";
             else
                 document.getElementById("songlist").innerHTML = "Failed to add to queue";
+
+            document.getElementById("song").value = ""
         }
         
         function addsong( id )

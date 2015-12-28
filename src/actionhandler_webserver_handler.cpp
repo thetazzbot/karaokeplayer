@@ -201,8 +201,8 @@ bool ActionHandler_WebServer_Handler::addsong( QHttpSocket *socket, QJsonDocumen
 
     QJsonObject out;
     out["result"] = 1;
-    out["title"] = info.title;
-    out["artist"] = info.artist;
+    out["t"] = info.title;
+    out["a"] = info.artist;
 
     sendData( socket, QJsonDocument( out ).toJson() );
     socket->close();
