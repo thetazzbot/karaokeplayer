@@ -34,7 +34,6 @@
 #include "songdatabase.h"
 #include "playernotification.h"
 #include "currentstate.h"
-#include "archive_zip.h"
 #include "util.h"
 #include "karaokeplayable.h"
 
@@ -112,9 +111,9 @@ bool KaraokeSong::open()
     }
     else
     {
-        KaraokePlayable * karaoke = KaraokePlayable::create( m_song.file );
+        QScopedPointer<KaraokePlayable> karaoke( KaraokePlayable::create( m_song.file ) );
 
-        if ( !karaoke->parse() )
+        if ( !karaoke || !karaoke->parse() )
             throw QString( "Cannot find a matching music/lyric file");
 
         // Get the files
@@ -162,29 +161,10 @@ bool KaraokeSong::open()
         Logger::debug( "KaraokeSong: music file loaded" );
 
         // If lyrics are not in a local file, extract it into QBuffer first
-        QScopedPointer< QIODevice > lyricDevice;
+        QScopedPointer<QIODevice> lyricDevice( karaoke->openObject( lyricFile ) );
 
-        if ( karaoke->isCompound() )
-        {
-            // Extract lyrics into QBuffer which we would then use to read the lyrics from
-            QBuffer * buffer = new QBuffer();
-            buffer->open( QIODevice::ReadWrite );
-
-            // Extract the lyrics into our buffer
-            if ( !karaoke->extract( lyricFile, buffer ) )
-                throw QString( "Cannot extract a lyric file from an archive");
-
-            buffer->reset();
-            lyricDevice.reset( buffer );
-        }
-        else
-        {
-            // Lyrics are in a file
-            lyricDevice.reset( new QFile( karaoke->absolutePath( karaoke->lyricObject()) ) );
-
-            if ( !lyricDevice->open( QIODevice::ReadOnly ) )
-                throw QString( "Cannot open lyrics file %1: %2") .arg( lyricFile ) .arg( lyricDevice->errorString() );
-        }
+        if ( lyricDevice == 0 )
+            throw QString( "Cannot read a lyric file %1" ) .arg( lyricFile );
 
         // Now we can load the lyrics
         if ( lyricFile.endsWith( ".cdg", Qt::CaseInsensitive ) )
@@ -194,6 +174,9 @@ bool KaraokeSong::open()
 
         if ( !m_lyrics->load( lyricDevice.data(), lyricFile ) )
             throw( QObject::tr("Can't load lyrics file %1: %2") .arg( lyricFile ) .arg( m_lyrics->errorMsg() ) );
+
+        // Destroy the object right away
+        lyricDevice.reset( 0 );
 
         // Set the lyric delay
         m_lyrics->setDelay( info.lyricDelay );
@@ -206,47 +189,22 @@ bool KaraokeSong::open()
             QString filename = m_lyrics->properties() [ LyricsLoader::PROP_BACKGROUND ];
 
             // Same logic as with lyrics above
-            if ( karaoke->isCompound() )
+            QScopedPointer<QIODevice> iod( karaoke->openObject( filename ) );
+
+            if ( iod != 0 )
             {
-                // Extract the data into QBuffer which we would then use to read the data from
-                QBuffer buffer;
-                buffer.open( QIODevice::ReadWrite );
+                // Load the background from this buffer
+                m_background = new PlayerBackgroundImage();
 
-                // Extract the lyrics into our buffer; failure is not a problem here
-                if ( karaoke->extract( filename, &buffer ) )
+                if ( !m_background->initFromFile( iod.data() ) )
                 {
-                    buffer.reset();
-
-                    // Load the background from this buffer
-                    m_background = new PlayerBackgroundImage();
-
-                    if ( !m_background->initFromFile( &buffer ) )
-                    {
-                        delete m_background;
-                        m_background = 0;
-                    }
+                    Logger::debug( "Could not load background from %s: invalid file", qPrintable(filename) );
+                    delete m_background;
+                    m_background = 0;
                 }
             }
             else
-            {
-                // Just a regular file
-                QFile bgfile( karaoke->absolutePath( filename ) );
-
-                if ( bgfile.open( QIODevice::ReadOnly ) )
-                {
-                    // Load the background from this buffer
-                    m_background = new PlayerBackgroundImage();
-
-                    if ( !m_background->initFromFile( &bgfile ) )
-                    {
-                        delete m_background;
-                        m_background = 0;
-                    }
-                }
-            }
-
-            if ( !m_background )
-                Logger::debug( "Could not load background from file %s", qPrintable(filename) );
+                Logger::debug( "Could not load background from file %s: no such file", qPrintable(filename) );
         }
     }
 

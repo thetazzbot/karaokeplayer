@@ -1,4 +1,5 @@
 #include <QStringList>
+#include <QBuffer>
 
 #include "karaokeplayable.h"
 #include "karaokeplayable_file.h"
@@ -30,6 +31,9 @@ KaraokePlayable *KaraokePlayable::create(const QString &baseFile)
 
 bool KaraokePlayable::parse()
 {
+    if ( !init() )
+        return false;
+
     // One file could be both music and lyrics (i.e. KAR)
     if ( isSupportedMusicFile( m_baseFile ) )
         m_musicObject = m_baseFile;
@@ -66,6 +70,34 @@ bool KaraokePlayable::parse()
 QString KaraokePlayable::lyricObject() const
 {
     return m_lyricObject;
+}
+
+QIODevice *KaraokePlayable::openObject(const QString &object)
+{
+    // Same logic as with lyrics above
+    if ( isCompound() )
+    {
+        // Extract the data into QBuffer which we would then use to read the data from
+        QBuffer * buffer = new QBuffer();
+        buffer->open( QIODevice::ReadWrite );
+
+        // Extract the lyrics into our buffer; failure is not a problem here
+        if ( !extract( object, buffer ) )
+            return 0;
+
+        buffer->reset();
+        return buffer;
+    }
+    else
+    {
+        // Just a regular file
+        QFile * file = new QFile( absolutePath( object ) );
+
+        if ( !file->open( QIODevice::ReadOnly ) )
+            return 0;
+
+        return file;
+    }
 }
 
 QString KaraokePlayable::musicObject() const

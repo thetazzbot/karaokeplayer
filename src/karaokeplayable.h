@@ -26,14 +26,12 @@ class KaraokePlayable
         QString     musicObject() const;
         QString     lyricObject() const;
 
+        // Opens the object as QIODevice, which the caller must delete after it is not used anymore.
+        QIODevice * openObject( const QString& object );
 
         // Must be reimplemented in subclass.
         // Should return true if the file is a compound object (i.e. ZIP), i.e. enumerate returns files IN the object, not NEXT to it
         virtual bool        isCompound() const = 0;
-
-        // Must be reimplemented in subclass.
-        // Returns a list of files in the archive/next to the file (same directory); empty array in case of error
-        virtual QStringList enumerate() = 0;
 
         // Must be reimplemented in subclass.
         // Should return full absolute path if the object is on file system. Otherwise an empty string; DO NOT EXTRACT here.
@@ -55,12 +53,23 @@ class KaraokePlayable
     protected:
         KaraokePlayable();
 
+        // Must be reimplemented in subclass.
         // Initializes the object
         virtual bool  init() = 0;
 
+        // Must be reimplemented in subclass.
+        // Returns a list of files in the archive/next to the file (same directory); empty array in case of error
+        virtual QStringList enumerate() = 0;
+
+
+        // Original file
         QString     m_baseFile;
+
+        // Objects
         QString     m_musicObject;
         QString     m_lyricObject;
+
+        QString     m_errorMsg;
 };
 
 #endif // KARAOKEOBJECT_H

@@ -26,8 +26,8 @@ class KaraokePlayable_ZIP : public KaraokePlayable
 
         // Should return full absolute path if the object is on file system. Otherwise an empty string; DO NOT EXTRACT here.
         // Should return the path even if it is not valid/file does not exist.
-        // Basically for base "base/file/foo" and "baz" object should return "base/file/baz"
-        QString     absolutePath( const QString& object );
+        // Basically for base "base/file/foo" and "baz" object should return "base/file/baz"; ZIP etc would always return empty string
+        QString     absolutePath(const QString&);
 
         // Should extract the object into the out QIODevice; returns true if succeed, false on error. THis will only be called if
         // absolutePath() returned an empty string.
@@ -38,6 +38,7 @@ class KaraokePlayable_ZIP : public KaraokePlayable
         QFile       m_zipFile;
 
         struct zip* m_zip;
+
 };
 
 #endif // KARAOKEPLAYABLE_ZIP_H

@@ -42,7 +42,6 @@ SOURCES += main.cpp\
     actionhandler_webserver.cpp \
     actionhandler_webserver_handler.cpp \
     universalplayer.cpp \
-    archive_zip.cpp \
     karaokeplayable.cpp \
     karaokeplayable_file.cpp \
     karaokeplayable_zip.cpp
@@ -78,7 +77,6 @@ HEADERS  += mainwindow.h \
     actionhandler_webserver_handler.h \
     version.h \
     universalplayer.h \
-    archive_zip.h \
     karaokeplayable.h \
     karaokeplayable_file.h \
     karaokeplayable_zip.h
