@@ -52,6 +52,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
         void    menuToggleWindowPlayer();
         void    menuAbout();
         void    menuToggleFullscreen();
+        void    menuPlayPause();
 
         // Handling dock window closures
         void    dockWindowClosed( QObject* widget );

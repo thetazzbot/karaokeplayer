@@ -110,6 +110,11 @@ MainWindow::MainWindow(QWidget *parent) :
     connect( actionSettings, SIGNAL(triggered()), this, SLOT(menuSettings()) );
     connect( action_Player_window, SIGNAL(triggered()), this, SLOT(menuToggleWindowPlayer()) );
     connect( action_Quit, SIGNAL(triggered()), qApp, SLOT(quit()) );
+    connect( actionStart_playing, SIGNAL(triggered()), this, SLOT(queueStart()) );
+    connect( actionPause, SIGNAL(triggered()), this, SLOT(menuPlayPause()) );
+    connect( actionStop, SIGNAL(triggered()), this, SLOT(queueStop()) );
+    connect( actionPrevious_song_in_queue, SIGNAL(triggered()), this, SLOT(queuePrevious()) );
+    connect( actionNext_song_in_queue, SIGNAL(triggered()), this, SLOT(queueNext()) );
 
     // Currently unused
     mainToolBar->hide();
@@ -265,6 +270,11 @@ void MainWindow::menuToggleFullscreen()
         // Hide the mouse cursor
         QApplication::setOverrideCursor( Qt::BlankCursor );
     }
+}
+
+void MainWindow::menuPlayPause()
+{
+    pActionHandler->cmdAction( ActionHandler::ACTION_PLAYER_PAUSERESUME );
 }
 
 

@@ -45,7 +45,19 @@
     </property>
     <addaction name="action_About"/>
    </widget>
+   <widget class="QMenu" name="menuPlayer">
+    <property name="title">
+     <string>Player</string>
+    </property>
+    <addaction name="actionStart_playing"/>
+    <addaction name="actionPause"/>
+    <addaction name="actionStop"/>
+    <addaction name="separator"/>
+    <addaction name="actionNext_song_in_queue"/>
+    <addaction name="actionPrevious_song_in_queue"/>
+   </widget>
    <addaction name="menu_File"/>
+   <addaction name="menuPlayer"/>
    <addaction name="menuWindows"/>
    <addaction name="menu_Help"/>
   </widget>
@@ -61,10 +73,16 @@
    <property name="text">
     <string>Play file...</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
   </action>
   <action name="action_Quit">
    <property name="text">
     <string>&amp;Quit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
    </property>
   </action>
   <action name="action_Player_window">
@@ -73,6 +91,9 @@
    </property>
    <property name="text">
     <string>&amp;Player window</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
    </property>
   </action>
   <action name="action_About">
@@ -83,6 +104,31 @@
   <action name="actionSettings">
    <property name="text">
     <string>Settings</string>
+   </property>
+  </action>
+  <action name="actionStart_playing">
+   <property name="text">
+    <string>Start playing</string>
+   </property>
+  </action>
+  <action name="actionPause">
+   <property name="text">
+    <string>Pause</string>
+   </property>
+  </action>
+  <action name="actionStop">
+   <property name="text">
+    <string>Stop</string>
+   </property>
+  </action>
+  <action name="actionNext_song_in_queue">
+   <property name="text">
+    <string>Next song in queue</string>
+   </property>
+  </action>
+  <action name="actionPrevious_song_in_queue">
+   <property name="text">
+    <string>Previous song in queue</string>
    </property>
   </action>
  </widget>
