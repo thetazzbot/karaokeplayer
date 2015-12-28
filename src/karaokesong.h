@@ -22,7 +22,7 @@
 #include <QIODevice>
 #include <QProcess>
 
-#include "player.h"
+#include "universalplayer.h"
 #include "playerlyrics.h"
 #include "playerbackground.h"
 #include "songqueue.h"
@@ -74,8 +74,8 @@ class KaraokeSong : public QObject
         PlayerBackground *  m_background;
 
         // Player and rendering widget
-        Player              m_player;
-        KaraokeWidget     *  m_widget;
+        UniversalPlayer     m_player;
+        KaraokeWidget    *  m_widget;
 
         // Next redraw time
         qint64              m_lastRedrawTime;

@@ -19,7 +19,6 @@
 #include <QDir>
 #include <QCryptographicHash>
 
-#include "player.h"
 #include "logger.h"
 #include "settings.h"
 #include "karaokesong.h"
@@ -56,8 +55,8 @@ KaraokeSong::KaraokeSong( KaraokeWidget *w, const SongQueue::Song &song )
     connect( pActionHandler, SIGNAL( playerPauseResume()), this, SLOT(pause()) );
     connect( pActionHandler, SIGNAL( playerForward()), this, SLOT(seekForward()) );
     connect( pActionHandler, SIGNAL( playerBackward()), this, SLOT(seekBackward()) );
-    connect( pActionHandler, SIGNAL(playerLyricsEarlier()), this, SLOT(lyricEarlier()) );
-    connect( pActionHandler, SIGNAL(playerLyricsLater()), this, SLOT(lyricLater()) );
+    connect( pActionHandler, SIGNAL( playerLyricsEarlier()), this, SLOT(lyricEarlier()) );
+    connect( pActionHandler, SIGNAL( playerLyricsLater()), this, SLOT(lyricLater()) );
 }
 
 KaraokeSong::~KaraokeSong()
@@ -156,7 +155,9 @@ bool KaraokeSong::open()
 
         // Load the music file
         m_musicFileName = musicFile;
-        m_player.load( m_musicFileName );
+
+        if ( !m_player.loadAudio( m_musicFileName ) )
+            throw QString( "Cannot load music file %1: %2") .arg( m_musicFileName ) .arg( m_player.errorMsg() );
 
         // Read the lyrics
         QFile * lfile = new QFile( lyricFile );
@@ -232,13 +233,13 @@ void KaraokeSong::pause()
     if ( pCurrentState->playerState == CurrentState::PLAYERSTATE_PLAYING )
     {
         pCurrentState->playerState = CurrentState::PLAYERSTATE_PAUSED;
-        m_player.pause();
+        m_player.pauseOrResume( true );
         m_background->pause( true );
     }
     else
     {
         pCurrentState->playerState = CurrentState::PLAYERSTATE_PLAYING;
-        m_player.play();
+        m_player.pauseOrResume( false );
         m_background->pause( false );
     }
 }
@@ -274,6 +275,7 @@ void KaraokeSong::stop()
 {
     pCurrentState->playerState = CurrentState::PLAYERSTATE_STOPPED;
 
+    m_background->stop();
     m_player.stop();
 
     pSongQueue->statusChanged( m_song.id, false );

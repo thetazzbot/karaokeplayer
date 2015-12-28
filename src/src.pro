@@ -19,7 +19,6 @@ SOURCES += main.cpp\
     settings.cpp \
     playerlyrics.cpp \
     playerlyricscdg.cpp \
-    player.cpp \
     songqueue.cpp \
     songdatabase.cpp \
     playerlyricstext.cpp \
@@ -41,7 +40,8 @@ SOURCES += main.cpp\
     actionhandler_dbus.cpp \
     actionhandler_lirc.cpp \
     actionhandler_webserver.cpp \
-    actionhandler_webserver_handler.cpp
+    actionhandler_webserver_handler.cpp \
+    universalplayer.cpp
 
 HEADERS  += mainwindow.h \
     playerbackground.h \
@@ -49,7 +49,6 @@ HEADERS  += mainwindow.h \
     settings.h \
     playerlyrics.h \
     playerlyricscdg.h \
-    player.h \
     songqueue.h \
     songdatabase.h \
     playerlyricstext.h \
@@ -73,7 +72,8 @@ HEADERS  += mainwindow.h \
     actionhandler_lirc.h \
     actionhandler_webserver.h \
     actionhandler_webserver_handler.h \
-    version.h
+    version.h \
+    universalplayer.h
 
 FORMS    += mainwindow.ui \
     songsearchdialog.ui \
