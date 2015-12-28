@@ -41,7 +41,8 @@ SOURCES += main.cpp\
     actionhandler_lirc.cpp \
     actionhandler_webserver.cpp \
     actionhandler_webserver_handler.cpp \
-    universalplayer.cpp
+    universalplayer.cpp \
+    archive_zip.cpp
 
 HEADERS  += mainwindow.h \
     playerbackground.h \
@@ -73,7 +74,8 @@ HEADERS  += mainwindow.h \
     actionhandler_webserver.h \
     actionhandler_webserver_handler.h \
     version.h \
-    universalplayer.h
+    universalplayer.h \
+    archive_zip.h
 
 FORMS    += mainwindow.ui \
     songsearchdialog.ui \
@@ -81,6 +83,6 @@ FORMS    += mainwindow.ui \
     dialog_about.ui
 RESOURCES += resources.qrc
 INCLUDEPATH += .. ../libqhttpengine/QHttpEngine ../libqhttpengine
-LIBS += -L ../libkaraokelyrics/ -lkaraokelyrics -L../libqhttpengine/ -lqhttpengine -lsqlite3
+LIBS += -L ../libkaraokelyrics/ -lkaraokelyrics -L../libqhttpengine/ -lqhttpengine -lsqlite3 -lzip
 POST_TARGETDEPS += ../libkaraokelyrics/libkaraokelyrics.a ../libqhttpengine/libqhttpengine.a
 DEFINES += SQLITE_OMIT_LOAD_EXTENSION

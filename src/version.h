@@ -35,7 +35,7 @@
 // - Video screen capture/webcam capture
 //
 
-// - CDG, KFN, MID, LRC, Ultrastar, ZIP
+// -  KFN, MID, Ultrastar, ZIP
 // - Timidity
 // - Remote song storage, download (incl encrypted)
 // - Voice passthrough and recording
@@ -44,12 +44,12 @@
 
 // DONE //
 // - CDG, KFN, MID, LRC, Ultrastar, ZIP
+// - Video karaoke
 // - Timidity
 // - Video background
 // - LIRC support
-// - Queue
+// - Smart queue w/intelligent management
 // - Song collection
-// - Per-user queue w/intelligent
 // - Remote management through Web site and Android app
 
 #define APP_NAME			"Ulduzsoft Karaoke Player"

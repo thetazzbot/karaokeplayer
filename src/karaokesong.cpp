@@ -17,6 +17,7 @@
  **************************************************************************/
 
 #include <QDir>
+#include <QBuffer>
 #include <QCryptographicHash>
 
 #include "logger.h"
@@ -33,6 +34,7 @@
 #include "songdatabase.h"
 #include "playernotification.h"
 #include "currentstate.h"
+#include "archive_zip.h"
 #include "util.h"
 
 #include "libkaraokelyrics/lyricsloader.h"
@@ -46,6 +48,7 @@ KaraokeSong::KaraokeSong( KaraokeWidget *w, const SongQueue::Song &song )
     m_lyrics = 0;
     m_background = 0;
     m_rating = 0;
+    m_tempMusicFile = 0;
 
     m_nextRedrawTime = -1;
     m_lastRedrawTime = -1;
@@ -65,6 +68,7 @@ KaraokeSong::~KaraokeSong()
 
     delete m_lyrics;
     delete m_background;
+    delete m_tempMusicFile;
 }
 
 bool KaraokeSong::needsProcessing(const QString &filename)
@@ -81,14 +85,24 @@ bool KaraokeSong::needsProcessing(const QString &filename)
 
 bool KaraokeSong::open()
 {
-    QIODevice * lyricFileRead = 0;
+    QScopedPointer<QIODevice> lyricFileDevice;
     QString lyricFile;
+
     QString filename = m_song.file;
     Settings::BackgroundType bgtype = pSettings->playerBackgroundType;
 
     // Reset just in case
     m_lyrics = 0;
     m_background = 0;
+
+    // If we have song ID, query the DB first
+    SongDatabaseInfo info;
+
+    if ( m_song.songid != 0 && pSongDatabase->songById( m_song.songid, info ) )
+        m_rating = info.rating;
+    else
+        m_rating = 0;
+
 
     // If this is a video file, there is no lyrics
     if ( isVideoFile( filename) )
@@ -103,8 +117,51 @@ bool KaraokeSong::open()
     }
     else if ( filename.endsWith( ".zip", Qt::CaseInsensitive ) )
     {
-        // ZIP archive
+        ArchiveZip ziparch( filename );
 
+        if ( !ziparch.open() )
+            throw QString( "Cannot open ZIP archive %1: %2") .arg( filename ) .arg( ziparch.errorMsg() );
+
+        // Enumerate files in the archive to find music and lyrics
+        Q_FOREACH( const QString& file, ziparch.enumerate() )
+        {
+            if ( isSupportedMusicFile( file ) && m_musicFileName.isEmpty() )
+                m_musicFileName = file;
+
+            // No else here - could be the same file (i.e. zipped MIDI)
+            if ( isSupportedLyricFile( file ) && lyricFile.isEmpty() )
+                lyricFile = file;
+        }
+
+        if ( lyricFile.isEmpty() || m_musicFileName.isEmpty() )
+            throw QString( "ZIP archive doesn't contain both music and lyric files");
+
+        Logger::debug( "KaraokeSong: ZIP archive contains music file %s and lyric file %s", qPrintable(m_musicFileName), qPrintable(lyricFile) );
+
+        // This temporary file will store the extracted music file
+        m_tempMusicFile = new QTemporaryFile("karaokeplayer");
+
+        if ( !m_tempMusicFile->open() )
+            throw QString( "Cannot open temporary file");
+
+        // Extract the music into a temporary file
+        if ( !ziparch.extract( m_musicFileName, m_tempMusicFile ) )
+            throw QString( "Cannot extract a music file from an archive: %1") .arg( ziparch.errorMsg() );
+
+        // this is our music file now! Close it and remember it.
+        m_tempMusicFile->close();
+        m_musicFileName = m_tempMusicFile->fileName();
+
+        // Extract lyrics into QBuffer which we would then use to read the lyrics from
+        lyricFileDevice.reset( new QBuffer() );
+        lyricFileDevice->open( QIODevice::ReadWrite );
+
+        // Extract the lyrics into our buffer
+        if ( !ziparch.extract( lyricFile, lyricFileDevice.data() ) )
+            throw QString( "Cannot extract a lyric file from an archive: %1") .arg( ziparch.errorMsg() );
+
+        // Rewind the pointer so lyrics are read from the beginning
+        lyricFileDevice->reset();
     }
     else if ( filename.endsWith( ".kfn", Qt::CaseInsensitive ) )
     {
@@ -112,21 +169,19 @@ bool KaraokeSong::open()
     }
     else
     {
-        QString musicFile;
-
         // One file could be both music and lyrics (i.e. KAR)
         if ( isSupportedMusicFile( filename ) )
-            musicFile = filename;
+            m_musicFileName = filename;
 
         if ( isSupportedLyricFile( filename ) )
             lyricFile = filename;
 
         // Not a music nor lyric file?
-        if ( musicFile.isEmpty() && lyricFile.isEmpty() )
+        if ( m_musicFileName.isEmpty() && lyricFile.isEmpty() )
             return false;
 
         // Find the missing component if we miss anything
-        if ( musicFile.isEmpty() || lyricFile.isEmpty() )
+        if ( m_musicFileName.isEmpty() || lyricFile.isEmpty() )
         {
             QFileInfo finfo( filename );
 
@@ -144,67 +199,54 @@ bool KaraokeSong::open()
                     lyricFile = fi.absoluteFilePath();
                     break;
                 }
-                else if ( musicFile.isEmpty() && isSupportedMusicFile( fi.absoluteFilePath() ) )
+                else if ( m_musicFileName.isEmpty() && isSupportedMusicFile( fi.absoluteFilePath() ) )
                 {
-                    musicFile = fi.absoluteFilePath();
+                    m_musicFileName = fi.absoluteFilePath();
                     break;
                 }
             }
 
-            if ( lyricFile.isEmpty() || musicFile.isEmpty() )
-                return false;
+            if ( lyricFile.isEmpty() || m_musicFileName.isEmpty() )
+                throw QString( "Cannot find a matching music/lyric file");
         }
 
-        Logger::debug( "KaraokeSong: matching music file %s with lyric file %s", qPrintable(musicFile), qPrintable(lyricFile) );
+        // Lyrics are in a file
+        lyricFileDevice.reset( new QFile( lyricFile ) );
 
-        // Open the music file as we need QIODevice
-        if ( isMidiFile( musicFile ) && pSettings->convertMidiFiles )
-        {
-            // If we have converted it, a cached file should be there
-            QString test = Util::cachedFile( filename );
+        if ( !lyricFileDevice->open( QIODevice::ReadOnly ) )
+            throw QString( "Cannot open lyrics file %1: %2") .arg( lyricFile ) .arg( lyricFileDevice->errorString() );
 
-            if ( !QFile::exists( test ) )
-                throw QString("Cannot open music file %1 or cached file %2").arg( musicFile ) .arg(test);
-
-            musicFile = test;
-        }
-
-        // Load the music file
-        m_musicFileName = musicFile;
-
-        if ( !m_player.loadAudio( m_musicFileName ) )
-            throw QString( "Cannot load music file %1: %2") .arg( m_musicFileName ) .arg( m_player.errorMsg() );
-
-        // Read the lyrics
-        QFile * lfile = new QFile( lyricFile );
-
-        if ( !lfile->open( QIODevice::ReadOnly ) )
-            throw QString( "Cannot open lyrics file %1: %2") .arg( lyricFile ) .arg(lfile->errorString());
-
-        lyricFileRead = lfile;
+        Logger::debug( "KaraokeSong: matching music file %s with lyric file %s", qPrintable(m_musicFileName), qPrintable(lyricFile) );
     }
 
-    // If we have song ID, query the DB
-    SongDatabaseInfo info;
+    // Open the music file as we need QIODevice
+    if ( isMidiFile( m_musicFileName ) && pSettings->convertMidiFiles )
+    {
+        // If we have converted it, a cached file should be there
+        QString test = Util::cachedFile( m_musicFileName );
 
-    if ( m_song.songid != 0 && pSongDatabase->songById( m_song.songid, info ) )
-        m_rating = info.rating;
-    else
-        m_rating = 0;
+        if ( !QFile::exists( test ) )
+            throw QString("Cannot open music file %1 or cached file %2").arg( m_musicFileName ) .arg(test);
 
-    // Do we have lyrics? This is not always the case (i.e. video files)
-    if ( lyricFileRead )
+        m_musicFileName = test;
+    }
+
+    // Load the music file
+    if ( !m_player.loadAudio( m_musicFileName ) )
+        throw QString( "Cannot load music file %1: %2") .arg( m_musicFileName ) .arg( m_player.errorMsg() );
+
+    // Read the lyrics if we have them. Note this not always the case (i.e. video files)
+    if ( lyricFileDevice )
     {
         if ( lyricFile.endsWith( ".cdg", Qt::CaseInsensitive ) )
             m_lyrics = new PlayerLyricsCDG();
         else
             m_lyrics = new PlayerLyricsText( info.artist, info.title );
 
-        if ( !m_lyrics->load( lyricFileRead, lyricFile ) )
+        if ( !m_lyrics->load( lyricFileDevice.data(), lyricFile ) )
             throw( QObject::tr("Can't load lyrics file %1: %2") .arg( lyricFile ) .arg( m_lyrics->errorMsg() ) );
 
-        lyricFileRead->close();
-        delete lyricFileRead;
+        lyricFileDevice->close();
 
         // Set the lyric delay
         m_lyrics->setDelay( info.lyricDelay );

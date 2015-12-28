@@ -21,6 +21,7 @@
 
 #include <QIODevice>
 #include <QProcess>
+#include <QTemporaryFile>
 
 #include "universalplayer.h"
 #include "playerlyrics.h"
@@ -86,6 +87,9 @@ class KaraokeSong : public QObject
 
         // Song rating
         int                 m_rating;
+
+        // If music file is extracted/downloaded (zip/kfn), it is stored here
+        QTemporaryFile   *  m_tempMusicFile;
 
         static bool isMidiFile( const QString& filename );
         static bool isVideoFile( const QString& filename );

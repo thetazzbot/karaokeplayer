@@ -189,7 +189,8 @@ void UniversalPlayer::stop()
     m_drawEnabled = 0;
     m_drawMutex.unlock();
 
-    m_player->stop();
+    if ( m_player )
+        m_player->stop();
 }
 
 void UniversalPlayer::pauseOrResume(bool pause)
