@@ -197,7 +197,7 @@ bool ActionHandler_WebServer_Handler::addsong( QHttpSocket *socket, QJsonDocumen
     }
 
     Logger::debug("WebServer: %s added song %d: %s", qPrintable(singer), id, qPrintable( info.filePath ) );
-    emit queueAdd( info.filePath, singer, id );
+    emit queueAdd( singer, id );
 
     QJsonObject out;
     out["result"] = 1;

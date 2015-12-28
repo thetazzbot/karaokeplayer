@@ -27,6 +27,7 @@
 #include "karaokesong.h"
 #include "actionhandler.h"
 #include "convertermidi.h"
+#include "songdatabase.h"
 
 SongQueue * pSongQueue;
 
@@ -43,7 +44,7 @@ void SongQueue::init()
         load();
 }
 
-void SongQueue::addSong(const QString &file, const QString &singer, int id)
+void SongQueue::addSong( Song song )
 {
     // Find the currnet singer index
     int singeridx = 0;
@@ -51,28 +52,23 @@ void SongQueue::addSong(const QString &file, const QString &singer, int id)
     if ( !m_queue.isEmpty() && (int) m_currentSong < m_queue.size() )
         singeridx = qMax( m_singers.indexOf( m_queue[m_currentSong].singer ), 0 );
 
-    if ( m_singers.indexOf( singer ) == -1 )
+    if ( m_singers.indexOf( song.singer ) == -1 )
     {
         if ( pSettings->queueAddNewSingersNext )
-            m_singers.insert( singeridx + 1, singer );
+            m_singers.insert( singeridx + 1, song.singer );
         else
-            m_singers.append( singer );
+            m_singers.append( song.singer );
     }
 
     // Add to the end now
-    Song song;
     song.id = m_nextQueueId++;
-    song.songid = id;
-    song.file = file;
-    song.singer = singer;
-    song.title = filenameToTitle( file );
 
     // Find out if it needs to be converted
-    song.state = KaraokeSong::needsProcessing( file ) ? Song::STATE_PREPARING : Song::STATE_READY;
+    song.state = KaraokeSong::needsProcessing( song.file ) ? Song::STATE_PREPARING : Song::STATE_READY;
 
     // If it is, schedule it for conversion
     if ( song.state == Song::STATE_PREPARING )
-        pConverterMIDI->add( file );
+        pConverterMIDI->add( song.file );
 
     // Add to queue
     m_queue.append( song );
@@ -84,7 +80,7 @@ void SongQueue::addSong(const QString &file, const QString &singer, int id)
         singeridx = 0;
 
     int songidx = m_currentSong + 1;
-    Logger::debug( "Queue: Adding file %d %s by %s into queue: %s", id, qPrintable(file), qPrintable(singer), qPrintable( song.stateText() ) );
+    Logger::debug( "Queue: Adding file %d %s by %s into queue: %s", song.songid, qPrintable(song.file), qPrintable(song.singer), qPrintable( song.stateText() ) );
 /*
     for ( int i = 0; i < m_singers.size(); i++ )
         qDebug() << "Singer " << i << ": " << m_singers[i];
@@ -137,6 +133,35 @@ void SongQueue::addSong(const QString &file, const QString &singer, int id)
     queueUpdated();
 }
 
+void SongQueue::addSong( const QString &singer, int id )
+{
+    SongDatabaseInfo info;
+
+    if ( !pSongDatabase->songById( id, info ) )
+        return;
+
+    Song song;
+
+    song.artist = info.artist;
+    song.file = info.filePath;
+    song.songid = id;
+    song.singer = singer;
+    song.title = info.title;
+
+    addSong( song );
+}
+
+void SongQueue::addSong(const QString &singer, const QString &file)
+{
+    Song song;
+
+    song.file = file;
+    song.songid = 0;
+    song.singer = singer;
+
+    addSong( song );
+}
+
 SongQueue::Song SongQueue::current() const
 {
     return m_queue[ m_currentSong ];
@@ -171,13 +196,6 @@ void SongQueue::exportQueue(QList<SongQueue::Song> &queue)
 bool SongQueue::isEmpty() const
 {
     return (int) m_currentSong == m_queue.size() || m_queue.isEmpty();
-}
-
-QString SongQueue::filenameToTitle(const QString &file)
-{
-    QFileInfo finfo( file );
-
-    return finfo.baseName();
 }
 
 void SongQueue::clear()

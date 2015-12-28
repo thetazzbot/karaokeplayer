@@ -34,7 +34,7 @@ class PlayerBackgroundImage : public PlayerBackground
         // Background could be initialized either from the settings (by callign initFromSettings() or from
         // a specific file/QIODevice - for example for KFN files. If the background cannot be initialized
         // a specific way, it must return an error.
-        virtual bool    initFromSettings( const QString& param = "" );
+        virtual bool    initFromSettings();
         virtual bool    initFromFile( QIODevice * file );
 
         // Draws the background on the image; the prior content of the image is undefined. If false is returned,
@@ -67,6 +67,9 @@ class PlayerBackgroundImage : public PlayerBackground
 
         // For animateZoom - percentage between 100% desktop size an
         int     m_zoomFactor;
+
+        // If custom background is loaded, do not switch images
+        bool    m_customBackground;
 };
 
 #endif // PLAYERBACKGROUNDIMAGE_H

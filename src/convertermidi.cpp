@@ -54,7 +54,7 @@ void ConverterMIDI::convError(QProcess::ProcessError)
     processNext();
 }
 
-void ConverterMIDI::convFinished(int exitCode, QProcess::ExitStatus exitStatus)
+void ConverterMIDI::convFinished(int , QProcess::ExitStatus)
 {
     emit finished( m_inputFile, true );
 

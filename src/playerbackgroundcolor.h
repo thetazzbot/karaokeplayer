@@ -31,7 +31,7 @@ class PlayerBackgroundColor : public PlayerBackground
         // Background could be initialized either from the settings (by callign initFromSettings() or from
         // a specific file/QIODevice - for example for KFN files. If the background cannot be initialized
         // a specific way, it must return an error.
-        bool    initFromSettings( const QString& param = "" );
+        bool    initFromSettings();
 
         // Color background doesn't support files
         bool    initFromFile( QIODevice * ) { return false; }

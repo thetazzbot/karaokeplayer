@@ -28,7 +28,7 @@
 #include "playerbackground.h"
 #include "songqueue.h"
 
-
+class SongDatabaseInfo;
 class KaraokeWidget;
 
 // Represents a playable Karaoke file. It may be one of the following:
@@ -90,11 +90,6 @@ class KaraokeSong : public QObject
 
         // If music file is extracted/downloaded (zip/kfn), it is stored here
         QTemporaryFile   *  m_tempMusicFile;
-
-        static bool isMidiFile( const QString& filename );
-        static bool isVideoFile( const QString& filename );
-        static bool isSupportedMusicFile( const QString& filename );
-        static bool isSupportedLyricFile( const QString& filename );
 };
 
 #endif // KARAOKESONG_H

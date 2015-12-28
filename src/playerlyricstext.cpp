@@ -26,24 +26,23 @@
 #include "libkaraokelyrics/lyricsloader.h"
 
 
-PlayerLyricsText::PlayerLyricsText(const QString &artist, const QString &title)
+PlayerLyricsText::PlayerLyricsText( const QString& artist, const QString& title )
     : PlayerLyrics()
 {
     m_nextUpdateTime = 0;
     m_currentLine = 0;
     m_longestLine = 0;
-
-    m_renderFont = pSettings->playerLyricsFont;
     m_artist = artist;
     m_title = title;
+
+    m_renderFont = pSettings->playerLyricsFont;
 }
 
-bool PlayerLyricsText::load( QIODevice * file, const QString& filename )
+bool PlayerLyricsText::load(QIODevice * file, const QString& filename )
 {
     LyricsLoader::Container lyrics;
-    LyricsLoader::Properties properties;
 
-    LyricsLoader loader( properties, lyrics );
+    LyricsLoader loader( m_properties, lyrics );
 
     if ( !loader.parse( filename, file ) )
     {
@@ -100,10 +99,10 @@ bool PlayerLyricsText::load( QIODevice * file, const QString& filename )
     m_showTitleTime = 0;
 
     //TODO: the rest of metadata
-    if ( properties.contains( LyricsLoader::PROP_ARTIST ) && properties.contains( LyricsLoader::PROP_TITLE ) )
+    if ( m_properties.contains( LyricsLoader::PROP_ARTIST ) && m_properties.contains( LyricsLoader::PROP_TITLE ) )
     {
-        m_artist = properties[ LyricsLoader::PROP_ARTIST ];
-        m_title = properties[ LyricsLoader::PROP_TITLE ];
+        m_artist = m_properties[ LyricsLoader::PROP_ARTIST ];
+        m_title = m_properties[ LyricsLoader::PROP_TITLE ];
 
         if ( firstLyricStart() > MIN_INTERVAL_AFTER_TITLE + MIN_DURATION_TITLE )
         {

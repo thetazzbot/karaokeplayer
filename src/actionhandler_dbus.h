@@ -32,8 +32,8 @@ class ActionHandler_DBus : public QDBusAbstractAdaptor
         ActionHandler_DBus( QObject * parent );
 
     public slots:
-        void queueSong( QString song, QString singer, int id );
-        void queueSong( QString song, QString singer );
+        void queueSong( QString singer, int id );
+        void queueSong( QString singer, QString song );
 };
 
 #endif // EVENTCONTROLLER_DBUS_H

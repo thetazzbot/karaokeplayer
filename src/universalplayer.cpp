@@ -133,8 +133,11 @@ UniversalPlayer::UniversalPlayer( QObject *parent )
 
 UniversalPlayer::~UniversalPlayer()
 {
-    m_player->stop();
-    m_player->deleteLater();
+    if ( m_player )
+    {
+        m_player->stop();
+        m_player->deleteLater();
+    }
 }
 
 bool UniversalPlayer::loadAudio( const QString &musicfile )

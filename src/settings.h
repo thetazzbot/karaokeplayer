@@ -44,6 +44,7 @@ class Settings
         bool        playerLyricsTextEachCharacter;
         bool        convertMidiFiles;
         bool        playerCDGbackgroundTransparent;
+        bool        playerIgnoreBackgroundFromFormats;
         int         playerRenderFPS;
         int         playerMusicLyricDelay;      // delay in milliseconds between lyrics and music for this hardware
 

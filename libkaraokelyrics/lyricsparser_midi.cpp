@@ -134,7 +134,7 @@ LyricsParser_MIDI::LyricsParser_MIDI()
     m_currentOffset = 0;
 }
 
-void LyricsParser_MIDI::parse(QIODevice * file, LyricsLoader::Container &output, LyricsLoader::Properties &properties)
+void LyricsParser_MIDI::parse(QIODevice * file, LyricsLoader::Container &output, LyricsLoader::Properties &)
 {
     m_mididata = file->readAll();
 

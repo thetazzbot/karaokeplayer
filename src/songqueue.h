@@ -44,6 +44,7 @@ class SongQueue : public QObject
                 int         songid;     // nonzero if the song is in the database, so its status could be updated
                 QString     file;       // may be original or cached
                 QString     title;
+                QString     artist;
                 QString     singer;
                 State       state;      // see above
 
@@ -79,9 +80,6 @@ class SongQueue : public QObject
         // Returns queue representation as list of author|song items (used in notifications
         void    exportQueue( QList<Song>& queue );
 
-        // Internal stuff
-        QString filenameToTitle( const QString& file );
-
     signals:
         void    queueChanged();
 
@@ -95,10 +93,14 @@ class SongQueue : public QObject
         void    statusChanged( int id, bool playstarted );
 
         // Adds a song into queue, automatically rearranging it. Returns true if the song is added, false otherwise
-        void    addSong( const QString& file, const QString& singer, int id );
+        void    addSong( const QString& singer, int id );
+
+        // Adds a song into queue, automatically rearranging it. Returns true if the song is added, false otherwise
+        void    addSong( const QString& singer, const QString& file );
 
     private:
         // Internal function which saves queue to disk and calls the signals
+        void    addSong( Song song );
         void    queueUpdated();
         void    save();
         void    load();

@@ -74,7 +74,7 @@ void PlayerBackgroundVideo::finished()
     initFromSettings();
 }
 
-bool PlayerBackgroundVideo::initFromSettings(const QString &)
+bool PlayerBackgroundVideo::initFromSettings()
 {
     QString videofile = pSettings->m_playerBackgroundObjects[ pSettings->m_playerBackgroundLastObject ];
 

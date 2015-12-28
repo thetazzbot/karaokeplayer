@@ -25,13 +25,9 @@ PlayerBackgroundColor::PlayerBackgroundColor()
 {
 }
 
-bool PlayerBackgroundColor::initFromSettings(const QString &param)
+bool PlayerBackgroundColor::initFromSettings()
 {
-    if ( param.isEmpty() )
-        m_color = pSettings->playerBackgroundColor;
-    else
-        m_color = QColor( param );
-
+    m_color = pSettings->playerBackgroundColor;
     return m_color.isValid();
 }
 

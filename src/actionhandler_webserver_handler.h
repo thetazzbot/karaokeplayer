@@ -32,7 +32,7 @@ class ActionHandler_WebServer_Handler : public QObjectHandler
         void    process( QHttpSocket *socket, const QString &path );
 
     signals:
-        void    queueAdd( QString path, QString singer, int id );
+        void    queueAdd( QString singer, int id );
 
     public Q_SLOTS:
         void    onReadChannelFinished();

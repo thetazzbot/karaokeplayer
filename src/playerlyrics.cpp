@@ -50,3 +50,8 @@ int PlayerLyrics::delay() const
 {
     return m_timeDelay;
 }
+
+LyricsLoader::Properties PlayerLyrics::properties() const
+{
+    return m_properties;
+}

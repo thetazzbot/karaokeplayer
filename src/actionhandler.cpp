@@ -232,7 +232,7 @@ void ActionHandler::keyEvent(QKeyEvent *event)
                 return;
 
             QString singer = QInputDialog::getText( 0, "Enter singer name", "Singer name:" );
-            emit queueAdd( info->filePath, singer, info->id );
+            emit queueAdd( singer, info->id );
         }
     }
 

@@ -26,7 +26,6 @@
 
 #include "playerlyrics.h"
 #include "playerlyrictext_line.h"
-#include "libkaraokelyrics/lyricsloader.h"
 
 class KaraokePainter;
 
@@ -52,7 +51,7 @@ class PlayerLyricsText : public PlayerLyrics
 
         // Load the lyrics from the QIODevice (which could be an original file or an archive entry)
         // Returns true if load succeed, otherwise must return false and set m_errorMsg to the reason
-        bool    load( QIODevice * file, const QString &filename = "" );
+        bool    load(QIODevice * file, const QString &filename);
 
         // Must return next time when the lyrics would be updated. If returns -1, no more updates
         qint64  nextUpdate() const;
@@ -92,6 +91,7 @@ class PlayerLyricsText : public PlayerLyrics
         QString                     m_artist;
         QString                     m_title;
         qint64                      m_showTitleTime;
+
 };
 
 #endif // PLAYERLYRICSTEXT_H

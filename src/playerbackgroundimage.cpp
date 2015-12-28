@@ -28,11 +28,12 @@
 PlayerBackgroundImage::PlayerBackgroundImage()
 {
     m_percentage = 0;
+    m_customBackground = false;
 
     m_animationSpeed = 5;
 }
 
-bool PlayerBackgroundImage::initFromSettings(const QString &)
+bool PlayerBackgroundImage::initFromSettings()
 {
     // Do we have a directory path or file?
     if ( pSettings->m_playerBackgroundObjects.isEmpty() )
@@ -43,9 +44,13 @@ bool PlayerBackgroundImage::initFromSettings(const QString &)
     return true;
 }
 
-bool PlayerBackgroundImage::initFromFile(QIODevice *file)
+bool PlayerBackgroundImage::initFromFile( QIODevice *file )
 {
-    return false;
+    if ( !m_currentImage.load( file, "jpg" ) )
+        return false;
+
+    m_customBackground = true;
+    return true;
 }
 
 qint64 PlayerBackgroundImage::draw(KaraokePainter &p)
@@ -80,7 +85,8 @@ qint64 PlayerBackgroundImage::draw(KaraokePainter &p)
         }
     }
 
-    if ( pSettings->playerBackgroundTransitionDelay > 0 && m_lastUpdated.elapsed() > (int) pSettings->playerBackgroundTransitionDelay * 1000 )
+    if ( pSettings->playerBackgroundTransitionDelay > 0
+    && m_lastUpdated.elapsed() > (int) pSettings->playerBackgroundTransitionDelay * 1000 )
         loadNewImage();
 
     return -1;
@@ -88,6 +94,14 @@ qint64 PlayerBackgroundImage::draw(KaraokePainter &p)
 
 void PlayerBackgroundImage::loadNewImage()
 {
+    if ( m_customBackground )
+    {
+        // Just reset the animation
+        m_movementOrigin = QPoint( 0, 0 );
+        m_zoomFactor = 0;
+        return;
+    }
+
     // Do we have more than one image?
     if ( pSettings->m_playerBackgroundObjects.size() > 1 )
     {

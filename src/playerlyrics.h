@@ -23,6 +23,8 @@
 #include <QColor>
 #include <QIODevice>
 
+#include "libkaraokelyrics/lyricsloader.h"
+
 
 class KaraokePainter;
 
@@ -58,6 +60,9 @@ class PlayerLyrics
         void    setDelay( int delayms );
         int     delay() const;
 
+        // Properties
+        LyricsLoader::Properties properties() const;
+
     protected:
         // Render lyrics for current timestamp into the QImage provided. Must "render over",
         // and not mess up with the rest of the screen. True on success, false + m_errorMsg on error.
@@ -72,6 +77,9 @@ class PlayerLyrics
 
         // Lyric delay
         QAtomicInt      m_timeDelay;
+
+        // Lyric properties
+        LyricsLoader::Properties    m_properties;
 };
 
 #endif // LYRICSRENDERER_H

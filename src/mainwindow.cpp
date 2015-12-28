@@ -97,7 +97,8 @@ MainWindow::MainWindow(QWidget *parent) :
     // Connect slots
     connect( pActionHandler, SIGNAL(playerStart()), this, SLOT(queueStart()) );
     connect( pActionHandler, SIGNAL(playerStop()), this, SLOT(queueStop()) );
-    connect( pActionHandler, SIGNAL(queueAdd(QString,QString,int)), this, SLOT(queueAdd(QString,QString,int)) );
+    connect( pActionHandler, SIGNAL(queueAdd(QString,int)), this, SLOT(queueAdd(QString,int)) );
+    connect( pActionHandler, SIGNAL(queueAdd(QString,QString)), this, SLOT(queueAdd(QString,QString)) );
     connect( pActionHandler, SIGNAL(queueNext()), this, SLOT(queueNext()) );
     connect( pActionHandler, SIGNAL(queuePrevious()), this, SLOT(queuePrevious()) );
     connect( pActionHandler, SIGNAL(queueClear()), pSongQueue, SLOT(clear()) );
@@ -124,9 +125,15 @@ MainWindow::~MainWindow()
 {
 }
 
-void MainWindow::queueAdd(QString file, QString singer, int id)
+void MainWindow::queueAdd(QString singer, int id)
 {
-    pSongQueue->addSong( file, singer, id );
+    pSongQueue->addSong( singer, id );
+    queueStart();
+}
+
+void MainWindow::queueAdd(QString singer, QString file)
+{
+    pSongQueue->addSong( singer, file );
     queueStart();
 }
 
@@ -211,7 +218,7 @@ void MainWindow::menuOpenKaraoke()
     if ( file.isEmpty() )
         return;
 
-    queueAdd( file, "Console", 0 );
+    queueAdd( "Console", file );
 }
 
 void MainWindow::menuSettings()

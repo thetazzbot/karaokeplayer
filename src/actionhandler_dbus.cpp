@@ -25,12 +25,12 @@ ActionHandler_DBus::ActionHandler_DBus( QObject * parent )
 {
 }
 
-void ActionHandler_DBus::queueSong(QString song, QString singer, int id)
+void ActionHandler_DBus::queueSong( QString singer, int id)
 {
-    pActionHandler->queueAdd( song, singer, id );
+    pActionHandler->queueAdd( singer, id );
 }
 
-void ActionHandler_DBus::queueSong(QString song, QString singer)
+void ActionHandler_DBus::queueSong( QString singer, QString path )
 {
-    pActionHandler->queueAdd( song, singer, 0 );
+    pActionHandler->queueAdd( singer, path );
 }

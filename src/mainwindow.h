@@ -39,7 +39,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
         ~MainWindow();
 
     public slots:
-        void    queueAdd( QString file, QString singer, int id );
+        void    queueAdd( QString singer, int id );
+        void    queueAdd( QString singer, QString file );
         void    queueStop();
         void    queueNext();
         void    queuePrevious();
