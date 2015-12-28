@@ -29,13 +29,14 @@
 class Lyric
 {
     public:
-        Lyric( qint64 start_, const QString& text_, qint64 duration_ = -1, int pitch_ = -1 );
+        Lyric( qint64 start_, const QString& text_ = "", qint64 duration_ = -1, int pitch_ = -1 );
 
     public:
+        // those are OR flags, ORed the original pitch
         enum
         {
-            PITCH_FREESTYLE = -1,
-            PITCH_GOLDEN = -2
+            PITCH_FREESTYLE = 0x80000000,
+            PITCH_GOLDEN = 0x40000000,
         };
 
         qint64	start;      // Only if not end of block
@@ -56,7 +57,8 @@ class LyricsLoader
             PROP_ARTIST,
             PROP_MUSICFILE,
             PROP_BACKGROUND,
-            PROP_VIDEO
+            PROP_VIDEO,
+            PROP_VIDEO_STARTOFFSET,
         };
 
         // Lyrics parameters

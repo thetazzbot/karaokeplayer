@@ -37,19 +37,19 @@ void LyricsParser_Texts::parseUStar(const QStringList &text, LyricsLoader::Conta
 {
     bool header = true;
     bool relative = false;
-    int bpm = -1, gap = -1;
+    int bpm = -1;
+    int gap = -1;
     double msecs_per_beat = 0;
     int last_time_ms = 0;
-    int next_time_ms = 0;
-    int last_pitch = 0;
 
+    // See http://www.ultrastarstuff.com/html/tutorialtxtfile.html
     for ( int i = 0; i < text.size(); i++ )
     {
         QString line = text[i];
 
         if ( header )
         {
-            QRegExp regex( "^#([a-zA-Z]+):\\s*(.*)\\s*$" );
+            QRegExp regex( "^#([a-zA-Z0-9]+):\\s*(.*)$" );
 
             if ( regex.indexIn( line ) != -1 )
             {
@@ -61,23 +61,20 @@ void LyricsParser_Texts::parseUStar(const QStringList &text, LyricsLoader::Conta
                     tagid = LyricsLoader::PROP_TITLE;
                 else if ( tag == "ARTIST" )
                     tagid = LyricsLoader::PROP_ARTIST;
-                else if ( tag == "MP3FILE" )
+                else if ( tag == "MP3FILE" || tag == "MP3" )
                     tagid = LyricsLoader::PROP_MUSICFILE;
                 else if ( tag == "BPM" )
                     bpm = value.toInt();
                 else if ( tag == "GAP" )
-                    gap = value.toInt();
+                    gap = qRound( value.toDouble() );   // May be a double value
                 else if ( tag == "RELATIVE" )
                     relative = value.compare( "yes" );
                 else if ( tag == "BACKGROUND" )
                     tagid = LyricsLoader::PROP_BACKGROUND;
                 else if ( tag == "VIDEO" )
                     tagid = LyricsLoader::PROP_VIDEO;
-//				else if ( tag == "VIDEOGAP" )
-//              else if ( tag == "COVER" )
-//				else if ( tag == "EDITION" )
-//              else if ( tag == "LANGUAGE" )
-//              else if ( tag == "GENRE" )
+                else if ( tag == "VIDEOGAP" )
+                    tagid = LyricsLoader::PROP_VIDEO_STARTOFFSET;
 
                 if ( tagid != LyricsLoader::PROP_INVALID )
                     properties[ tagid ] = value;
@@ -103,49 +100,104 @@ void LyricsParser_Texts::parseUStar(const QStringList &text, LyricsLoader::Conta
             if ( line[0] == 'E' )
                 break;
 
-            QStringList parsed = line.split( QRegExp("\\s+") );
+            // Could be either end of line, or lyrics
+            int timing;
 
-            if ( parsed.size() < 3 )
-                throw("Invalid UltraStar file format");
-
-            int timing = relative ? last_time_ms : 0;
-            timing += parsed[1].toInt() * msecs_per_beat;
-
-/*            // Should we add an empty field?
-            if ( next_time_ms != 0 && timing > next_time_ms )
+            if ( line[0] == '-' )
             {
-                lyrics.curLyricSetTime( next_time_ms );
-                lyrics.curLyricSetPitch( last_pitch );
-                lyrics.curLyricAdd();
+                // End of line
+                timing = gap + (relative ? last_time_ms : 0) + line.mid( 2 ).toInt() * msecs_per_beat;
+
+                output.push_back( Lyric( timing ) );
             }
-*/
-
-            Lyric lyr( timing, "" );
-            lyr.duration = parsed[2].toInt() * msecs_per_beat;
-
-            if ( parsed[0] == "F" || parsed[0] == "*"  || parsed[0] == ":" )
+            else
             {
-                if ( parsed.size() < 5 )
-                    throw ("not a valid UltraStar lyric file");
+                // Lyrics
+                QRegExp regex( "^[*Ff:]\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(.*)$" );
 
-                if ( parsed[0] == "F" )
+                if ( regex.indexIn( line ) == -1 )
+                    throw("Invalid UltraStar file format");
+
+                timing = gap + (relative ? last_time_ms : 0) + regex.cap( 1 ).toInt() * msecs_per_beat;
+
+                Lyric lyr( timing );
+                lyr.pitch = regex.cap( 3 ).toInt();
+
+                if ( line[0] == 'F' )
                     lyr.pitch |= Lyric::PITCH_FREESTYLE;
-                else if ( parsed[0] == "*" )
+                else if ( line[0] == '*' )
                     lyr.pitch |= Lyric::PITCH_GOLDEN;
-                else
-                    lyr.pitch = parsed[3].toInt();
 
-                lyr.text = parsed[4];
+                lyr.duration = regex.cap( 2 ).toInt() * msecs_per_beat;
+                lyr.text = regex.cap( 4 );
+
+                output.push_back( lyr );
             }
-            else if ( parsed[0] == "-" )
-                lyr.text = "\n";
 
-            output.push_back( lyr );
+            last_time_ms = timing;
         }
     }
 }
 
-void LyricsParser_Texts::parsePowerKaraoke(const QStringList &text, LyricsLoader::Container &output, LyricsLoader::Properties &properties)
+static int powerKaraokeTime( QString time )
 {
-    //TODO
+    int timing = 0;
+
+    if ( time.contains(":") )
+    {
+        QStringList parts = time.split( ":" );
+        timing = parts[0].toInt() * 60000;
+        time = parts[1];
+    }
+
+    timing += (int) (time.toFloat() * 1000 );
+    return timing;
+}
+
+
+void LyricsParser_Texts::parsePowerKaraoke(const QStringList &text, LyricsLoader::Container &output, LyricsLoader::Properties &)
+{
+    // For the PowerKaraoke format there is no header, just times.
+    QRegExp regex("^([0-9.:]+) ([0-9.:]+) (.*)");
+
+    // Analyze each line
+    for ( int i = 0; i < text.size(); i++ )
+    {
+        QString line = text[i];
+
+        if ( line.isEmpty() )
+            continue;
+
+        // Try to match the sync first
+        if ( line.indexOf( regex ) == -1 )
+            throw QString( "Invalid PowerKaraoke file" );
+
+        int start = powerKaraokeTime( regex.cap( 1 ) );
+        //int end = powerKaraokeTime( regex.cap( 2 ) );
+        QString text = regex.cap( 3 ).trimmed();
+
+        Lyric lyr( start );
+
+        if ( text.endsWith( "\\n" ) )
+        {
+            text.chop( 2 );
+            lyr.text = text;
+            output.push_back( lyr );
+
+            // and end of line
+            output.push_back( Lyric( start ) );
+        }
+        else if ( !text.endsWith( "-" ) )
+        {
+            text += " ";
+            lyr.text = text;
+            output.push_back( lyr );
+        }
+        else
+        {
+            text.chop( 1 );
+            lyr.text = text;
+            output.push_back( lyr );
+        }
+    }
 }
