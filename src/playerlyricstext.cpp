@@ -180,9 +180,9 @@ bool PlayerLyricsText::render(KaraokePainter &p, qint64 timems)
         return true;
     }
 
-    if ( p.rect() != m_usedImageSize )
+    if ( p.textRect() != m_usedImageSize )
     {
-        m_usedImageSize = p.rect();
+        m_usedImageSize = p.textRect();
         calculateFontSize();
     }
 
