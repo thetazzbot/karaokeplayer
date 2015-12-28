@@ -46,5 +46,23 @@ class PlayerBackground
         virtual void    stop();
 };
 
+// An empty background
+class PlayerBackgroundNone : public PlayerBackground
+{
+    public:
+        PlayerBackgroundNone() { }
+        virtual ~PlayerBackgroundNone() { }
+
+        // Background could be initialized either from the settings (by callign initFromSettings() or from
+        // a specific file/QIODevice - for example for KFN files. If the background cannot be initialized
+        // a specific way, it must return an error.
+        bool    initFromSettings( const QString& param = "" ) { return true; }
+        bool    initFromFile( QIODevice * file )  { return true; }
+
+        // Draws the background on the painter; the painter is filled up black. Returns time for the
+        // next update when the image will change. -1 means the current image will never change.
+        qint64  draw( KaraokePainter& p )  { return -1; }
+};
+
 
 #endif // PLAYERBACKGROUND_H

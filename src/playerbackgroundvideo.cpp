@@ -53,8 +53,6 @@ void PlayerBackgroundVideo::pause(bool pausing)
 
 void PlayerBackgroundVideo::stop()
 {
-    qDebug() << m_player.position();
-
     // Store the current video position so next song could resume video
     if ( m_player.position() > 0 )
         pSettings->m_playerBackgroundLastVideoTime = m_player.position();

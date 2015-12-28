@@ -29,9 +29,10 @@ class Settings
 
         enum BackgroundType
         {
-            BACKGROUND_TYPE_COLOR,
-            BACKGROUND_TYPE_IMAGE,
-            BACKGROUND_TYPE_VIDEO
+            BACKGROUND_TYPE_NONE = 2,
+            BACKGROUND_TYPE_COLOR = 4,
+            BACKGROUND_TYPE_IMAGE = 6,
+            BACKGROUND_TYPE_VIDEO = 8
         };
 
         QString cacheDir;

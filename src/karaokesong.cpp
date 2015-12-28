@@ -84,8 +84,24 @@ bool KaraokeSong::open()
     QIODevice * lyricFileRead = 0;
     QString lyricFile;
     QString filename = m_song.file;
+    Settings::BackgroundType bgtype = pSettings->playerBackgroundType;
 
-    if ( filename.endsWith( ".zip", Qt::CaseInsensitive ) )
+    // Reset just in case
+    m_lyrics = 0;
+    m_background = 0;
+
+    // If this is a video file, there is no lyrics
+    if ( isVideoFile( filename) )
+    {
+        bgtype = Settings::BACKGROUND_TYPE_NONE;
+
+        // Load the video file
+        m_musicFileName = filename;
+
+        if ( !m_player.loadVideo( m_musicFileName, false ) )
+            throw QString( "Cannot load video file %1: %2") .arg( m_musicFileName ) .arg( m_player.errorMsg() );
+    }
+    else if ( filename.endsWith( ".zip", Qt::CaseInsensitive ) )
     {
         // ZIP archive
 
@@ -176,24 +192,31 @@ bool KaraokeSong::open()
     else
         m_rating = 0;
 
+    // Do we have lyrics? This is not always the case (i.e. video files)
+    if ( lyricFileRead )
+    {
+        if ( lyricFile.endsWith( ".cdg", Qt::CaseInsensitive ) )
+            m_lyrics = new PlayerLyricsCDG();
+        else
+            m_lyrics = new PlayerLyricsText( info.artist, info.title );
 
-    if ( lyricFile.endsWith( ".cdg", Qt::CaseInsensitive ) )
-        m_lyrics = new PlayerLyricsCDG();
-    else
-        m_lyrics = new PlayerLyricsText( info.artist, info.title );
+        if ( !m_lyrics->load( lyricFileRead, lyricFile ) )
+            throw( QObject::tr("Can't load lyrics file %1: %2") .arg( lyricFile ) .arg( m_lyrics->errorMsg() ) );
 
-    if ( !m_lyrics->load( lyricFileRead, lyricFile ) )
-        throw( QObject::tr("Can't load lyrics file %1: %2") .arg( lyricFile ) .arg( m_lyrics->errorMsg() ) );
+        lyricFileRead->close();
+        delete lyricFileRead;
 
-    lyricFileRead->close();
-    delete lyricFileRead;
-
-    // Set the lyric delay
-    m_lyrics->setDelay( info.lyricDelay );
+        // Set the lyric delay
+        m_lyrics->setDelay( info.lyricDelay );
+    }
 
     // Which background should we use?
-    switch ( pSettings->playerBackgroundType )
+    switch ( bgtype )
     {
+        case Settings::BACKGROUND_TYPE_NONE:
+            m_background = new PlayerBackgroundNone();
+            break;
+
         case Settings::BACKGROUND_TYPE_IMAGE:
             m_background = new PlayerBackgroundImage();
             break;
@@ -221,7 +244,9 @@ void KaraokeSong::start()
     pCurrentState->playerDuration = m_player.duration();
     pCurrentState->playerState = CurrentState::PLAYERSTATE_PLAYING;
 
-    m_background->start();
+    if ( m_background )
+        m_background->start();
+
     m_player.play();
 
     pSongQueue->statusChanged( m_song.id, true );
@@ -265,10 +290,22 @@ qint64 KaraokeSong::draw(KaraokePainter &p)
     pCurrentState->playerPosition = m_player.position();
 
     // Background is always on
-    qint64 bgtime = m_background->draw( p );
-    qint64 lyrictime = m_lyrics->draw( p );
+    qint64 time = pCurrentState->playerDuration;
 
-    return qMin( bgtime, lyrictime );
+    if ( m_background )
+        time = qMin( m_background->draw( p ), time );
+
+    if ( m_lyrics )
+    {
+        m_lyrics->draw( p );
+    }
+    else
+    {
+        m_player.draw( p );
+        time = 0;
+    }
+
+    return time;
 }
 
 void KaraokeSong::stop()
@@ -281,11 +318,14 @@ void KaraokeSong::stop()
     pSongQueue->statusChanged( m_song.id, false );
 
     if ( m_song.songid )
-        pSongDatabase->updatePlayedSong( m_song.songid, m_lyrics->delay(), m_rating );
+        pSongDatabase->updatePlayedSong( m_song.songid, m_lyrics ? m_lyrics->delay() : 0, m_rating );
 }
 
 void KaraokeSong::lyricEarlier()
 {
+    if ( !m_lyrics )
+        return;
+
     int newdelay = m_lyrics->delay() + 200;
     m_lyrics->setDelay( newdelay );
 
@@ -294,6 +334,9 @@ void KaraokeSong::lyricEarlier()
 
 void KaraokeSong::lyricLater()
 {
+    if ( !m_lyrics )
+        return;
+
     int newdelay = m_lyrics->delay() - 200;
     m_lyrics->setDelay( newdelay );
 
@@ -303,6 +346,17 @@ void KaraokeSong::lyricLater()
 bool KaraokeSong::isMidiFile(const QString &filename)
 {
     static const char * extlist[] = { ".kar", ".mid", ".midi", 0 };
+
+    for ( int i = 0; extlist[i]; i++ )
+        if ( filename.endsWith( extlist[i], Qt::CaseInsensitive ) )
+            return true;
+
+    return false;
+}
+
+bool KaraokeSong::isVideoFile(const QString &filename)
+{
+    static const char * extlist[] = { ".mp4", ".mov", ".avi", ".mkv", ".3gp", ".flv", 0 };
 
     for ( int i = 0; extlist[i]; i++ )
         if ( filename.endsWith( extlist[i], Qt::CaseInsensitive ) )

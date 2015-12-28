@@ -88,6 +88,7 @@ class KaraokeSong : public QObject
         int                 m_rating;
 
         static bool isMidiFile( const QString& filename );
+        static bool isVideoFile( const QString& filename );
         static bool isSupportedMusicFile( const QString& filename );
         static bool isSupportedLyricFile( const QString& filename );
 };
