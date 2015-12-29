@@ -61,9 +61,6 @@ class Settings
         QStringList     playerBackgroundObjects;    // images or videos
         unsigned int    playerBackgroundTransitionDelay; // images only, in seconds. 0 - no transitions/slideshow
 
-        unsigned int    m_playerBackgroundLastObject; // last shown image, or last played video
-        qint64          m_playerBackgroundLastVideoTime;  // for video only
-        QStringList     m_playerBackgroundObjects;  // actual objects
 
         // Songs database
         QString         songdbFilename;
@@ -79,6 +76,10 @@ class Settings
 
         // Custom background for notifications
         QString         customBackground;
+
+        // If true, we should start in a full screen mode (but this doesn't mean NOW is a fullscreen mode)
+        bool            startInFullscreen;
+
 
     public:
         void    load();

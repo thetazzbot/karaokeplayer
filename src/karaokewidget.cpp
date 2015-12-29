@@ -23,6 +23,7 @@
 #include "karaokewidget.h"
 #include "songqueue.h"
 #include "actionhandler.h"
+#include "currentstate.h"
 #include "playerrenderer.h"
 #include "playernotification.h"
 
@@ -69,6 +70,8 @@ void KaraokeWidget::stopKaraoke()
         k->stop();
 
     delete k;
+
+    pCurrentState->saveTempData();
 }
 
 void KaraokeWidget::stopEverything()

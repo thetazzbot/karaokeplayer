@@ -56,14 +56,14 @@ MainWindow::MainWindow(QWidget *parent) :
     // Settings should be created first
     pSettings = new Settings();
 
-    // Current state doesn't connect to anything
-    pCurrentState = new CurrentState( this );
-
     // Controller the second
     pActionHandler = new ActionHandler();
 
     // Then notification
     pNotification = new PlayerNotification( 0 );
+
+    // Current state doesn't connect to anything
+    pCurrentState = new CurrentState( this );
 
     // Song database
     pSongDatabase = new SongDatabase( this );
@@ -75,7 +75,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_widget = new KaraokeWidget( this );
     setCentralWidget( m_widget );
 
-    if ( pCurrentState->modeFullscreen )
+    if ( pSettings->startInFullscreen || hasCmdLineOption("-fs") )
         menuToggleFullscreen();
 
     // Song queue should be created last, as it emits signals intercepted by other modules
@@ -310,4 +310,15 @@ void MainWindow::closeEvent(QCloseEvent *)
 
     pActionHandler->stop();
     pSettings->save();
+}
+
+bool MainWindow::hasCmdLineOption(const QString &option)
+{
+    for ( int i = 1; i < qApp->arguments().size(); i++ )
+    {
+        if ( qApp->arguments()[i] == option )
+            return true;
+    }
+
+    return false;
 }

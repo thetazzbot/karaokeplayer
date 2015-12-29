@@ -21,6 +21,8 @@
 
 #include <QObject>
 #include <QAtomicInt>
+#include <QStringList>
+
 #include "songqueue.h"
 
 //
@@ -63,8 +65,21 @@ class CurrentState : public QObject
         QAtomicInt              playerDuration;
         int                     playerVolume;
 
-        // If true, we should start in a full screen mode (but this doesn't mean NOW is a fullscreen mode)
-        bool                    modeFullscreen;
+        // For video only, stores last position
+        qint64                  playerBackgroundLastVideoPosition;
+
+    public slots:
+        void        loadBackgroundObjects();
+        void        saveTempData();
+        QString     currentBackgroundObject();
+        void        nextBackgroundObject();
+
+    private:
+        // Background objects (files and files from directories)
+        QStringList             m_playerBackgroundObjects;
+
+        // Last shown image, or last played video (from playerBackgroundObjects)
+        unsigned int            m_playerBackgroundLastObject;
 };
 
 extern CurrentState * pCurrentState;

@@ -56,13 +56,11 @@ Settings::Settings()
 
     load();
 
-    // Validate settings
-    if ( playerBackgroundType == BACKGROUND_TYPE_IMAGE || playerBackgroundType == BACKGROUND_TYPE_VIDEO )
-        loadBackgroundObjects();
-
     // songPathPrefix should follow directory separator
     if ( !songPathPrefix.isEmpty() && !songPathPrefix.endsWith( QDir::separator() ) )
         songPathPrefix.append( QDir::separator() );
+
+
 
     //customBackground = m_appDataPath + "background.jpg";
     //httpDocumentRoot = m_appDataPath + "wwwroot";
@@ -100,36 +98,6 @@ Settings::Settings()
     */
 }
 
-void Settings::loadBackgroundObjects()
-{
-    m_playerBackgroundObjects.clear();
-
-    QStringList extensions;
-
-    if ( playerBackgroundType == BACKGROUND_TYPE_IMAGE )
-        extensions << "*.jpg" << "*.png" << "*.gif" << "*.bmp";
-    else
-        extensions << "*.avi" << "*.mkv" << "*.mp4" << "*.3gp" << "*.mov";
-
-    // Entries in playerBackgroundObjects could be files or directories
-    for ( int i = 0; i < playerBackgroundObjects.size(); i++ )
-    {
-        QFileInfo finfo( playerBackgroundObjects[i] );
-
-        if ( finfo.isDir() )
-        {
-            QFileInfoList list = QDir( playerBackgroundObjects[i] ).entryInfoList( extensions, QDir::Files | QDir::NoDotAndDotDot );
-
-            foreach ( const QFileInfo& f, list )
-                m_playerBackgroundObjects.push_back( f.absoluteFilePath() );
-        }
-        else if ( finfo.isFile() )
-            m_playerBackgroundObjects.push_back( finfo.absoluteFilePath() );
-    }
-
-    Logger::debug( "Background: %d objects found", m_playerBackgroundObjects.size() );
-}
-
 void Settings::load()
 {
     QSettings settings;
@@ -160,11 +128,9 @@ void Settings::load()
     httpDocumentRoot = settings.value( "http/DocumentRoot", "" ).toString();
 
     customBackground = settings.value( "mainmenu/CustomBackground", "" ).toString();
+    startInFullscreen = settings.value( "mainmenu/StartInFullscreen", false ).toBool();
 
     cacheDir = settings.value( "player/cacheDir", QStandardPaths::writableLocation( QStandardPaths::CacheLocation ) ).toString();
-
-    m_playerBackgroundLastObject = settings.value( "temp/playerBackgroundLastObject", 0 ).toInt();
-    m_playerBackgroundLastVideoTime = settings.value( "temp/playerBackgroundLastVideoTime", 0 ).toInt();
 }
 
 void Settings::save()
@@ -198,9 +164,7 @@ void Settings::save()
     settings.setValue( "http/DocumentRoot", httpDocumentRoot );
 
     settings.setValue( "mainmenu/CustomBackground", customBackground );
-
-    settings.setValue( "temp/playerBackgroundLastObject", m_playerBackgroundLastObject );
-    settings.setValue( "temp/playerBackgroundLastVideoTime", m_playerBackgroundLastVideoTime );
+    settings.setValue( "mainmenu/StartInFullscreen", startInFullscreen );
 
     // Store the cache dir only if the location is changed (i.e. not standard)
     if ( QStandardPaths::writableLocation( QStandardPaths::CacheLocation ) != cacheDir )

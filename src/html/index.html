@@ -42,6 +42,9 @@
         {
             var obj = JSON.parse( xhttp.responseText );
             
+            if ( obj["results"] )
+                obj = obj["results"]
+            
             if ( obj.length > 0 )
             {
                 var list = "<ul>";

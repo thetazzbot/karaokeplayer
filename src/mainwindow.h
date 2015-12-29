@@ -62,6 +62,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
         void    keyPressEvent(QKeyEvent * event);
         void    closeEvent(QCloseEvent *);
 
+        bool    hasCmdLineOption( const QString& option );
+
     private:
         KaraokeWidget *  m_widget;
         PlayerWidget *  m_playerWindow;

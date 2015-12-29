@@ -36,7 +36,7 @@ PlayerBackgroundImage::PlayerBackgroundImage()
 bool PlayerBackgroundImage::initFromSettings()
 {
     // Do we have a directory path or file?
-    if ( pSettings->m_playerBackgroundObjects.isEmpty() )
+    if ( pCurrentState->currentBackgroundObject().isEmpty() )
         return false;
 
     // Load the first image
@@ -103,24 +103,15 @@ void PlayerBackgroundImage::loadNewImage()
     }
 
     // Do we have more than one image?
-    if ( pSettings->m_playerBackgroundObjects.size() > 1 )
-    {
-        // Next image
-        pSettings->m_playerBackgroundLastObject++;
+    pCurrentState->nextBackgroundObject();
 
-        if ( (int) pSettings->m_playerBackgroundLastObject >= pSettings->m_playerBackgroundObjects.size() )
-            pSettings->m_playerBackgroundLastObject = 0;
-    }
-    else
-        pSettings->m_playerBackgroundLastObject = 0;
-
-    Logger::debug( "BgImage: show image %d", pSettings->m_playerBackgroundLastObject );
+    Logger::debug( "BgImage: show image %s", qPrintable( pCurrentState->currentBackgroundObject() ) );
 
     // If current image is not set, fill up it. Otherwise fill up new image
-    if ( !m_newImage.load( pSettings->m_playerBackgroundObjects[ pSettings->m_playerBackgroundLastObject ] ) )
+    if ( !m_newImage.load( pCurrentState->currentBackgroundObject() ) )
     {
         m_newImage = QImage();
-        pActionHandler->warning( QString("BgImage: error loading image %1") .arg( pSettings->m_playerBackgroundObjects[ pSettings->m_playerBackgroundLastObject ] ) );
+        pActionHandler->warning( QString("BgImage: error loading image %1") .arg( pCurrentState->currentBackgroundObject() ) );
     }
 
     m_lastUpdated = QTime::currentTime();
