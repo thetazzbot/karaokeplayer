@@ -41,6 +41,7 @@ class SongDatabaseInfo
         int         lyricDelay;
         time_t      added;
         int         rating;
+        QString     language;
 };
 
 
@@ -72,6 +73,9 @@ class SongDatabase : public QObject
         bool    browseInitials( QList<QChar> &artistInitials );
         bool    browseArtists( const QChar& artistInitial, QStringList& artists );
         bool    browseSongs( const QString& artist, QList<SongDatabaseInfo>& results );
+
+        // Language is stored in database as INT with three bytes encoding the country code in big-endian
+        static QString languageFromInt( unsigned int value );
 
     private:
         bool    pathToArtistTitle( const QString& path, QString& artist, QString& title );

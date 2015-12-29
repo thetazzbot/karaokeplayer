@@ -164,6 +164,7 @@ bool ActionHandler_WebServer_Handler::search( QHttpSocket *socket, QJsonDocument
             rec[ "t"] = res.title;
             rec[ "y"] = res.type;
             rec[ "r"] = res.rating;
+            rec[ "l"] = res.language;
 
             out.append( rec );
         }
@@ -276,10 +277,13 @@ bool ActionHandler_WebServer_Handler::listDatabase(QHttpSocket *socket, QJsonDoc
                 rec[ "t"] = res.title;
                 rec[ "y"] = res.type;
                 rec[ "r"] = res.rating;
+                rec[ "l"] = res.language;
 
                 out.append( rec );
             }
         }
+
+        type = "songs";
     }
     else
     {
@@ -296,18 +300,11 @@ bool ActionHandler_WebServer_Handler::listDatabase(QHttpSocket *socket, QJsonDoc
         type = "initials";
     }
 
-    if ( !type.isEmpty() )
-    {
-        QJsonObject outobj;
+    QJsonObject outobj;
+    outobj["results"] = out;
+    outobj["type"] = type;
 
-        outobj["results"] = out;
-        outobj["type"] = type;
-
-        sendData( socket, QJsonDocument( outobj ).toJson() );
-    }
-    else
-        sendData( socket, QJsonDocument( out ).toJson() );
-
+    sendData( socket, QJsonDocument( outobj ).toJson() );
     socket->close();
     return true;
 }

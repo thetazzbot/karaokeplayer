@@ -93,6 +93,7 @@ class SQLiteStatement
             info.lyricDelay = columnInt( 7 );
             info.added = columnInt64( 8 );
             info.rating = columnInt( 9 );
+            info.language = SongDatabase::languageFromInt( columnInt( 10 ) );
 
             return info;
         }
@@ -138,10 +139,10 @@ bool SongDatabase::init()
         return false;
     }
 
-    // CREATE TABLE IF NOT EXISTS songs( id INTEGER PRIMARY KEY, path TEXT, artist TEXT, title TEXT, type TEXT, search TEXT, played INT, lastplayed INT, lyricdelay INT, added INT, rating INT
+    // CREATE TABLE IF NOT EXISTS songs( id INTEGER PRIMARY KEY, path TEXT, artist TEXT, title TEXT, type TEXT, search TEXT, played INT, lastplayed INT, lyricdelay INT, added INT, rating INT, language INT
     // Create tables/indexes if not there
     if ( !execute( "CREATE TABLE IF NOT EXISTS songs( id INTEGER PRIMARY KEY, path TEXT, artist TEXT, title TEXT,"
-                  "type TEXT, search TEXT, played INT, lastplayed INT, lyricdelay INT, added INT, rating INT )" )
+                  "type TEXT, search TEXT, played INT, lastplayed INT, lyricdelay INT, added INT, rating INT, language INT )" )
          || !execute( "CREATE INDEX IF NOT EXISTS idxSearch ON songs(search)" )
          || !execute( "CREATE TABLE IF NOT EXISTS settings( version INTEGER, identifier TEXT, lastupdated INT)" ) )
         return false;
@@ -300,6 +301,14 @@ bool SongDatabase::browseSongs(const QString &artist, QList<SongDatabaseInfo> &r
         results.append( stmt.getRowSongInfo() );
 
     return !results.empty();
+}
+
+QString SongDatabase::languageFromInt(unsigned int value)
+{
+    char buf[8];
+    sprintf( buf, "%c%c%c", (value >> 16) & 0xFF, (value >> 8) & 0xFF, value & 0xFF );
+
+    return QString(buf);
 }
 
 bool SongDatabase::pathToArtistTitle(const QString &path, QString &artist, QString &title)
