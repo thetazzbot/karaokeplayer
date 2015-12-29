@@ -60,6 +60,8 @@ KaraokeSong::KaraokeSong( KaraokeWidget *w, const SongQueue::Song &song )
     connect( pActionHandler, SIGNAL( playerBackward()), this, SLOT(seekBackward()) );
     connect( pActionHandler, SIGNAL( playerLyricsEarlier()), this, SLOT(lyricEarlier()) );
     connect( pActionHandler, SIGNAL( playerLyricsLater()), this, SLOT(lyricLater()) );
+    connect( pActionHandler, SIGNAL( playerRatingDecrease()), this, SLOT(ratingDown()) );
+    connect( pActionHandler, SIGNAL( playerRatingIncrease()), this, SLOT(ratingUp()) );
 }
 
 KaraokeSong::~KaraokeSong()
@@ -342,4 +344,14 @@ void KaraokeSong::lyricLater()
     m_lyrics->setDelay( newdelay );
 
     pNotification->setMessage( tr("Lyrics show %1 by %2ms") .arg( newdelay < 0 ? "earlier" : "later") .arg(newdelay));
+}
+
+void KaraokeSong::ratingDown()
+{
+    m_rating--;
+}
+
+void KaraokeSong::ratingUp()
+{
+    m_rating++;
 }

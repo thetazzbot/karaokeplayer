@@ -58,6 +58,9 @@ ActionHandler::ActionHandler()
     m_actionNameMap["LYRICS_LATER"] = ACTION_LYRIC_LATER;
     m_actionNameMap["VOLUME_UP"] = ACTION_PLAYER_VOLUME_UP;
     m_actionNameMap["VOLUME_DOWN"] = ACTION_PLAYER_VOLUME_DOWN;
+    m_actionNameMap["RATING_DECREASE"] = ACTION_PLAYER_RATING_DECREASE;
+    m_actionNameMap["RATING_INCREASE"] = ACTION_PLAYER_RATING_INCREASE;
+    m_actionNameMap["QUIT"] = ACTION_QUIT;
 }
 
 ActionHandler::~ActionHandler()
@@ -181,6 +184,18 @@ bool ActionHandler::cmdAction(int event )
         emit playerVolumeUp();
         break;
 
+    case ACTION_PLAYER_RATING_DECREASE:
+        emit playerRatingDecrease();
+        break;
+
+    case ACTION_PLAYER_RATING_INCREASE:
+        emit playerRatingIncrease();
+        break;
+
+    case ACTION_QUIT:
+        emit actionQuit();
+        break;
+
     default:
         return false;
     }
@@ -219,6 +234,12 @@ void ActionHandler::keyEvent(QKeyEvent *event)
 
     if ( event->key() == Qt::Key_Minus )
         cmdAction( ACTION_PLAYER_VOLUME_DOWN );
+
+    if ( event->key() == Qt::Key_Plus )
+        cmdAction( ACTION_PLAYER_RATING_INCREASE );
+
+    if ( event->key() == Qt::Key_Underscore )
+        cmdAction( ACTION_PLAYER_RATING_DECREASE );
 
     if ( event->key() == Qt::Key_S )
     {

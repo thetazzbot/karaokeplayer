@@ -102,6 +102,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect( pActionHandler, SIGNAL(queueNext()), this, SLOT(queueNext()) );
     connect( pActionHandler, SIGNAL(queuePrevious()), this, SLOT(queuePrevious()) );
     connect( pActionHandler, SIGNAL(queueClear()), pSongQueue, SLOT(clear()) );
+    connect( pActionHandler, SIGNAL(actionQuit()), qApp, SLOT(quit()) );
 
     connect( pConverterMIDI, SIGNAL(finished(QString,bool)), pSongQueue, SLOT(processingFinished(QString,bool)) );
 

@@ -65,6 +65,8 @@ class KaraokeSong : public QObject
         void    stop();
         void    lyricEarlier();
         void    lyricLater();
+        void    ratingDown();
+        void    ratingUp();
 
     protected:
         // Convert the src to the m_musicFileName

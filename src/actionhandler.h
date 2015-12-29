@@ -55,6 +55,11 @@ class ActionHandler : public QObject
 
             ACTION_LYRIC_EARLIER,   // decreases the music-lyric delay (negative too)
             ACTION_LYRIC_LATER,     // increases the music-lyric delay
+
+            ACTION_PLAYER_RATING_DECREASE,
+            ACTION_PLAYER_RATING_INCREASE,
+
+            ACTION_QUIT
         };
 
         ActionHandler();
@@ -78,6 +83,8 @@ class ActionHandler : public QObject
         void    playerLyricsLater();
         void    playerVolumeUp();
         void    playerVolumeDown();
+        void    playerRatingIncrease();
+        void    playerRatingDecrease();
 
         // Actions for queue manager
         void    queueAdd( QString singer, int id );
@@ -85,6 +92,9 @@ class ActionHandler : public QObject
         void    queueNext();
         void    queuePrevious(); // does restart if not within the first 5 seconds
         void    queueClear();
+
+        // Generic actions
+        void    actionQuit();
 
     public slots:
         // Events from player
