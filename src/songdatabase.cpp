@@ -257,6 +257,51 @@ void SongDatabase::updatePlayedSong(int id, int newdelay, int newrating)
     execute( QString("UPDATE songs SET lyricdelay=%1,played=played+1,lastplayed=DATETIME(),rating=%2 WHERE id=%3") .arg( newdelay) .arg(newrating) .arg(id) );
 }
 
+bool SongDatabase::browseInitials( QList<QChar>& artistInitials)
+{
+    artistInitials.clear();
+
+    SQLiteStatement stmt;
+
+    if ( !stmt.prepare( m_sqlitedb, "SELECT DISTINCT(SUBSTR(artist, 1, 1)) from songs ORDER BY artist") )
+        return false;
+
+    while ( stmt.step() == SQLITE_ROW )
+        artistInitials.append( stmt.columnText( 0)[0] );
+
+    return !artistInitials.empty();
+}
+
+bool SongDatabase::browseArtists(const QChar &artistInitial, QStringList &artists)
+{
+    artists.clear();
+
+    SQLiteStatement stmt;
+
+    if ( !stmt.prepare( m_sqlitedb, "SELECT DISTINCT(artist) FROM songs WHERE artist LIKE ? ORDER BY artist", QStringList() << QString("%1%%") .arg(artistInitial) ) )
+        return false;
+
+    while ( stmt.step() == SQLITE_ROW )
+        artists.append( stmt.columnText(0) );
+
+    return !artists.empty();
+}
+
+bool SongDatabase::browseSongs(const QString &artist, QList<SongDatabaseInfo> &results)
+{
+    results.clear();
+
+    SQLiteStatement stmt;
+
+    if ( !stmt.prepareSongQuery( m_sqlitedb, "WHERE artist=? ORDER BY title", QStringList() << artist ) )
+        return false;
+
+    while ( stmt.step() == SQLITE_ROW )
+        results.append( stmt.getRowSongInfo() );
+
+    return !results.empty();
+}
+
 bool SongDatabase::pathToArtistTitle(const QString &path, QString &artist, QString &title)
 {
     int p = path.lastIndexOf( QDir::separator() );

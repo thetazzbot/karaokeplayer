@@ -66,6 +66,43 @@
             runAPI( '/api/search', { q : document.getElementById("song").value }, searchSucceed );
         }
 
+        function browseSucceed( xhttp )
+        {
+            var obj = JSON.parse( xhttp.responseText );
+            
+            if ( obj.results.length > 0 )
+            {
+                var list = "<ul>";
+                
+                if ( obj.type == "initials" )
+                    callback = "browseSucceed";
+                else
+                    callback = "searchSucceed";
+                
+                for ( var i = 0; i < obj.results.length; i++ )
+                {
+                    list += "<li><a href='#' onclick=\"browseArtist( '" + obj.results[i] + "', " + callback + " );\">" + obj.results[i] + "</a></li>";
+                }
+                
+                list += "</ul>"
+                document.getElementById("songlist").innerHTML = list;
+            }
+            else
+            {
+                document.getElementById("songlist").innerHTML = "No such artist";
+            }
+        }
+     
+        function browseArtist( artist, callback )
+        {
+            runAPI( '/api/browse', { a: artist }, callback );
+        }        
+        
+        function browse()
+        {
+            runAPI( '/api/browse', {}, browseSucceed );
+        }        
+        
         function addsongSucceed( xhttp )
         {
             var data = JSON.parse( xhttp.responseText );
@@ -132,6 +169,9 @@
             <div>
                 <input type=text id="song" placeholder="Song or artist name..." onkeydown="if (event.keyCode == 13) search();"><input type=button value="Find" autofocus onclick="search()">
             </div>
+            <div>
+                <a href='#' onclick='browse();'>Or browse the collection</a>
+            </div>    
 
             <p id="songlist"></p>
 

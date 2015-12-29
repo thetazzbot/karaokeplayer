@@ -130,6 +130,8 @@ void ActionHandler_WebServer_Handler::handle( QHttpSocket *socket )
         res = addsong( socket, document );
     else if ( socket->path() == "/api/listqueue" )
         res = listqueue( socket, document );
+    else if ( socket->path() == "/api/browse" )
+        res = listDatabase( socket, document );
 
     if ( !res )
     {
@@ -235,6 +237,80 @@ bool ActionHandler_WebServer_Handler::listqueue(QHttpSocket *socket, QJsonDocume
     return true;
 }
 
+bool ActionHandler_WebServer_Handler::listDatabase(QHttpSocket *socket, QJsonDocument &document)
+{
+    QJsonObject obj = document.object();
+    QJsonArray out;
+    QString type;
+
+    if ( obj.contains( "a" ) )
+    {
+        QString artist = obj["a"].toString();
+
+        // List songs by artist or by letter
+        if ( artist.length() == 1 )
+        {
+            QStringList artists;
+
+            pSongDatabase->browseArtists( artist[0], artists );
+
+            Q_FOREACH( const QString& a, artists )
+            {
+                out.append( a );
+            }
+
+            type = "artists";
+        }
+        else
+        {
+            QList<SongDatabaseInfo> results;
+
+            pSongDatabase->browseSongs( artist, results );
+
+            Q_FOREACH( const SongDatabaseInfo& res, results )
+            {
+                QJsonObject rec;
+
+                rec[ "i" ] = res.id;
+                rec[ "a" ] = res.artist;
+                rec[ "t"] = res.title;
+                rec[ "y"] = res.type;
+                rec[ "r"] = res.rating;
+
+                out.append( rec );
+            }
+        }
+    }
+    else
+    {
+        // List letters
+        QList<QChar> initials;
+
+        pSongDatabase->browseInitials( initials );
+
+        Q_FOREACH( QChar ch, initials )
+        {
+            out.append( QString(ch) );
+        }
+
+        type = "initials";
+    }
+
+    if ( !type.isEmpty() )
+    {
+        QJsonObject outobj;
+
+        outobj["results"] = out;
+        outobj["type"] = type;
+
+        sendData( socket, QJsonDocument( outobj ).toJson() );
+    }
+    else
+        sendData( socket, QJsonDocument( out ).toJson() );
+
+    socket->close();
+    return true;
+}
 
 void ActionHandler_WebServer_Handler::sendData(QHttpSocket *socket, const QByteArray &data, const QByteArray& type )
 {

@@ -68,6 +68,11 @@ class SongDatabase : public QObject
         // Updates the song playing stats and delay
         void    updatePlayedSong( int id, int newdelay, int newrating );
 
+        // For browsing the database
+        bool    browseInitials( QList<QChar> &artistInitials );
+        bool    browseArtists( const QChar& artistInitial, QStringList& artists );
+        bool    browseSongs( const QString& artist, QList<SongDatabaseInfo>& results );
+
     private:
         bool    pathToArtistTitle( const QString& path, QString& artist, QString& title );
         bool    execute( const QString& sql, const QStringList& args = QStringList() );
