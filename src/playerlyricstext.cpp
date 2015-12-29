@@ -167,7 +167,7 @@ void PlayerLyricsText::drawNotification(KaraokePainter &p, qint64 timeleft)
 {
     p.setPen( Qt::black );
     p.setBrush( Qt::white );
-    p.drawRect( p.textRect().x(), p.textRect().y(), timeleft * p.textRect().width() / MAX_NOTIFICATION_DURATION, 10 );
+    p.drawRect( p.textRect().x(), p.textRect().y(), timeleft * p.textRect().width() / MAX_NOTIFICATION_DURATION, qMax( p.textRect().height() / 50, 10 ) );
 }
 
 
