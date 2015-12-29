@@ -63,7 +63,7 @@ void KaraokePainter::setClipAreaMain()
     translate( 0, h );
 }
 
-int KaraokePainter::largestFontSize(const QFont &font, int width, const QString &textline)
+int KaraokePainter::largestFontSize(const QFont &font, int maxfontsize, int width, const QString &textline)
 {
     int maxsize = 256;
     int minsize = 8;
@@ -113,7 +113,7 @@ int KaraokePainter::tallestFontSize( QFont &font, int height )
 
 int KaraokePainter::largestFontSize( const QString &textline )
 {
-    return largestFontSize( font(), textRect().width(), textline );
+    return largestFontSize( font(), pSettings->playerLyricsFontMaxSize, textRect().width(), textline );
 }
 
 void KaraokePainter::drawOutlineText(int x, int y, const QColor &color, const QString &text)

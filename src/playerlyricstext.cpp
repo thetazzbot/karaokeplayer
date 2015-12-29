@@ -130,6 +130,7 @@ qint64 PlayerLyricsText::nextUpdate() const
 void PlayerLyricsText::calculateFontSize()
 {
     int fontsize = KaraokePainter::largestFontSize( pSettings->playerLyricsFont,
+                                                    pSettings->playerLyricsFontMaxSize,
                                                     m_usedImageSize.width(),
                                                     m_lines[m_longestLine].fullLine() );
 

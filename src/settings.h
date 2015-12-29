@@ -41,6 +41,7 @@ class Settings
         QColor      playerLyricsTextBeforeColor;
         QColor      playerLyricsTextAfterColor;
         QFont       playerLyricsFont;
+        int         playerLyricsFontMaxSize;
         bool        playerLyricsTextEachCharacter;
         bool        convertMidiFiles;
         bool        playerCDGbackgroundTransparent;

@@ -145,6 +145,7 @@ void Settings::load()
     playerCDGbackgroundTransparent = settings.value( "player/CDGbackgroundTransparent", false ).toBool();
     playerMusicLyricDelay = settings.value( "player/MusicLyricDelay", 0 ).toInt();
     playerIgnoreBackgroundFromFormats = settings.value( "player/IgnoreBackgroundFromFormats", false ).toBool();
+    playerLyricsFontMaxSize = settings.value( "player/LyricsFontMaxSize", 156 ).toInt();
 
     convertMidiFiles = settings.value( "player/convertMidiFiles", false ).toBool();
 
@@ -179,6 +180,7 @@ void Settings::save()
     settings.setValue( "player/LyricsTextBeforeColor", playerLyricsTextBeforeColor.name() );
     settings.setValue( "player/LyricsTextAfterColor", playerLyricsTextAfterColor.name() );
     settings.setValue( "player/LyricsTextEachCharacter", playerLyricsTextEachCharacter );
+    settings.setValue( "player/LyricsFontMaxSize", playerLyricsFontMaxSize );
 
     settings.setValue( "player/convertMidiFiles", convertMidiFiles );
     settings.setValue( "player/CDGbackgroundTransparent", playerCDGbackgroundTransparent );

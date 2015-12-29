@@ -104,6 +104,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect( pActionHandler, SIGNAL(queueClear()), pSongQueue, SLOT(clear()) );
     connect( pActionHandler, SIGNAL(actionQuit()), qApp, SLOT(quit()) );
 
+    // MIDI converter signal
     connect( pConverterMIDI, SIGNAL(finished(QString,bool)), pSongQueue, SLOT(processingFinished(QString,bool)) );
 
     // Connect menu actions

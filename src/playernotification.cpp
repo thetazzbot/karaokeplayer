@@ -86,7 +86,7 @@ qint64 PlayerNotification::drawRegular(KaraokePainter &p)
         if ( !m_customBackground.isNull() )
             p.drawImage( p.rect(), m_customBackground, m_customBackground.rect() );
 
-        m_customFont.setPointSize( p.largestFontSize( m_customFont, p.textRect().width(), m_customMessage ));
+        m_customFont.setPointSize( p.largestFontSize( m_customFont, 512, p.textRect().width(), m_customMessage ));
 
         p.setFont( m_customFont );
         p.drawCenteredOutlineText( 50, Qt::white, m_customMessage );

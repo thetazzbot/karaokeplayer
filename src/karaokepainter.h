@@ -46,7 +46,7 @@ class KaraokePainter : public QPainter
         int     largestFontSize( const QString& textline );
 
         // Same but also using the specific font and specific width
-        static int     largestFontSize( const QFont& font, int width, const QString& textline );
+        static int     largestFontSize(const QFont& font, int maxfontsize, int width, const QString& textline );
 
         // Returns the tallest font size which could fit into the specified height
         static int     tallestFontSize( QFont &font, int height );
