@@ -45,7 +45,8 @@ SOURCES += main.cpp\
     karaokeplayable.cpp \
     karaokeplayable_file.cpp \
     karaokeplayable_zip.cpp \
-    karaokeplayable_kfn.cpp
+    karaokeplayable_kfn.cpp \
+    util.cpp
 
 HEADERS  += mainwindow.h \
     playerbackground.h \
@@ -90,6 +91,6 @@ FORMS    += mainwindow.ui \
     dialog_about.ui
 RESOURCES += resources.qrc
 INCLUDEPATH += .. ../libqhttpengine/QHttpEngine ../libqhttpengine
-LIBS += -L ../libkaraokelyrics/ -lkaraokelyrics -L../libqhttpengine/ -lqhttpengine -lsqlite3 -lzip
-POST_TARGETDEPS += ../libkaraokelyrics/libkaraokelyrics.a ../libqhttpengine/libqhttpengine.a
+LIBS += -L ../libkaraokelyrics/ -lkaraokelyrics -L../libqhttpengine/ -lqhttpengine -L../libuchardet/ -luchardet -lsqlite3 -lzip
+POST_TARGETDEPS += ../libkaraokelyrics/libkaraokelyrics.a ../libqhttpengine/libqhttpengine.a ../libuchardet/libuchardet.a
 DEFINES += SQLITE_OMIT_LOAD_EXTENSION

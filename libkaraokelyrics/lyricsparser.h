@@ -42,7 +42,7 @@ class LyricsParser
             TYPE_KOK
         };
 
-        LyricsParser();
+        LyricsParser( ConvertEncoding * converter );
         virtual ~LyricsParser();
 
         // Parses the lyrics, filling up the output container. Throws an error
@@ -58,6 +58,8 @@ class LyricsParser
 
         // Returns the lyric type by the file extension
         static Type getTypeByExtension( const QString& extension );
+
+        ConvertEncoding  *  m_converter;
 };
 
 #endif // LYRICSPARSER_H

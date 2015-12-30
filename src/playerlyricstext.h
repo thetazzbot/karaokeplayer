@@ -26,6 +26,7 @@
 
 #include "playerlyrics.h"
 #include "playerlyrictext_line.h"
+#include "libkaraokelyrics/lyricsloader.h"
 
 class KaraokePainter;
 
@@ -47,11 +48,11 @@ class PlayerLyricsText : public PlayerLyrics
             MAX_NOTIFICATION_DURATION = 5000,
         };
 
-        PlayerLyricsText( const QString& artist, const QString& title );
+        PlayerLyricsText( const QString& artist, const QString& title, ConvertEncoding * encoding );
 
         // Load the lyrics from the QIODevice (which could be an original file or an archive entry)
         // Returns true if load succeed, otherwise must return false and set m_errorMsg to the reason
-        bool    load(QIODevice * file, const QString &filename);
+        bool    load(QIODevice * file, const QString &filename );
 
         // Must return next time when the lyrics would be updated. If returns -1, no more updates
         qint64  nextUpdate() const;
@@ -92,6 +93,8 @@ class PlayerLyricsText : public PlayerLyrics
         QString                     m_title;
         qint64                      m_showTitleTime;
 
+        // Text encoding converter
+        ConvertEncoding     *       m_converter;
 };
 
 #endif // PLAYERLYRICSTEXT_H

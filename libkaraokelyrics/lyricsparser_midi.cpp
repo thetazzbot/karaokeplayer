@@ -128,8 +128,8 @@ class MidiTimestamp
 //
 // Got a lot of good ideas from pykaraoke by Kelvin Lawson (kelvinl@users.sf.net). Thanks!
 //
-LyricsParser_MIDI::LyricsParser_MIDI()
-    : LyricsParser()
+LyricsParser_MIDI::LyricsParser_MIDI(ConvertEncoding *converter)
+    : LyricsParser(converter)
 {
     m_currentOffset = 0;
 }

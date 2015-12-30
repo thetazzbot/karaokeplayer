@@ -40,7 +40,7 @@ LyricsLoader::LyricsLoader(Properties &properties, Container &container)
 {
 }
 
-bool LyricsLoader::parse(const QString &lyricsfile, QIODevice * file)
+bool LyricsLoader::parse(const QString &lyricsfile, QIODevice * file, ConvertEncoding * converter )
 {
     try
     {
@@ -50,17 +50,17 @@ bool LyricsLoader::parse(const QString &lyricsfile, QIODevice * file)
         || lyricsfile.endsWith( ".midi", Qt::CaseInsensitive)
         || lyricsfile.endsWith( ".kar", Qt::CaseInsensitive) )
         {
-            parser = new LyricsParser_MIDI();
+            parser = new LyricsParser_MIDI( converter );
         }
         else if ( lyricsfile.endsWith( ".lrc", Qt::CaseInsensitive) )
-            parser = new LyricsParser_LRC();
+            parser = new LyricsParser_LRC( converter );
         else if ( lyricsfile.endsWith( ".kok", Qt::CaseInsensitive) )
-            parser = new LyricsParser_KOK();
+            parser = new LyricsParser_KOK( converter );
         else if ( !lyricsfile.compare(  "song.ini", Qt::CaseInsensitive) )
-            parser = new LyricsParser_KFN();
+            parser = new LyricsParser_KFN( converter );
         else if ( lyricsfile.endsWith( ".txt", Qt::CaseInsensitive) )
         {
-            parser = new LyricsParser_Texts();
+            parser = new LyricsParser_Texts( converter );
         }
         else
         {

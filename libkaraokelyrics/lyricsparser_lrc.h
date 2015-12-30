@@ -24,7 +24,7 @@
 class LyricsParser_LRC : public LyricsParser
 {
     public:
-        LyricsParser_LRC();
+        LyricsParser_LRC( ConvertEncoding * converter );
 
         // Parses the lyrics, filling up the output container. Throws an error
         // if there are any issues during parsing, otherwise fills up output.

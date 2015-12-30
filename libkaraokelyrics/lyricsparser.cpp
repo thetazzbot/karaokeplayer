@@ -19,8 +19,9 @@
 #include "lyricsparser.h"
 
 
-LyricsParser::LyricsParser()
+LyricsParser::LyricsParser(  ConvertEncoding * converter )
 {
+    m_converter = converter;
 }
 
 LyricsParser::~LyricsParser()
@@ -33,10 +34,18 @@ QStringList LyricsParser::loadText(QIODevice * file)
     // FIXME: assuming UTF-8
     QByteArray datalyrics = file->readAll();
 
-    if ( datalyrics.indexOf( '\r') != -1 )
-        datalyrics.replace( "\r\n", "\n" );
+    QString outdata;
 
-    return QString::fromUtf8( datalyrics ).split( '\n' );
+    if ( m_converter )
+        outdata = (*m_converter)( datalyrics );
+
+    if ( outdata.isEmpty() )
+        outdata = QString::fromUtf8( datalyrics );
+
+    if ( outdata.indexOf( '\r') != -1 )
+        outdata.replace( "\r\n", "\n" );
+
+    return outdata.split( '\n' );
 }
 
 QString LyricsParser::timeAsText(quint64 timing)

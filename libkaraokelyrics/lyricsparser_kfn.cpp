@@ -21,9 +21,9 @@
 
 #include "lyricsparser_kfn.h"
 
-LyricsParser_KFN::LyricsParser_KFN()
+LyricsParser_KFN::LyricsParser_KFN( ConvertEncoding * converter )
+    : LyricsParser( converter )
 {
-
 }
 
 void LyricsParser_KFN::parse(QIODevice * file, LyricsLoader::Container &output, LyricsLoader::Properties &properties)

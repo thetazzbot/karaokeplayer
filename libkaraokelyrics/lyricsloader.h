@@ -46,6 +46,10 @@ class Lyric
 };
 
 
+// This functor, if defined, is used for encoding conversion
+typedef QString (ConvertEncoding)( const QByteArray& data );
+
+
 // Public API for karaoke lyrics loader
 class LyricsLoader
 {
@@ -71,7 +75,7 @@ class LyricsLoader
         // on success, false if there is an rror, see errorMsg() contains reason.
         //
         // It gets the lyrics file name and QIODevice because the file may be extracted (from ZIP or KFN)
-        bool parse( const QString& lyricsfile, QIODevice * file );
+        bool parse(const QString& lyricsfile, QIODevice * file, ConvertEncoding * converter = 0 );
 
         static bool    isSupportedFile( const QString& filename );
 
@@ -89,7 +93,7 @@ class LyricsLoader
         Container&   m_lyricsOutput;
         Properties&  m_props;
 
-        QString     m_errorMsg;        
+        QString     m_errorMsg;
 };
 
 #endif // LYRICSLOADER_H

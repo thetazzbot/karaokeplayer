@@ -23,7 +23,8 @@
 #include "lyricsparser_lrc.h"
 
 
-LyricsParser_LRC::LyricsParser_LRC()
+LyricsParser_LRC::LyricsParser_LRC( ConvertEncoding * converter )
+    : LyricsParser( converter )
 {
     offset = 0;
 }

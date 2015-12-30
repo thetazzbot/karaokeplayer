@@ -23,6 +23,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QString>
+#include <QTextCodec>
 #include <QCryptographicHash>
 
 #include "settings.h"
@@ -69,6 +70,9 @@ class Util
 
             return pSettings->cacheDir + QDir::separator() + hash + ".wav";
         }
+
+        static QTextCodec * detectEncoding( const QByteArray& data );
+        static QString convertEncoding( const QByteArray& data );
 
     private:
         Util();

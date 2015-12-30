@@ -16,25 +16,47 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  **************************************************************************/
 
-#ifndef LYRICSPARSER_ULTRASTAR_H
-#define LYRICSPARSER_ULTRASTAR_H
+#include "util.h"
+#include "logger.h"
 
-#include <QStringList>
-#include "lyricsparser.h"
+#include <QByteArray>
 
-// This class parses both Ultrastar and PowerKaraoke lyrics
-class LyricsParser_Texts : public LyricsParser
+#include "libuchardet/uchardet.h"
+
+
+QTextCodec * Util::detectEncoding( const QByteArray &data )
 {
-    public:
-        LyricsParser_Texts( ConvertEncoding * converter );
+    QTextCodec * codec = 0;
 
-        // Parses the lyrics, filling up the output container. Throws an error
-        // if there are any issues during parsing, otherwise fills up output.
-        void parse( QIODevice * file, LyricsLoader::Container& output, LyricsLoader::Properties& properties );
+    uchardet_t ucd = uchardet_new();
 
-    private:
-        void parseUStar( const QStringList& text, LyricsLoader::Container& output, LyricsLoader::Properties& properties );
-        void parsePowerKaraoke( const QStringList& text, LyricsLoader::Container& output, LyricsLoader::Properties& properties );
-};
+    if ( uchardet_handle_data( ucd, data.constData(), data.size() ) == 0 )
+    {
+        // Notify an end of data to an encoding detctor.
+        uchardet_data_end( ucd );
 
-#endif // LYRICSPARSER_ULTRASTAR_H
+        const char * encoding = uchardet_get_charset( ucd );
+
+        if ( encoding[0] != '\0' )
+        {
+            codec = QTextCodec::codecForName( encoding );
+        }
+    }
+
+    uchardet_delete( ucd );
+    return codec;
+}
+
+QString Util::convertEncoding(const QByteArray &data)
+{
+    QTextCodec * codec = detectEncoding( data );
+
+    if ( !codec )
+    {
+        qDebug("Util: failed to detect the data encoding");
+        return "";
+    }
+
+    qDebug("Util: automatically detected encoding %s", codec->name().constData() );
+    return codec->toUnicode( data );
+}

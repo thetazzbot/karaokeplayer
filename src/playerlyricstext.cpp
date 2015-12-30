@@ -26,9 +26,10 @@
 #include "libkaraokelyrics/lyricsloader.h"
 
 
-PlayerLyricsText::PlayerLyricsText( const QString& artist, const QString& title )
+PlayerLyricsText::PlayerLyricsText(const QString& artist, const QString& title , ConvertEncoding *encoding)
     : PlayerLyrics()
 {
+    m_converter = encoding;
     m_nextUpdateTime = 0;
     m_currentLine = 0;
     m_longestLine = 0;
@@ -44,7 +45,7 @@ bool PlayerLyricsText::load(QIODevice * file, const QString& filename )
 
     LyricsLoader loader( m_properties, lyrics );
 
-    if ( !loader.parse( filename, file ) )
+    if ( !loader.parse( filename, file, m_converter ) )
     {
         m_errorMsg = loader.errorMsg();
         return false;

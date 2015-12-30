@@ -18,7 +18,8 @@
 
 #include "lyricsparser_texts.h"
 
-LyricsParser_Texts::LyricsParser_Texts()
+LyricsParser_Texts::LyricsParser_Texts( ConvertEncoding *converter )
+    : LyricsParser( converter )
 {
 }
 

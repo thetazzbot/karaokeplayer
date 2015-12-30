@@ -41,8 +41,6 @@ class PlayerLyrics
         PlayerLyrics();
         virtual ~PlayerLyrics();
 
-        // Finds the lyrics for a music file among the files. This function receives a list of files in a current
-
         // Load the lyrics from the QIODevice (which could be an original file or an archive entry)
         // Returns true if load succeed, otherwise must return false and set m_errorMsg to the reason
         virtual bool    load( QIODevice * file, const QString &filename = "" ) = 0;

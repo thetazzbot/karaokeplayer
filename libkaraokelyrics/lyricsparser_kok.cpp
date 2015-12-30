@@ -18,7 +18,8 @@
 
 #include "lyricsparser_kok.h"
 
-LyricsParser_KOK::LyricsParser_KOK()
+LyricsParser_KOK::LyricsParser_KOK( ConvertEncoding * converter )
+    : LyricsParser( converter )
 {
 }
 

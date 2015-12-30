@@ -24,7 +24,7 @@
 class LyricsParser_MIDI : public LyricsParser
 {
     public:
-        LyricsParser_MIDI();
+        LyricsParser_MIDI( ConvertEncoding * converter );
 
         // Parses the lyrics, filling up the output container. Throws an error
         // if there are any issues during parsing, otherwise fills up output.

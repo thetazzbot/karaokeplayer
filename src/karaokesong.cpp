@@ -172,7 +172,7 @@ bool KaraokeSong::open()
         if ( lyricFile.endsWith( ".cdg", Qt::CaseInsensitive ) )
             m_lyrics = new PlayerLyricsCDG();
         else
-            m_lyrics = new PlayerLyricsText( info.artist, info.title );
+            m_lyrics = new PlayerLyricsText( info.artist, info.title, &Util::convertEncoding );
 
         if ( !m_lyrics->load( lyricDevice.data(), lyricFile ) )
             throw( QObject::tr("Can't load lyrics file %1: %2") .arg( lyricFile ) .arg( m_lyrics->errorMsg() ) );

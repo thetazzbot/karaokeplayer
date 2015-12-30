@@ -25,7 +25,7 @@
 class LyricsParser_KFN : public LyricsParser
 {
     public:
-        LyricsParser_KFN();
+        LyricsParser_KFN( ConvertEncoding * converter );
 
         // Parses the lyrics, filling up the output container. Throws an error
         // if there are any issues during parsing, otherwise fills up output.

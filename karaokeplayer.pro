@@ -1,2 +1,2 @@
-SUBDIRS += libkaraokelyrics libqhttpengine src
+SUBDIRS += libkaraokelyrics libqhttpengine libuchardet src
 TEMPLATE = subdirs
