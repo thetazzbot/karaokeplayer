@@ -220,6 +220,7 @@ void MainWindow::menuOpenKaraoke()
     if ( file.isEmpty() )
         return;
 
+    pSongQueue->clear();
     queueAdd( "Console", file );
 }
 

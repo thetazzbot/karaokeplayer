@@ -27,7 +27,7 @@
 class KaraokePlayable_File : public KaraokePlayable
 {
     public:
-        KaraokePlayable_File();
+        KaraokePlayable_File( const QString &baseFile );
 
         bool        init();
 

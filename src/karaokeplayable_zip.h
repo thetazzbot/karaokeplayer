@@ -30,7 +30,7 @@ struct zip;
 class KaraokePlayable_ZIP : public KaraokePlayable
 {
     public:
-        KaraokePlayable_ZIP();
+        KaraokePlayable_ZIP(const QString &baseFile);
 
         // Initializes the object
         bool        init();

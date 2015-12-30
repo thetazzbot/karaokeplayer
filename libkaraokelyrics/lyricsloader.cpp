@@ -56,6 +56,8 @@ bool LyricsLoader::parse(const QString &lyricsfile, QIODevice * file)
             parser = new LyricsParser_LRC();
         else if ( lyricsfile.endsWith( ".kok", Qt::CaseInsensitive) )
             parser = new LyricsParser_KOK();
+        else if ( !lyricsfile.compare(  "song.ini", Qt::CaseInsensitive) )
+            parser = new LyricsParser_KFN();
         else if ( lyricsfile.endsWith( ".txt", Qt::CaseInsensitive) )
         {
             parser = new LyricsParser_Texts();
@@ -86,7 +88,8 @@ bool LyricsLoader::parse(const QString &lyricsfile, QIODevice * file)
 
 bool LyricsLoader::isSupportedFile(const QString &file)
 {
-    static const char * extlist[] = { ".mid", ".midi", ".kar", ".txt", ".lrc", ".kok", ".kfn", 0 };
+    // song.ini is a karafun lyric file
+    static const char * extlist[] = { ".mid", ".midi", ".kar", ".txt", ".lrc", ".kok", "song.ini", 0 };
 
     for ( int i = 0; extlist[i]; i++ )
         if ( file.endsWith( extlist[i], Qt::CaseInsensitive ) )

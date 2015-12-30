@@ -22,11 +22,13 @@
 #include "karaokeplayable.h"
 #include "karaokeplayable_file.h"
 #include "karaokeplayable_zip.h"
+#include "karaokeplayable_kfn.h"
 
 #include "libkaraokelyrics/lyricsloader.h"
 
-KaraokePlayable::KaraokePlayable()
+KaraokePlayable::KaraokePlayable(const QString &baseFile)
 {
+    m_baseFile = baseFile;
 }
 
 
@@ -39,18 +41,24 @@ KaraokePlayable *KaraokePlayable::create(const QString &baseFile)
     KaraokePlayable * obj;
 
     if ( baseFile.endsWith( ".zip", Qt::CaseInsensitive ) )
-        obj = new KaraokePlayable_ZIP();
+        obj = new KaraokePlayable_ZIP( baseFile );
+    else if ( baseFile.endsWith( ".kfn", Qt::CaseInsensitive ) )
+        obj = new KaraokePlayable_KFN( baseFile );
     else
-        obj = new KaraokePlayable_File();
+        obj = new KaraokePlayable_File( baseFile );
 
-    obj->m_baseFile = baseFile;
     return obj;
 }
 
 bool KaraokePlayable::parse()
 {
+    // Init typically loads and parses the file for compound formats
     if ( !init() )
         return false;
+
+    // Sometime we already have the music and lyrics from this parsing
+    if ( !m_musicObject.isEmpty() && !m_lyricObject.isEmpty() )
+        return true;
 
     // One file could be both music and lyrics (i.e. KAR)
     if ( isSupportedMusicFile( m_baseFile ) )

@@ -21,6 +21,7 @@
 
 #include "lyricsparser.h"
 
+// For KaraFun this class parses the song.ini file
 class LyricsParser_KFN : public LyricsParser
 {
     public:

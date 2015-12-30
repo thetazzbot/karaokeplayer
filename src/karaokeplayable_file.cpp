@@ -22,8 +22,8 @@
 
 #include "karaokeplayable_file.h"
 
-KaraokePlayable_File::KaraokePlayable_File()
-    : KaraokePlayable()
+KaraokePlayable_File::KaraokePlayable_File(const QString &baseFile)
+    : KaraokePlayable( baseFile )
 {
 }
 

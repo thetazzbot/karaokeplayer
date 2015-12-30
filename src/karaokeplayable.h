@@ -69,7 +69,7 @@ class KaraokePlayable
         static bool isVideoFile( const QString& filename );
 
     protected:
-        KaraokePlayable();
+        KaraokePlayable( const QString& baseFile );
 
         // Must be reimplemented in subclass.
         // Initializes the object

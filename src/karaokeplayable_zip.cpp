@@ -22,8 +22,8 @@
 #include "karaokeplayable_zip.h"
 #include "zip.h"
 
-KaraokePlayable_ZIP::KaraokePlayable_ZIP()
-    : KaraokePlayable()
+KaraokePlayable_ZIP::KaraokePlayable_ZIP(const QString &baseFile)
+    : KaraokePlayable(baseFile)
 {
     m_zip = 0;
 }

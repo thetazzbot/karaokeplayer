@@ -44,7 +44,8 @@ SOURCES += main.cpp\
     universalplayer.cpp \
     karaokeplayable.cpp \
     karaokeplayable_file.cpp \
-    karaokeplayable_zip.cpp
+    karaokeplayable_zip.cpp \
+    karaokeplayable_kfn.cpp
 
 HEADERS  += mainwindow.h \
     playerbackground.h \
@@ -79,7 +80,8 @@ HEADERS  += mainwindow.h \
     universalplayer.h \
     karaokeplayable.h \
     karaokeplayable_file.h \
-    karaokeplayable_zip.h
+    karaokeplayable_zip.h \
+    karaokeplayable_kfn.h
 
 FORMS    += mainwindow.ui \
     songsearchdialog.ui \
