@@ -81,7 +81,8 @@ HEADERS  += mainwindow.h \
     karaokeplayable.h \
     karaokeplayable_file.h \
     karaokeplayable_zip.h \
-    karaokeplayable_kfn.h
+    karaokeplayable_kfn.h \
+    aes.h
 
 FORMS    += mainwindow.ui \
     songsearchdialog.ui \
