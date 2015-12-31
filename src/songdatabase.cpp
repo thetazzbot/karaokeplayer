@@ -221,8 +221,8 @@ bool SongDatabase::importFromText(const QString &filename, const QString& pathPr
         QStringList params;
         params << path << artist << title << type << search;
 
-        // id INTEGER PRIMARY KEY, path TEXT, artist TEXT, title TEXT type TEXT, search TEXT, played INT, lastplayed INT, lyricdelay INT, data BLOB
-        if ( !execute( QString("INSERT OR REPLACE INTO songs VALUES( %1, ?, ?, ?, ?, ?, 0, 0, 0, 0, DATETIME(), NULL )").arg( id ), params ) )
+        // id INTEGER PRIMARY KEY, path TEXT, artist TEXT, title TEXT type TEXT, search TEXT, played INT, lastplayed INT, lyricdelay INT, added INT, rating INT, language INT
+        if ( !execute( QString("INSERT OR REPLACE INTO songs VALUES( %1, ?, ?, ?, ?, ?, 0, 0, 0, 0, DATETIME(), 0, 0 )").arg( id ), params ) )
             continue;
     }
 
@@ -231,8 +231,6 @@ bool SongDatabase::importFromText(const QString &filename, const QString& pathPr
     if ( !prefix.endsWith( QDir::separator() ) )
         prefix.append( QDir::separator() );
 
-
-    execute( "UPDATE settings SET pathprefix=?", QStringList() << prefix );
     execute( "COMMIT" );
 
     return true;
