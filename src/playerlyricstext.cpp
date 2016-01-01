@@ -37,6 +37,7 @@ PlayerLyricsText::PlayerLyricsText(const QString& artist, const QString& title ,
     m_title = title;
 
     m_renderFont = pSettings->playerLyricsFont;
+    m_renderFont.setWeight( QFont::Bold );
 }
 
 bool PlayerLyricsText::load(QIODevice * file, const QString& filename )
