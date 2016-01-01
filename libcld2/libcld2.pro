@@ -25,3 +25,35 @@ SOURCES += internal/cldutil.cc \
   internal/cld2_generated_deltaoctachrome.cc \
   internal/cld2_generated_distinctoctachrome.cc  \
   internal/cld_generated_score_quad_octa_2.cc
+
+HEADERS += \
+    internal/cld2_dynamic_compat.h \
+    internal/cld2_dynamic_data.h \
+    internal/cld2_dynamic_data_extractor.h \
+    internal/cld2_dynamic_data_loader.h \
+    internal/cld2tablesummary.h \
+    internal/cldutil.h \
+    internal/cldutil_offline.h \
+    internal/cldutil_shared.h \
+    internal/compact_lang_det_impl.h \
+    internal/compact_lang_det_hint_code.h \
+    internal/debug.h \
+    internal/fixunicodevalue.h \
+    internal/generated_language.h \
+    internal/generated_ulscript.h \
+    internal/getonescriptspan.h \
+    internal/integral_types.h \
+    internal/lang_script.h \
+    internal/langspan.h \
+    internal/offsetmap.h \
+    internal/port.h \
+    internal/stringpiece.h \
+    internal/tote.h \
+    internal/unittest_data.h \
+    internal/utf8acceptinterchange.h \
+    internal/utf8repl_lettermarklower.h \
+    internal/utf8prop_lettermarkscriptnum.h \
+    internal/utf8scannot_lettermarkspecial.h \
+    internal/utf8statetable.h \
+    public/compact_lang_det.h \
+    public/encodings.h
