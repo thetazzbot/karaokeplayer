@@ -23,12 +23,16 @@ LyricsParser_KOK::LyricsParser_KOK( ConvertEncoding * converter )
 {
 }
 
-void LyricsParser_KOK::parse(QIODevice *file, LyricsLoader::Container &output, LyricsLoader::Properties &)
+void LyricsParser_KOK::parse(QIODevice *file, LyricsLoader::Container &output, LyricsLoader::Properties &properties)
 {
-    QStringList lyrics = loadText( file );
+    QByteArray data = load( file );
+
+    // This format has no special markers, so we can feed it as-is - just r
+    QByteArray encdetectdata = data;
+    QTextCodec * codec = detectEncoding( encdetectdata.replace( ';', ' ' ), properties );
 
     // J'ai ;7,9050634;tra;8,0651993;vail;8,2144914;lé;8,3789922;
-    Q_FOREACH ( QString line, lyrics )
+    Q_FOREACH ( QString line, codec->toUnicode( data ).split( '\n' ) )
     {
         if ( line.isEmpty() )
             continue;

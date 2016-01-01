@@ -20,6 +20,7 @@
 #include <QPainter>
 #include <QFontMetrics>
 
+#include "logger.h"
 #include "playerlyricstext.h"
 #include "settings.h"
 #include "karaokepainter.h"
@@ -51,6 +52,11 @@ bool PlayerLyricsText::load(QIODevice * file, const QString& filename )
         m_errorMsg = loader.errorMsg();
         return false;
     }
+
+    if ( m_properties.contains( LyricsLoader::PROP_DETECTED_ENCODING ) )
+        Logger::debug( "Autodetected lyrics text encoding: %s", qPrintable( m_properties[ LyricsLoader::PROP_DETECTED_ENCODING ] ) );
+    else
+        Logger::debug( "Automatic lyrics text encoding detection failed; falling back to UTF-8" );
 
     // Convert them into sentences, and find the longest lyrics line when rendered by a lyric font
     QFontMetrics fm( m_renderFont );

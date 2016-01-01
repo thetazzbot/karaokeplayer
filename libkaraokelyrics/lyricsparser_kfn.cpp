@@ -16,8 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  **************************************************************************/
 
-#include <QStringList>
-#include <QRegExp>
+#include <stdio.h>
 
 #include "lyricsparser_kfn.h"
 
@@ -26,45 +25,52 @@ LyricsParser_KFN::LyricsParser_KFN( ConvertEncoding * converter )
 {
 }
 
-void LyricsParser_KFN::parse(QIODevice * file, LyricsLoader::Container &output, LyricsLoader::Properties &properties)
+void LyricsParser_KFN::parse(QIODevice * file, LyricsLoader::Container& output, LyricsLoader::Properties &properties)
 {
-    QString songini = loadText( file ).join( '\n' );
-    songini.replace( QRegExp("[\r\n]+"), "\n" );
-    QStringList lines = songini.split( "\n" );
-
     // Parse the song.ini and fill up the sync and text arrays
-    QStringList texts;
+    QByteArrayList texts;
     QList< int > syncs;
 
-    QRegExp patternSync( "^Sync[0-9]+=(.+)" );
-    QRegExp patternText( "^Text[0-9]+=(.*)" );
-
     // Analyze each line
+    int idx_text = 0, idx_sync = 0;
+
+    QByteArrayList lines = load( file ).split( '\n' );
+
     for ( int i = 0; i < lines.size(); i++ )
     {
-        QString line = lines[i];
+        QByteArray line = lines[i];
 
         // Try to match the sync first
-        if ( line.indexOf( patternSync ) != -1 )
+        char matchbuf[128];
+        sprintf( matchbuf, "Sync%d=", idx_sync );
+
+        if ( line.startsWith( matchbuf ) )
         {
+            idx_sync++;
+
             // Syncs are split by comma
-            QStringList values = patternSync.cap( 1 ).split(",");
+            QByteArrayList values = line.mid( strlen(matchbuf) ).split( ',' );
 
             for ( int v = 0; v < values.size(); v++ )
                 syncs.push_back( values[v].toInt() );
         }
 
         // Now the text
-        if ( line.indexOf( patternText ) != -1 )
+        sprintf( matchbuf, "Text%d=", idx_text );
+
+        if ( line.startsWith( matchbuf ) )
         {
-            if ( !patternText.cap( 1 ).isEmpty() )
+            idx_text++;
+            QByteArray textvalue = line.mid( strlen(matchbuf) );
+
+            if ( !textvalue.isEmpty() )
             {
                 // Text is split by word and optionally by the slash
-                QStringList values = patternText.cap( 1 ).split(" ");
+                QByteArrayList values = textvalue.split(' ');
 
                 for ( int v = 0; v < values.size(); v++ )
                 {
-                    QStringList morevalues = values[v].split( "/" );
+                    QByteArrayList morevalues = values[v].split( '/' );
 
                     for ( int vv = 0; vv < morevalues.size(); vv++ )
                         texts.push_back( morevalues[vv] );
@@ -87,7 +93,7 @@ void LyricsParser_KFN::parse(QIODevice * file, LyricsLoader::Container &output, 
 
     // The original timing marks are not necessarily sorted, so we add them into a map
     // and then output them from that map
-    QMap< int, QString > sortedLyrics;
+    QMap< int, QByteArray > sortedLyrics;
 
     for ( int i = 0; i < texts.size(); i++ )
     {
@@ -119,10 +125,19 @@ void LyricsParser_KFN::parse(QIODevice * file, LyricsLoader::Container &output, 
         sortedLyrics.insert( lastsync, texts[i] );
     }
 
-    for ( QMap< int, QString >::const_iterator it = sortedLyrics.begin(); it != sortedLyrics.end(); ++it )
+    // Generate the content for encoding detection
+    QByteArray lyricsForEncoding;
+
+    for ( QMap< int, QByteArray >::const_iterator it = sortedLyrics.begin(); it != sortedLyrics.end(); ++it )
+        lyricsForEncoding.append( it.value() );
+
+    // Detect the encoding
+    QTextCodec * codec = detectEncoding( lyricsForEncoding, properties );
+
+    for ( QMap< int, QByteArray >::const_iterator it = sortedLyrics.begin(); it != sortedLyrics.end(); ++it )
     {
         qint64 timing = it.key() * 10;
-        Lyric lyr( timing, it.value() );
+        Lyric lyr( timing, codec->toUnicode( it.value() ) );
 
         // Last line?
         if ( lyr.text.endsWith( '\n') )

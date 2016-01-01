@@ -220,7 +220,9 @@ void MainWindow::menuOpenKaraoke()
     if ( file.isEmpty() )
         return;
 
-    pSongQueue->clear();
+    if ( pCurrentState->playerState == CurrentState::PLAYERSTATE_STOPPED )
+        pSongQueue->clear();
+
     queueAdd( "Console", file );
 }
 

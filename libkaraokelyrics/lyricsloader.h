@@ -46,8 +46,9 @@ class Lyric
 };
 
 
-// This functor, if defined, is used for encoding conversion
-typedef QString (ConvertEncoding)( const QByteArray& data );
+
+// This functor, if defined, is used for detecting encoding
+typedef QTextCodec * (ConvertEncoding)( const QByteArray& data );
 
 
 // Public API for karaoke lyrics loader
@@ -63,6 +64,7 @@ class LyricsLoader
             PROP_BACKGROUND,
             PROP_VIDEO,
             PROP_VIDEO_STARTOFFSET,
+            PROP_DETECTED_ENCODING,
         };
 
         // Lyrics parameters
@@ -85,15 +87,10 @@ class LyricsLoader
         QString errorMsg() const { return m_errorMsg; }
 
     protected:
-        // Fix the lyrics array:
-        // - Calculate duration for each syllable if this information is not available
-        void calculateDurations();        
-
-    protected:
         Container&   m_lyricsOutput;
         Properties&  m_props;
 
-        QString     m_errorMsg;
+        QString     m_errorMsg;      
 };
 
 #endif // LYRICSLOADER_H

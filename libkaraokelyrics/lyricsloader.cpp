@@ -68,10 +68,25 @@ bool LyricsLoader::parse(const QString &lyricsfile, QIODevice * file, ConvertEnc
             return false;
         }
 
+        // Parse the lyrics
         parser->parse( file, m_lyricsOutput, m_props );
         delete parser;
 
-        calculateDurations();
+        // Pass through the lyrics first, adjust timing and collect the data for encoding detection
+        for ( int i = 0; i < m_lyricsOutput.size(); i++ )
+        {
+            // Keep the duration if already present
+            if ( m_lyricsOutput[i].duration != -1 )
+                continue;
+
+            // Do we have next lyrics
+            // If not, calculate it as min( time to next, 500ms)
+            if ( i < m_lyricsOutput.size() - 1 )
+                m_lyricsOutput[i].duration = qMin( m_lyricsOutput[i+1].start - m_lyricsOutput[i].start, (qint64) 500 );
+            else
+                m_lyricsOutput[i].duration = 500;
+        }
+
         return true;
     }
     catch ( const char * err )
@@ -96,23 +111,6 @@ bool LyricsLoader::isSupportedFile(const QString &file)
             return true;
 
     return false;
-}
-
-void LyricsLoader::calculateDurations()
-{
-    for ( int i = 0; i < m_lyricsOutput.size(); i++ )
-    {
-        // Keep the duration if already present
-        if ( m_lyricsOutput[i].duration != -1 )
-            continue;
-
-        // Do we have next lyrics
-        // If not, calculate it as min( time to next, 500ms)
-        if ( i < m_lyricsOutput.size() - 1 )
-            m_lyricsOutput[i].duration = qMin( m_lyricsOutput[i+1].start - m_lyricsOutput[i].start, (qint64) 500 );
-        else
-            m_lyricsOutput[i].duration = 500;
-    }
 }
 
 void LyricsLoader::dump(const Container &output)

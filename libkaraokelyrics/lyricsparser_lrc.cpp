@@ -31,20 +31,48 @@ LyricsParser_LRC::LyricsParser_LRC( ConvertEncoding * converter )
 
 void LyricsParser_LRC::parse( QIODevice * file, LyricsLoader::Container& output, LyricsLoader::Properties& properties )
 {
+    // Read it all
+    QByteArray content = file->readAll();
+
+    if ( content.indexOf( '\r') != -1 )
+        content.replace( "\r\n", "\n" );
+
+    if ( content.isEmpty() )
+        throw("Lyrics file is empty");
+
+    // To simplify the matching and handle LRCv1/v2
+    content.replace( '<', '[' );
+    content.replace( '>', ']' );
+
+    // Generate the content for encoding detection
+    QByteArray lyricsForEncoding;
+    int newoffset, offset = 0;
+
+    while ( (newoffset = content.indexOf( '[', offset )) != -1 )
+    {
+        // Add data prior to [
+        if ( newoffset > offset )
+            lyricsForEncoding.append( content.mid( offset, newoffset - offset ) );
+
+        // Skip to next ]
+        if ( (offset = content.indexOf( ']', newoffset + 1 )) == -1 )
+            break;
+
+        offset++;
+    }
+
+    // Detect the encoding
+    QTextCodec * codec = detectEncoding( lyricsForEncoding, properties );
+    QStringList lyrics = codec->toUnicode( content ).split( '\n' );
+
     bool header = true;
     qint64 last_time = -1;
-
-    QStringList lyrics = loadText( file );
 
     // We use a map to support LRC1 multitime lyrics
     QMap< qint64, QString > templyrics;
 
     Q_FOREACH ( QString line, lyrics )
     {
-        // To simplify the matching
-        line.replace( '<', '[' );
-        line.replace( '>', ']' );
-
         if ( header )
         {
             QRegExp regex( "^\\[([a-zA-Z]+):\\s*(.*)\\s*\\]$" );

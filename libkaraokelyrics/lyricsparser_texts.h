@@ -33,8 +33,8 @@ class LyricsParser_Texts : public LyricsParser
         void parse( QIODevice * file, LyricsLoader::Container& output, LyricsLoader::Properties& properties );
 
     private:
-        void parseUStar( const QStringList& text, LyricsLoader::Container& output, LyricsLoader::Properties& properties );
-        void parsePowerKaraoke( const QStringList& text, LyricsLoader::Container& output, LyricsLoader::Properties& properties );
+        void parseUStar( const QByteArray& text, LyricsLoader::Container& output, LyricsLoader::Properties& properties );
+        void parsePowerKaraoke( const QByteArray& text, LyricsLoader::Container& output, LyricsLoader::Properties& properties );
 };
 
 #endif // LYRICSPARSER_ULTRASTAR_H

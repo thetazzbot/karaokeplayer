@@ -134,7 +134,7 @@ LyricsParser_MIDI::LyricsParser_MIDI(ConvertEncoding *converter)
     m_currentOffset = 0;
 }
 
-void LyricsParser_MIDI::parse(QIODevice * file, LyricsLoader::Container &output, LyricsLoader::Properties &)
+void LyricsParser_MIDI::parse(QIODevice * file, LyricsLoader::Container &output, LyricsLoader::Properties &properties)
 {
     m_mididata = file->readAll();
 
@@ -429,9 +429,18 @@ void LyricsParser_MIDI::parse(QIODevice * file, LyricsLoader::Container &output,
     // Now go through all lyrics on this track, convert them into time.
     mts.reset();
 
-    QTextCodec * tc = QTextCodec::codecForName("windows-1251");
+    // Generate the content for encoding detection
+    QByteArray lyricsForEncoding;
 
-    // FIXME! Decoding, ENCA.
+    for ( unsigned int i = 0; i < lyrics.size(); i++ )
+    {
+        if ( (int) lyrics[i].track == preferred_lyrics_track )
+            lyricsForEncoding.append( lyrics[i].text );
+    }
+
+    // Detect the encoding
+    QTextCodec * codec = detectEncoding( lyricsForEncoding, properties );
+
     for ( unsigned int i = 0; i < lyrics.size(); i++ )
     {
         if ( (int) lyrics[i].track != preferred_lyrics_track )
@@ -444,7 +453,7 @@ void LyricsParser_MIDI::parse(QIODevice * file, LyricsLoader::Container &output,
             continue;
 
         unsigned int mstime = (unsigned int)ceil( (lyrics_timing - firstNoteTime));
-        output.push_back( Lyric( mstime, tc->toUnicode( lyrics[i].text ) ) );
+        output.push_back( Lyric( mstime, codec->toUnicode( lyrics[i].text ) ) );
     }
 }
 

@@ -20,6 +20,8 @@
 #define LYRICSPARSER_H
 
 #include <QIODevice>
+#include <QTextCodec>
+#include <QByteArray>
 #include <QStringList>
 
 #include "lyricsloader.h"
@@ -45,20 +47,25 @@ class LyricsParser
         LyricsParser( ConvertEncoding * converter );
         virtual ~LyricsParser();
 
+        // Timing to text converter
+        static QString timeAsText( quint64 timing );
+
         // Parses the lyrics, filling up the output container. Throws an error
         // if there are any issues during parsing, otherwise fills up output.
         virtual void parse( QIODevice * file, LyricsLoader::Container& output, LyricsLoader::Properties& properties ) = 0;
 
-        // Timing to text converter
-        static QString timeAsText( quint64 timing );
-
     protected:
-        // This should handle encoding as well
-        QStringList loadText( QIODevice * file );
+        // This does not handle encoding
+        QByteArrayList  loadAndSplit( QIODevice * file );
+        QByteArray      load( QIODevice * file );
 
         // Returns the lyric type by the file extension
         static Type getTypeByExtension( const QString& extension );
 
+        QTextCodec  *   detectEncoding( const QByteArray& data, LyricsLoader::Properties &properties );
+
+    private:
+        // This one would be handling encoding
         ConvertEncoding  *  m_converter;
 };
 

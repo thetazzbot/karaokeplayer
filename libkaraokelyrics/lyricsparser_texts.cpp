@@ -25,16 +25,16 @@ LyricsParser_Texts::LyricsParser_Texts( ConvertEncoding *converter )
 
 void LyricsParser_Texts::parse(QIODevice *file, LyricsLoader::Container &output, LyricsLoader::Properties &properties)
 {
-    QStringList lyrics = loadText( file );
+    QByteArray lyrics = load( file );
 
     // TXT could be UltraStar or PowerKaraoke
-    if ( lyrics.first().indexOf( QRegExp( "^#[a-zA-Z]+:\\s*.*\\s*$" ) ) != -1 )
+    if ( lyrics.trimmed().startsWith( '#' ) )
         return parseUStar( lyrics, output, properties );
     else
         return parsePowerKaraoke( lyrics, output, properties );
 }
 
-void LyricsParser_Texts::parseUStar(const QStringList &text, LyricsLoader::Container &output, LyricsLoader::Properties &properties)
+void LyricsParser_Texts::parseUStar( const QByteArray& data, LyricsLoader::Container &output, LyricsLoader::Properties &properties)
 {
     bool header = true;
     bool relative = false;
@@ -42,6 +42,42 @@ void LyricsParser_Texts::parseUStar(const QStringList &text, LyricsLoader::Conta
     int gap = -1;
     double msecs_per_beat = 0;
     int last_time_ms = 0;
+
+    // Generate the content for encoding detection
+    QByteArray lyricsForEncoding;
+
+    Q_FOREACH( const QByteArray& line, data.split('\n') )
+    {
+        if ( line.startsWith( '#' ) )
+            continue;
+
+        if ( line.startsWith( '-' ) )
+            lyricsForEncoding.append( '\n' );
+
+        // Ultrastar entries are space-separated, and the one with text has 4+ entries
+        int offset = 0, pos = 0;
+
+        // : 20 4 17 с мо
+        for ( ; offset < line.length(); offset ++ )
+        {
+            if ( line[offset] == ' ' )
+            {
+                pos++;
+
+                if ( pos == 4 )
+                    break;
+            }
+        }
+
+        if ( offset >= line.length() )
+            continue;
+
+        lyricsForEncoding.append( line.mid( offset + 1 ) );
+    }
+
+    // Detect the encoding
+    QTextCodec * codec = detectEncoding( lyricsForEncoding, properties );
+    QStringList text = codec->toUnicode( data ).split( '\n' );
 
     // See http://www.ultrastarstuff.com/html/tutorialtxtfile.html
     for ( int i = 0; i < text.size(); i++ )
@@ -156,8 +192,13 @@ static int powerKaraokeTime( QString time )
 }
 
 
-void LyricsParser_Texts::parsePowerKaraoke(const QStringList &text, LyricsLoader::Container &output, LyricsLoader::Properties &)
+void LyricsParser_Texts::parsePowerKaraoke( const QByteArray& data, LyricsLoader::Container &output, LyricsLoader::Properties &properties )
 {
+    // This format has no special markers, so we can feed it as-is
+    QTextCodec * codec = detectEncoding( data, properties );
+
+    QStringList text = codec->toUnicode( data ).split( '\n' );
+
     // For the PowerKaraoke format there is no header, just times.
     QRegExp regex("^([0-9.:]+) ([0-9.:]+) (.*)");
 

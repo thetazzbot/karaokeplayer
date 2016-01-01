@@ -15,6 +15,7 @@
  *  You should have received a copy of the GNU General Public License     *
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  **************************************************************************/
+#include <QTextCodec>
 
 #include "lyricsparser.h"
 
@@ -28,24 +29,17 @@ LyricsParser::~LyricsParser()
 {
 }
 
-QStringList LyricsParser::loadText(QIODevice * file)
+QByteArray LyricsParser::load(QIODevice *file)
 {
-    // Other formats are text files, so we need to find out the encoding
-    // FIXME: assuming UTF-8
     QByteArray datalyrics = file->readAll();
 
-    QString outdata;
+    if ( datalyrics.indexOf( '\r') != -1 )
+        datalyrics.replace( "\r\n", "\n" );
 
-    if ( m_converter )
-        outdata = (*m_converter)( datalyrics );
+    if ( datalyrics.isEmpty() )
+        throw("Lyrics file is empty");
 
-    if ( outdata.isEmpty() )
-        outdata = QString::fromUtf8( datalyrics );
-
-    if ( outdata.indexOf( '\r') != -1 )
-        outdata.replace( "\r\n", "\n" );
-
-    return outdata.split( '\n' );
+    return datalyrics;
 }
 
 QString LyricsParser::timeAsText(quint64 timing)
@@ -55,4 +49,22 @@ QString LyricsParser::timeAsText(quint64 timing)
     int msec = timing - (min * 60000 + sec * 1000 );
 
     return QString().sprintf( "%02d:%02d.%04d", min, sec, msec );
+}
+
+QTextCodec *LyricsParser::detectEncoding(const QByteArray &data, LyricsLoader::Properties &properties )
+{
+    // Now detect encoding
+    QTextCodec * enc = 0;
+
+    //qDebug("Supplied text: %s", data.constData() );
+
+    if ( m_converter )
+        enc = (*m_converter)( data);
+
+    if ( !enc )
+        enc = QTextCodec::codecForName( "utf-8" );
+    else
+        properties[ LyricsLoader::PROP_DETECTED_ENCODING ] = enc->name();
+
+    return enc;
 }

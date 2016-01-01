@@ -135,26 +135,28 @@ bool KaraokeSong::open()
 
             m_musicFileName = test;
         }
-
-        // If music file is not local, we need to extract it into the temp file
-        if ( karaoke->isCompound() )
-        {
-            // This temporary file will store the extracted music file
-            m_tempMusicFile = new QTemporaryFile("karaokeplayer");
-
-            if ( !m_tempMusicFile->open() )
-                throw QString( "Cannot open temporary file");
-
-            // Extract the music into a temporary file
-            if ( !karaoke->extract( m_musicFileName, m_tempMusicFile ) )
-                throw QString( "Cannot extract a music file from an archive");
-
-            // this is our music file now! Close it and remember it.
-            m_tempMusicFile->close();
-            m_musicFileName = m_tempMusicFile->fileName();
-        }
         else
-            m_musicFileName = karaoke->absolutePath( karaoke->musicObject() );
+        {
+            // If music file is not local, we need to extract it into the temp file
+            if ( karaoke->isCompound() )
+            {
+                // This temporary file will store the extracted music file
+                m_tempMusicFile = new QTemporaryFile("karaokeplayer");
+
+                if ( !m_tempMusicFile->open() )
+                    throw QString( "Cannot open temporary file");
+
+                // Extract the music into a temporary file
+                if ( !karaoke->extract( m_musicFileName, m_tempMusicFile ) )
+                    throw QString( "Cannot extract a music file from an archive");
+
+                // this is our music file now! Close it and remember it.
+                m_tempMusicFile->close();
+                m_musicFileName = m_tempMusicFile->fileName();
+            }
+            else
+                m_musicFileName = karaoke->absolutePath( karaoke->musicObject() );
+        }
 
         // Load the music file
         if ( !m_player.loadAudio( m_musicFileName ) )
@@ -172,7 +174,7 @@ bool KaraokeSong::open()
         if ( lyricFile.endsWith( ".cdg", Qt::CaseInsensitive ) )
             m_lyrics = new PlayerLyricsCDG();
         else
-            m_lyrics = new PlayerLyricsText( info.artist, info.title, &Util::convertEncoding );
+            m_lyrics = new PlayerLyricsText( info.artist, info.title, &Util::detectEncoding );
 
         if ( !m_lyrics->load( lyricDevice.data(), lyricFile ) )
             throw( QObject::tr("Can't load lyrics file %1: %2") .arg( lyricFile ) .arg( m_lyrics->errorMsg() ) );

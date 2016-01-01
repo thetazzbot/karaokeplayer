@@ -61,6 +61,7 @@ Settings::Settings()
         songPathPrefix.append( QDir::separator() );
 
 
+    convertMidiFiles = true;
 
     //customBackground = m_appDataPath + "background.jpg";
     //httpDocumentRoot = m_appDataPath + "wwwroot";
