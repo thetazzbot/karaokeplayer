@@ -64,7 +64,6 @@ class Settings
 
         // Songs database
         QString         songdbFilename;
-        QString         songPathPrefix;
 
         // LIRC path
         QString         lircDevicePath;
@@ -80,6 +79,8 @@ class Settings
         // If true, we should start in a full screen mode (but this doesn't mean NOW is a fullscreen mode)
         bool            startInFullscreen;
 
+        // Replaces the database path according to rules
+        QString         replacePath( const QString& origpath );
 
     public:
         void    load();
@@ -89,6 +90,10 @@ class Settings
         void    loadBackgroundObjects();
 
         QString         m_appDataPath;
+
+        // If the song path replacement is set (songPathReplacementFrom is not empty), this would replace '^from' to '^to'
+        QString         songPathReplacementFrom;
+        QString         songPathReplacementTo;
 };
 
 extern Settings * pSettings;

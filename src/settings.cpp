@@ -57,11 +57,8 @@ Settings::Settings()
     load();
 
     // songPathPrefix should follow directory separator
-    if ( !songPathPrefix.isEmpty() && !songPathPrefix.endsWith( QDir::separator() ) )
-        songPathPrefix.append( QDir::separator() );
-
-
-    convertMidiFiles = true;
+    if ( !songPathReplacementFrom.isEmpty() && !songPathReplacementFrom.endsWith( QDir::separator() ) )
+        songPathReplacementFrom.append( QDir::separator() );
 
     //customBackground = m_appDataPath + "background.jpg";
     //httpDocumentRoot = m_appDataPath + "wwwroot";
@@ -99,6 +96,14 @@ Settings::Settings()
     */
 }
 
+QString Settings::replacePath(const QString &origpath)
+{
+    if ( songPathReplacementFrom.isEmpty() || !origpath.startsWith( songPathReplacementFrom ) )
+        return origpath;
+
+    return songPathReplacementTo + origpath.mid( ( songPathReplacementFrom.length() ) );
+}
+
 void Settings::load()
 {
     QSettings settings;
@@ -120,7 +125,8 @@ void Settings::load()
 
     queueAddNewSingersNext = settings.value( "queue/AddNewSingersNext", false ).toBool();
 
-    songPathPrefix = settings.value( "database/PathPrefix", "" ).toString();
+    songPathReplacementFrom = settings.value( "database/PathReplacementPrefixFrom", "" ).toString();
+    songPathReplacementTo = settings.value( "database/PathReplacementPrefixTo", "" ).toString();
 
     lircDevicePath = settings.value( "lirc/DevicePath", "" ).toString();
     lircMappingFile = settings.value( "lirc/MappingFile", "" ).toString();
@@ -156,7 +162,8 @@ void Settings::save()
 
     settings.setValue( "queue/AddNewSingersNext", queueAddNewSingersNext );
 
-    settings.setValue( "database/PathPrefix", songPathPrefix );
+    settings.setValue( "database/PathReplacementPrefixFrom", songPathReplacementFrom );
+    settings.setValue( "database/PathReplacementPrefixTo", songPathReplacementTo );
 
     settings.setValue( "lirc/DevicePath", lircDevicePath );
     settings.setValue( "lirc/MappingFile", lircMappingFile );

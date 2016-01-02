@@ -84,7 +84,7 @@ class SQLiteStatement
             SongDatabaseInfo info;
 
             info.id = columnInt64( 0 );
-            info.filePath = pSettings->songPathPrefix + columnText( 1 );
+            info.filePath = pSettings->replacePath( columnText( 1 ) );
             info.artist = columnText( 2 );
             info.title = columnText( 3 );
             info.type = columnText( 4 );
@@ -132,7 +132,10 @@ SongDatabase::~SongDatabase()
 
 bool SongDatabase::init()
 {
-    if ( !sqlite3_open( pSettings->songdbFilename.toUtf8().data(), &m_sqlitedb ) == SQLITE_OK )
+    if ( !sqlite3_open_v2( pSettings->songdbFilename.toUtf8().data(),
+                           &m_sqlitedb,
+                           SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_FULLMUTEX,
+                           0 ) == SQLITE_OK )
     {
         pActionHandler->error( QString("Error opening sqlite database: %1") .arg( sqlite3_errmsg(m_sqlitedb) ) );
 
@@ -175,7 +178,7 @@ bool SongDatabase::init()
     return true;
 }
 
-
+/*
 bool SongDatabase::importFromText(const QString &filename, const QString& pathPrefix )
 {
     QFile fin( filename );
@@ -235,13 +238,27 @@ bool SongDatabase::importFromText(const QString &filename, const QString& pathPr
 
     return true;
 }
-
+*/
 
 bool SongDatabase::songById(int id, SongDatabaseInfo &info)
 {
     SQLiteStatement stmt;
 
     if ( !stmt.prepareSongQuery( m_sqlitedb, QString("WHERE id=%1") .arg(id) ) )
+        return false;
+
+    if ( stmt.step() != SQLITE_ROW )
+        return false;
+
+    info = stmt.getRowSongInfo();
+    return true;
+}
+
+bool SongDatabase::songByPath(const QString &path, SongDatabaseInfo &info)
+{
+    SQLiteStatement stmt;
+
+    if ( !stmt.prepareSongQuery( m_sqlitedb, "WHERE path=?", QStringList() << pSettings->replacePath( path ) ) )
         return false;
 
     if ( stmt.step() != SQLITE_ROW )

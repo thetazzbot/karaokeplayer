@@ -55,16 +55,17 @@ class SongDatabase : public QObject
         SongDatabase( QObject * parent );
         ~SongDatabase();
 
-        bool init();
-
         // Initializes a new (empty) database, or loads an existing database
-        bool    importFromText(const QString& filename , const QString &pathPrefix);
-        //bool    exportToText( const QString& filename );
+        bool    init();
 
+        // Search for a substring in artists and titles
         bool    search( const QString& substr, QList<SongDatabaseInfo>& results, unsigned int limit = 100 );
 
         // Queries the song by ID
         bool    songById( int id, SongDatabaseInfo& info );
+
+        // Queries the song by path
+        bool    songByPath( const QString& path, SongDatabaseInfo& info );
 
         // Updates the song playing stats and delay
         void    updatePlayedSong( int id, int newdelay, int newrating );
