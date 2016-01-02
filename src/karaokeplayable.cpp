@@ -16,6 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  **************************************************************************/
 
+#include <QScopedPointer>
 #include <QStringList>
 #include <QBuffer>
 
@@ -167,4 +168,15 @@ bool KaraokePlayable::isVideoFile(const QString &filename)
             return true;
 
     return false;
+}
+
+bool KaraokePlayable::isSupportedCompleteFile(const QString &filename)
+{
+    static const char * extlist[] = { ".kar", ".mid", ".midi", ".kfn", ".zip", 0 };
+
+    for ( int i = 0; extlist[i]; i++ )
+        if ( filename.endsWith( extlist[i], Qt::CaseInsensitive ) )
+            return true;
+
+    return isVideoFile( filename );
 }

@@ -26,6 +26,13 @@
 
 Settings * pSettings;
 
+Settings::Collection::Collection()
+{
+    detectLanguage = true;
+    defaultLanguage = 0;
+    scanZips = true;
+}
+
 
 Settings::Settings()
 {
@@ -59,6 +66,10 @@ Settings::Settings()
     // songPathPrefix should follow directory separator
     if ( !songPathReplacementFrom.isEmpty() && !songPathReplacementFrom.endsWith( QDir::separator() ) )
         songPathReplacementFrom.append( QDir::separator() );
+
+    Collection col;
+    col.rootPath = "/home/tim/work/my/karaokeplayer/test/testcollection";
+    songCollection.push_back( col );
 
     //customBackground = m_appDataPath + "background.jpg";
     //httpDocumentRoot = m_appDataPath + "wwwroot";
@@ -178,3 +189,4 @@ void Settings::save()
     if ( QStandardPaths::writableLocation( QStandardPaths::CacheLocation ) != cacheDir )
         settings.setValue( "player/cacheDir", cacheDir );
 }
+

@@ -37,6 +37,8 @@ class KaraokePlayable
         // or a compound file (we need to find both)
         static KaraokePlayable * create( const QString& baseFile );
 
+        static bool analyze( const QString& file );
+
         // Finds matching music and lyrics. Returns true if both are found, false otherwise
         bool        parse();
 
@@ -67,6 +69,9 @@ class KaraokePlayable
         static bool isSupportedLyricFile( const QString& filename );
         static bool isMidiFile( const QString& filename );
         static bool isVideoFile( const QString& filename );
+
+        // This returns true if the file is karaoke and can be played without a marching file (i.e. not a music+CDG combination)
+        static bool isSupportedCompleteFile(const QString &filename);
 
     protected:
         KaraokePlayable( const QString& baseFile );

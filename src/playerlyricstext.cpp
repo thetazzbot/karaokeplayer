@@ -99,10 +99,6 @@ bool PlayerLyricsText::load(QIODevice * file, const QString& filename )
         }
     }
 
-    // Trim the empty values at the end, if any
-    while ( m_lines.last().isEmpty() )
-        m_lines.takeLast();
-
     m_nextUpdateTime = m_lines.first().startTime();
     m_showTitleTime = 0;
 
@@ -274,4 +270,14 @@ bool PlayerLyricsText::render(KaraokePainter &p, qint64 timems)
     }
 
     return true;
+}
+
+QString PlayerLyricsText::exportAsText() const
+{
+    QString out;
+
+    Q_FOREACH ( const PlayerLyricTextLine& t, m_lines )
+        out += t.fullLine() + "\n";
+
+    return out;
 }

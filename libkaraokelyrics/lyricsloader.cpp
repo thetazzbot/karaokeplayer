@@ -87,6 +87,16 @@ bool LyricsLoader::parse(const QString &lyricsfile, QIODevice * file, ConvertEnc
                 m_lyricsOutput[i].duration = 500;
         }
 
+        // Trim the empty values at the end, if any
+        while ( !m_lyricsOutput.isEmpty() && m_lyricsOutput.last().text.isEmpty() )
+            m_lyricsOutput.takeLast();
+
+        if ( m_lyricsOutput.isEmpty() )
+        {
+            m_errorMsg = "Lyrics file has no lyrics";
+            return false;
+        }
+
         return true;
     }
     catch ( const char * err )

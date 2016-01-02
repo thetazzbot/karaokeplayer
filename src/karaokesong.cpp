@@ -164,7 +164,7 @@ bool KaraokeSong::open()
 
         Logger::debug( "KaraokeSong: music file loaded" );
 
-        // If lyrics are not in a local file, extract it into QBuffer first
+        // Get the pointer to the device the lyrics are stored in (will be deleted after the pointer out-of-scoped)
         QScopedPointer<QIODevice> lyricDevice( karaoke->openObject( lyricFile ) );
 
         if ( lyricDevice == 0 )

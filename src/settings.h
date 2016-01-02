@@ -35,6 +35,31 @@ class Settings
             BACKGROUND_TYPE_VIDEO = 8
         };
 
+        class Collection
+        {
+        public:
+            Collection();
+
+            enum PathFormat
+            {
+                PATH_FORMAT_ARTIST_SLASH_TITLE, // artist is the directory name, title is the file name
+                PATH_FORMAT_ARTIST_DASH_TITLE,  // artist and title are the file name separated by dash
+            };
+
+            // Root path to the directory
+            QString rootPath;
+
+            // Force language (if non -1, the language detection is not performed, and all songs will assume
+            // the language specified here. 0 is valid and means no language.
+            bool    detectLanguage;
+
+            // Default language (if detection fails or is impossible such as for CD+G or video files)
+            int     defaultLanguage;
+
+            // If true, ZIP archives would be scanned. Otherwise they would be ignored.
+            bool    scanZips;
+        };
+
         QString cacheDir;
 
         // Player parameters
@@ -64,6 +89,7 @@ class Settings
 
         // Songs database
         QString         songdbFilename;
+        QList<Collection>   songCollection;
 
         // LIRC path
         QString         lircDevicePath;

@@ -27,6 +27,7 @@
 #include "settings.h"
 #include "currentstate.h"
 #include "mainwindow.h"
+#include "songdatabasescanner.h"
 
 #if defined (HAS_LIRC_SUPPORT)
     #include "actionhandler_lirc.h"
@@ -265,5 +266,11 @@ void ActionHandler::keyEvent(QKeyEvent *event)
 
     if ( event->key() == Qt::Key_Z )
         cmdAction( ACTION_QUEUE_CLEAR );
+
+    if ( event->key() == Qt::Key_T )
+    {
+        SongDatabaseScanner * sc = new SongDatabaseScanner();
+        sc->startScan();
+    }
 
 }

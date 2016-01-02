@@ -1,5 +1,5 @@
 TARGET = cld2
-CONFIG += warn_on qt staticlib
+CONFIG += warn_on qt
 TEMPLATE = lib
 SOURCES += internal/cldutil.cc \
   internal/cldutil_shared.cc \

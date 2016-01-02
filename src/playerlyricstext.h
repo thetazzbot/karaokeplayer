@@ -57,6 +57,9 @@ class PlayerLyricsText : public PlayerLyrics
         // Must return next time when the lyrics would be updated. If returns -1, no more updates
         qint64  nextUpdate() const;
 
+        // Export all lyrics as text without timing (for language detection)
+        QString exportAsText() const;
+
     protected:
         // Render lyrics for current timestamp into the QImage provided. Must "render over",
         // and not mess up with the rest of the screen. True on success, false + m_errorMsg on error.
