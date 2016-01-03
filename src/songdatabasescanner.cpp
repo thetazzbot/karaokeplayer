@@ -287,53 +287,57 @@ void SongDatabaseScanner::processingThread()
         if ( p == -1 )
             continue;
 
+        // Just use the uppercase extension
         entry.type = entry.filePath.mid( p + 1 ).toUpper();
 
-        // Read the karaoke file
-        QScopedPointer<KaraokePlayable> karaoke( KaraokePlayable::create( entry.filePath ) );
-
-        if ( !karaoke || !karaoke->parse() )
+        // Read the karaoke file unless it is a video file
+        if ( !KaraokePlayable::isVideoFile( entry.filePath ) )
         {
-            Logger::debug( "SongDatabaseScanner: WARNING ignoring file %s as it cannot be parsed", qPrintable(entry.filePath) );
-            continue;
-        }
+            QScopedPointer<KaraokePlayable> karaoke( KaraokePlayable::create( entry.filePath ) );
 
-        // For non-CDG files we can do the artist/title and language detection from source
-        if ( !karaoke->lyricObject().endsWith( ".cdg", Qt::CaseInsensitive ) && m_collection[entry.collection].detectLanguage && m_langDetector )
-        {
-            // Get the pointer to the device the lyrics are stored in (will be deleted after the pointer out-of-scoped)
-            QScopedPointer<QIODevice> lyricDevice( karaoke->openObject( karaoke->lyricObject() ) );
-
-            if ( lyricDevice == 0 )
+            if ( !karaoke || !karaoke->parse() )
             {
-                Logger::debug( "SongDatabaseScanner: WARNING cannot open lyric file %s in karaoke file %s", qPrintable( karaoke->lyricObject() ), qPrintable(entry.filePath) );
+                Logger::debug( "SongDatabaseScanner: WARNING ignoring file %s as it cannot be parsed", qPrintable(entry.filePath) );
                 continue;
             }
 
-            QScopedPointer<PlayerLyricsText> lyrics( new PlayerLyricsText( "", "", &Util::detectEncoding ) );
-
-            if ( !lyrics->load( lyricDevice.data(), karaoke->lyricObject() ) )
+            // For non-CDG files we can do the artist/title and language detection from source
+            if ( !karaoke->lyricObject().endsWith( ".cdg", Qt::CaseInsensitive ) && m_collection[entry.collection].detectLanguage && m_langDetector )
             {
-                if ( karaoke->lyricObject() != entry.filePath )
-                    Logger::debug( "SongDatabaseScanner: karaoke file %s contains invalid lyrics %s", qPrintable(entry.filePath), qPrintable( karaoke->lyricObject() ) );
-                else
-                    Logger::debug( "SongDatabaseScanner: lyrics file %s cannot be loaded", qPrintable(entry.filePath) );
+                // Get the pointer to the device the lyrics are stored in (will be deleted after the pointer out-of-scoped)
+                QScopedPointer<QIODevice> lyricDevice( karaoke->openObject( karaoke->lyricObject() ) );
 
-                continue;
+                if ( lyricDevice == 0 )
+                {
+                    Logger::debug( "SongDatabaseScanner: WARNING cannot open lyric file %s in karaoke file %s", qPrintable( karaoke->lyricObject() ), qPrintable(entry.filePath) );
+                    continue;
+                }
+
+                QScopedPointer<PlayerLyricsText> lyrics( new PlayerLyricsText( "", "", &Util::detectEncoding ) );
+
+                if ( !lyrics->load( lyricDevice.data(), karaoke->lyricObject() ) )
+                {
+                    if ( karaoke->lyricObject() != entry.filePath )
+                        Logger::debug( "SongDatabaseScanner: karaoke file %s contains invalid lyrics %s", qPrintable(entry.filePath), qPrintable( karaoke->lyricObject() ) );
+                    else
+                        Logger::debug( "SongDatabaseScanner: lyrics file %s cannot be loaded", qPrintable(entry.filePath) );
+
+                    continue;
+                }
+
+                // Detect the language
+                entry.language = m_langDetector->detectLanguage( lyrics->exportAsText().toUtf8() );
+
+                // Fill up the artist/title if we detected them
+                if ( lyrics->properties().contains( LyricsLoader::PROP_ARTIST ) )
+                    entry.artist = lyrics->properties()[ LyricsLoader::PROP_ARTIST ];
+
+                if ( lyrics->properties().contains( LyricsLoader::PROP_TITLE ) )
+                    entry.title = lyrics->properties()[ LyricsLoader::PROP_TITLE ];
+
+                if ( lyrics->properties().contains( LyricsLoader::PROP_LYRIC_SOURCE ) )
+                    entry.type += "/" + lyrics->properties()[ LyricsLoader::PROP_LYRIC_SOURCE ];
             }
-
-            // Detect the language
-            entry.language = m_langDetector->detectLanguage( lyrics->exportAsText().toUtf8() );
-
-            // Fill up the artist/title if we detected them
-            if ( lyrics->properties().contains( LyricsLoader::PROP_ARTIST ) )
-                entry.artist = lyrics->properties()[ LyricsLoader::PROP_ARTIST ];
-
-            if ( lyrics->properties().contains( LyricsLoader::PROP_TITLE ) )
-                entry.title = lyrics->properties()[ LyricsLoader::PROP_TITLE ];
-
-            if ( lyrics->properties().contains( LyricsLoader::PROP_LYRIC_SOURCE ) )
-                entry.type += "/" + lyrics->properties()[ LyricsLoader::PROP_LYRIC_SOURCE ];
         }
 
         // Get the artist/title from path according to settings
