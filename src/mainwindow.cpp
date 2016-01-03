@@ -325,6 +325,7 @@ void MainWindow::menuRescanDatabase()
     pSongDatabase->clearDatabase();
 
     m_songScanner = new SongDatabaseScanner();
+    connect( m_songScanner, SIGNAL(finished()), this, SLOT(collectionScanFinished()) );
     m_songScanner->startScan();
 
     collectionScanUpdate();
@@ -340,6 +341,7 @@ void MainWindow::menuUpdateDatabase()
         return;
 
     m_songScanner = new SongDatabaseScanner();
+    connect( m_songScanner, SIGNAL(finished()), this, SLOT(collectionScanFinished()) );
     m_songScanner->startScan();
 
     collectionScanUpdate();
