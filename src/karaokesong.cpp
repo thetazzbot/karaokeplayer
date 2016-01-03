@@ -200,7 +200,7 @@ bool KaraokeSong::open()
                 // Load the background from this buffer
                 m_background = new PlayerBackgroundImage();
 
-                if ( !m_background->initFromFile( iod.data() ) )
+                if ( !m_background->initFromFile( iod.data(), filename ) )
                 {
                     Logger::debug( "Could not load background from %s: invalid file", qPrintable(filename) );
                     delete m_background;

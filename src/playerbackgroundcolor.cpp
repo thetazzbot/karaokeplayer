@@ -31,6 +31,12 @@ bool PlayerBackgroundColor::initFromSettings()
     return m_color.isValid();
 }
 
+bool PlayerBackgroundColor::initFromFile(QIODevice *, const QString &)
+{
+    // Unused in real apps
+    return false;
+}
+
 qint64 PlayerBackgroundColor::draw(KaraokePainter &p)
 {
     p.fillRect( p.rect(), m_color );

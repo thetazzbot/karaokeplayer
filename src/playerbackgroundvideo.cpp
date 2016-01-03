@@ -36,11 +36,6 @@ PlayerBackgroundVideo::~PlayerBackgroundVideo()
 {
 }
 
-bool PlayerBackgroundVideo::initFromFile(QIODevice *)
-{
-    return false;
-}
-
 void PlayerBackgroundVideo::start()
 {
     m_player.play();
@@ -83,6 +78,12 @@ bool PlayerBackgroundVideo::initFromSettings()
 
     m_player.seekTo( pCurrentState->playerBackgroundLastVideoPosition );
     return true;
+}
+
+bool PlayerBackgroundVideo::initFromFile(QIODevice *, const QString &)
+{
+    // FIXME: This is not unused (i.e. UltraStart and KFN use it), but not currently implemented
+    return false;
 }
 
 qint64 PlayerBackgroundVideo::draw(KaraokePainter &p)

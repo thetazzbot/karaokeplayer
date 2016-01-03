@@ -29,6 +29,7 @@ PlayerBackgroundImage::PlayerBackgroundImage()
 {
     m_percentage = 0;
     m_customBackground = false;
+    m_playbackPaused = 0;
 
     m_animationSpeed = 5;
 }
@@ -44,13 +45,24 @@ bool PlayerBackgroundImage::initFromSettings()
     return true;
 }
 
-bool PlayerBackgroundImage::initFromFile( QIODevice *file )
+bool PlayerBackgroundImage::initFromFile( QIODevice * file, const QString& filename )
 {
-    if ( !m_currentImage.load( file, "jpg" ) )
+    // Find the file extension
+    int p = filename.lastIndexOf( '.' );
+
+    if ( p == -1 )
+        return false;
+
+    if ( !m_currentImage.load( file, qPrintable( filename.mid( p + 1) ) ) )
         return false;
 
     m_customBackground = true;
     return true;
+}
+
+void PlayerBackgroundImage::pause(bool pausing)
+{
+    m_playbackPaused = pausing ? 1 : 0;
 }
 
 qint64 PlayerBackgroundImage::draw(KaraokePainter &p)
@@ -209,7 +221,9 @@ void PlayerBackgroundImage::animateMove( KaraokePainter &p )
     if ( srcrect.y() < 0 || srcrect.bottom() > m_currentImage.height() )
         m_movementVelocity.setY( -m_movementVelocity.y() );
 
-    m_movementOrigin += m_movementVelocity;
+    if ( m_playbackPaused == 0 )
+        m_movementOrigin += m_movementVelocity;
+
     srcrect.moveTopLeft( m_movementOrigin + m_movementVelocity );
     p.drawImage( p.rect(), m_currentImage, srcrect );
 }
@@ -223,6 +237,8 @@ void PlayerBackgroundImage::animateZoom(KaraokePainter &p)
     if ( destrect.width() <= p.rect().width() )
         loadNewImage();
 
-    m_zoomFactor += m_animationSpeed;
+    if ( m_playbackPaused == 0 )
+        m_zoomFactor += m_animationSpeed;
+
     p.drawImage( p.rect(), m_currentImage, destrect );
 }

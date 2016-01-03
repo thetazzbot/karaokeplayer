@@ -75,12 +75,13 @@ Settings::Settings()
     //customBackground = m_appDataPath + "background.jpg";
     //httpDocumentRoot = m_appDataPath + "wwwroot";
 
+    playerBackgroundType = BACKGROUND_TYPE_IMAGE;
+    playerBackgroundObjects << "/home/tim/work/my/karaokeplayer/test/images";
+    playerBackgroundTransitionDelay = 30;
+
     /*    playerBackgroundType = BACKGROUND_TYPE_VIDEO;
         playerBackgroundObjects << "/home/tim/work/my/karaokeplayer/test/bgvideos";
 
-    //    playerBackgroundType = BACKGROUND_TYPE_IMAGE;
-    //    playerBackgroundObjects << "/home/tim/work/my/karaokeplayer/test/images";
-    //    playerBackgroundTransitionDelay = 30;
 
         playerRenderFPS = 25;
         playerBackgroundColor = QColor( Qt::black );

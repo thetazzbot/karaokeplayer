@@ -31,10 +31,10 @@ class PlayerBackground
         virtual ~PlayerBackground();
 
         // Background could be initialized either from the settings (by callign initFromSettings() or from
-        // a specific file/QIODevice - for example for KFN files. If the background cannot be initialized
-        // a specific way, it must return an error.
+        // a specific file/QIODevice - for example for KFN files (the file name needs to be passed to know which type
+        // of file is being loaded). If the background cannot be initialized, it must return an error.
         virtual bool    initFromSettings() = 0;
-        virtual bool    initFromFile( QIODevice * file ) = 0;
+        virtual bool    initFromFile( QIODevice * file, const QString& filename ) = 0;
 
         // Draws the background on the painter; the painter is filled up black. Returns time for the
         // next update when the image will change. -1 means the current image will never change.
@@ -57,7 +57,7 @@ class PlayerBackgroundNone : public PlayerBackground
         // a specific file/QIODevice - for example for KFN files. If the background cannot be initialized
         // a specific way, it must return an error.
         bool    initFromSettings() { return true; }
-        bool    initFromFile( QIODevice * )  { return true; }
+        bool    initFromFile( QIODevice *, const QString& )  { return false; }
 
         // Draws the background on the painter; the painter is filled up black. Returns time for the
         // next update when the image will change. -1 means the current image will never change.
