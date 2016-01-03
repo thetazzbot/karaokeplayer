@@ -1,5 +1,5 @@
 TARGET = cld2
-CONFIG += warn_on qt
+CONFIG += warn_on qt dll
 TEMPLATE = lib
 SOURCES += internal/cldutil.cc \
   internal/cldutil_shared.cc \
@@ -24,7 +24,8 @@ SOURCES += internal/cldutil.cc \
   internal/cld2_generated_quadchrome_2.cc \
   internal/cld2_generated_deltaoctachrome.cc \
   internal/cld2_generated_distinctoctachrome.cc  \
-  internal/cld_generated_score_quad_octa_2.cc
+  internal/cld_generated_score_quad_octa_2.cc \
+    cld2_api.cpp
 
 HEADERS += \
     internal/cld2_dynamic_compat.h \
@@ -56,4 +57,6 @@ HEADERS += \
     internal/utf8scannot_lettermarkspecial.h \
     internal/utf8statetable.h \
     public/compact_lang_det.h \
-    public/encodings.h
+    public/encodings.h \
+    cld2_api.h
+QMAKE_POST_LINK += $$QMAKE_COPY libcld2.so $$OUT_PWD/../src/

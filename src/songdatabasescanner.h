@@ -8,6 +8,7 @@
 #include <QMutex>
 
 class DirectoryScanThread;
+class LanguageDetector;
 
 class SongDatabaseScanner : public QObject
 {
@@ -57,6 +58,7 @@ class SongDatabaseScanner : public QObject
         QAtomicInt                  m_abortScanning;
 
         DirectoryScanThread *       m_threadScanDirs;
+        LanguageDetector    *       m_langDetector;
 };
 
 #endif // SONGDATABASESCANNER_H

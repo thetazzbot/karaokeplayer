@@ -10,9 +10,9 @@
 #include "songdatabase.h"
 #include "playerlyricstext.h"
 #include "settings.h"
+#include "languagedetector.h"
 #include "util.h"
 
-#include "../libcld2/public/compact_lang_det.h"
 
 class DirectoryScanThread : public QThread
 {
@@ -39,6 +39,15 @@ SongDatabaseScanner::SongDatabaseScanner(QObject *parent)
 
 void SongDatabaseScanner::startScan()
 {
+    m_langDetector = new LanguageDetector();
+
+    if ( !m_langDetector->init() )
+    {
+        Logger::debug( "Failed to load the language detection library, language detection is not available: %s", qPrintable(m_langDetector->errorString()) );
+        delete m_langDetector;
+        m_langDetector = 0;
+    }
+
     m_threadScanDirs = new DirectoryScanThread( this );
     m_threadScanDirs->start();
 }
@@ -216,11 +225,8 @@ void SongDatabaseScanner::processingThread()
             }
 
             // Detect the language
-            QByteArray lyricsText = lyrics->exportAsText().toUtf8();
-            bool reliable;
-
-            CLD2::Language lang = CLD2::DetectLanguage( lyricsText.constData(), lyricsText.size(), true,  &reliable );
-            qDebug("lang detected: %d", lang );
+            int lang = m_langDetector->detectLanguage( lyrics->exportAsText().toUtf8() );
+            qDebug("lang detected: %d (%s)", lang, qPrintable(m_langDetector->languageFromCode( lang ) ) );
         }
     }
 }
