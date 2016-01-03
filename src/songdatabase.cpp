@@ -75,7 +75,7 @@ class SQLiteStatement
         // Two functions below must be in sync regarding the column order
         bool prepareSongQuery( sqlite3 * db, const QString& wheresql, const QStringList& args = QStringList() )
         {
-            QString query = "SELECT id, path, artist, title, type, played, strftime('%s', lastplayed), lyricdelay, strftime('%s', added), rating FROM songs ";
+            QString query = "SELECT rowid, path, artist, title, type, played, strftime('%s', lastplayed), lyricdelay, strftime('%s', added), rating FROM songs ";
             return prepare( db, query + wheresql, args );
         }
 
@@ -142,11 +142,11 @@ bool SongDatabase::init()
         return false;
     }
 
-    // CREATE TABLE IF NOT EXISTS songs( id INTEGER PRIMARY KEY, path TEXT, artist TEXT, title TEXT, type TEXT, search TEXT, played INT, lastplayed INT, lyricdelay INT, added INT, rating INT, language INT
-    // Create tables/indexes if not there
-    if ( !execute( "CREATE TABLE IF NOT EXISTS songs( id INTEGER PRIMARY KEY, path TEXT, artist TEXT, title TEXT,"
+    // CREATE TABLE IF NOT EXISTS songs( path TEXT, artist TEXT, title TEXT, type TEXT, search TEXT, played INT, lastplayed INT, lyricdelay INT, added INT, rating INT, language INT
+    if ( !execute( "CREATE TABLE IF NOT EXISTS songs( path TEXT, artist TEXT, title TEXT,"
                   "type TEXT, search TEXT, played INT, lastplayed INT, lyricdelay INT, added INT, rating INT, language INT )" )
          || !execute( "CREATE INDEX IF NOT EXISTS idxSearch ON songs(search)" )
+         || !execute( "CREATE INDEX IF NOT EXISTS idxPath ON songs(path)" )
          || !execute( "CREATE TABLE IF NOT EXISTS settings( version INTEGER, identifier TEXT, lastupdated INT)" ) )
         return false;
 
@@ -178,73 +178,11 @@ bool SongDatabase::init()
     return true;
 }
 
-/*
-bool SongDatabase::importFromText(const QString &filename, const QString& pathPrefix )
-{
-    QFile fin( filename );
-
-    if ( !fin.open( QIODevice::ReadOnly ) )
-        return false;
-
-    execute( "BEGIN TRANSACTION" );
-
-    while ( !fin.atEnd() )
-    {
-        QByteArray bline = fin.readLine();
-
-        if ( bline.isEmpty() )
-            break;
-
-        if ( bline.trimmed().isEmpty() || bline[0] == '#' )
-            continue;
-
-        QString line = QString::fromUtf8( bline );
-
-        // ID type file
-        int o = Util::indexOfSpace( line );
-
-        if ( o == -1 )
-            continue;
-
-        QString id = line.left( o );
-        QString type = line.mid( o ).trimmed();
-
-        if ( (o = Util::indexOfSpace( type )) == -1 )
-            continue;
-
-        QString artist, title, path = type.mid( o + 1 ).trimmed();
-        type = type.left( o );
-
-        // Split to artist/title
-        if ( !pathToArtistTitle( path, artist, title ) )
-            abort();
-
-        QString search = artist.toUpper() + " " + title.toUpper();
-
-        QStringList params;
-        params << path << artist << title << type << search;
-
-        // id INTEGER PRIMARY KEY, path TEXT, artist TEXT, title TEXT type TEXT, search TEXT, played INT, lastplayed INT, lyricdelay INT, added INT, rating INT, language INT
-        if ( !execute( QString("INSERT OR REPLACE INTO songs VALUES( %1, ?, ?, ?, ?, ?, 0, 0, 0, 0, DATETIME(), 0, 0 )").arg( id ), params ) )
-            continue;
-    }
-
-    QString prefix = pathPrefix;
-
-    if ( !prefix.endsWith( QDir::separator() ) )
-        prefix.append( QDir::separator() );
-
-    execute( "COMMIT" );
-
-    return true;
-}
-*/
-
 bool SongDatabase::songById(int id, SongDatabaseInfo &info)
 {
     SQLiteStatement stmt;
 
-    if ( !stmt.prepareSongQuery( m_sqlitedb, QString("WHERE id=%1") .arg(id) ) )
+    if ( !stmt.prepareSongQuery( m_sqlitedb, QString("WHERE rowid=%1") .arg(id) ) )
         return false;
 
     if ( stmt.step() != SQLITE_ROW )
@@ -270,7 +208,7 @@ bool SongDatabase::songByPath(const QString &path, SongDatabaseInfo &info)
 
 void SongDatabase::updatePlayedSong(int id, int newdelay, int newrating)
 {
-    execute( QString("UPDATE songs SET lyricdelay=%1,played=played+1,lastplayed=DATETIME(),rating=%2 WHERE id=%3") .arg( newdelay) .arg(newrating) .arg(id) );
+    execute( QString("UPDATE songs SET lyricdelay=%1,played=played+1,lastplayed=DATETIME(),rating=%2 WHERE rowid=%3") .arg( newdelay) .arg(newrating) .arg(id) );
 }
 
 bool SongDatabase::browseInitials( QList<QChar>& artistInitials)
@@ -326,25 +264,33 @@ QString SongDatabase::languageFromInt(unsigned int value)
     return QString(buf);
 }
 
-bool SongDatabase::pathToArtistTitle(const QString &path, QString &artist, QString &title)
+bool SongDatabase::updateDatabase(const QList<SongDatabaseScanner::SongDatabaseEntry> entries)
 {
-    int p = path.lastIndexOf( QDir::separator() );
-
-    if ( p == -1 )
+    if ( !execute( "BEGIN TRANSACTION" ) )
         return false;
 
-    title = path.mid( p + 1 );
-    artist = path.left( p );
+    Q_FOREACH( const SongDatabaseScanner::SongDatabaseEntry& e, entries )
+    {
+        // We use a separate search field since sqlite is not necessary built with full Unicode support (nor we want it to be)
+        QString search = e.artist.toUpper() + " " + e.title.toUpper();
 
-    // Trim down the artist if needed - may not be there (i.e. "Adriano Celentano/Le tempo.mp3")
-    if ( (p = artist.lastIndexOf( QDir::separator() )) != -1 )
-        artist = artist.mid( p + 1 );
+        QStringList params;
+        params << e.filePath << e.artist << e.title << e.type << search;
 
-    // Trim the extension from title
-    if ( (p = title.lastIndexOf( '.' )) != -1 )
-        title = title.left( p );
+        // path TEXT, artist TEXT, title TEXT type TEXT, search TEXT, played INT, lastplayed INT, lyricdelay INT, added INT, rating INT, language INT
+        if ( !execute( QString("INSERT OR REPLACE INTO songs VALUES( ?, ?, ?, ?, ?, 0, 0, 0, DATETIME(), 0, %1 )").arg( e.language ), params ) )
+        {
+            execute( "ROLLBACK TRANSACTION" );
+            return false;
+        }
+    }
 
-    return true;
+    return execute( "COMMIT TRANSACTION" );
+}
+
+bool SongDatabase::clearDatabase()
+{
+    return execute( "DELETE FROM songs");
 }
 
 bool SongDatabase::execute( const QString &sql, const QStringList& args )
@@ -359,6 +305,7 @@ bool SongDatabase::execute( const QString &sql, const QStringList& args )
 
     int res;
 
+    // Eat all the results
     while ( (res = stmt.step()) == SQLITE_ROW )
         ;
 

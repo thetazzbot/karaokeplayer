@@ -95,6 +95,6 @@ FORMS    += mainwindow.ui \
     dialog_about.ui
 RESOURCES += resources.qrc
 INCLUDEPATH += .. ../libqhttpengine/QHttpEngine ../libqhttpengine
-LIBS += -L ../libkaraokelyrics/ -lkaraokelyrics -L../libqhttpengine/ -lqhttpengine -L../libuchardet/ -luchardet -lsqlite3 -lzip -L../libcld2 -lcld2
+LIBS += -L ../libkaraokelyrics/ -lkaraokelyrics -L../libqhttpengine/ -lqhttpengine -L../libuchardet/ -luchardet -lsqlite3 -lzip
 POST_TARGETDEPS += ../libkaraokelyrics/libkaraokelyrics.a ../libqhttpengine/libqhttpengine.a ../libuchardet/libuchardet.a
 DEFINES += SQLITE_OMIT_LOAD_EXTENSION

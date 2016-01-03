@@ -38,6 +38,8 @@
 #include "convertermidi.h"
 #include "version.h"
 #include "playerwidget.h"
+#include "songdatabasescanner.h"
+
 #include "ui_dialog_about.h"
 
 
@@ -48,7 +50,9 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     setupUi( this );
     pMainWindow = this;
+
     m_playerWindow  = 0;
+    m_songScanner = 0;
 
     // We don't need any specific crypto
     qsrand( (unsigned int) (long) pMainWindow * (unsigned int) time(0) );
@@ -118,6 +122,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect( actionStop, SIGNAL(triggered()), this, SLOT(queueStop()) );
     connect( actionPrevious_song_in_queue, SIGNAL(triggered()), this, SLOT(queuePrevious()) );
     connect( actionNext_song_in_queue, SIGNAL(triggered()), this, SLOT(queueNext()) );
+    connect( actionErase_and_rescan_the_database, SIGNAL(triggered()), this, SLOT(menuRescanDatabase()) );
+    connect( actionUpdate_the_database, SIGNAL(triggered()), this, SLOT(menuUpdateDatabase()) );
 
     // Currently unused
     mainToolBar->hide();
@@ -213,6 +219,22 @@ void MainWindow::playCurrentItem()
     m_widget->startKaraoke( karfile );
 }
 
+void MainWindow::collectionScanUpdate()
+{
+    if ( m_songScanner )
+    {
+        statusbar->showMessage( tr("Collection scan: %1 found, %2 processed") .arg( m_songScanner->karaokeFilesFound ) .arg( m_songScanner->karaokeFilesProcessed), 5000 );
+        QTimer::singleShot( 500, this, SLOT(collectionScanUpdate()) );
+    }
+}
+
+void MainWindow::collectionScanFinished()
+{
+    statusbar->showMessage( "Collection scan finished", 5000 );
+    delete m_songScanner;
+    m_songScanner = 0;
+}
+
 void MainWindow::menuOpenKaraoke()
 {
     QString file = QFileDialog::getOpenFileName( 0, "Music file", "/home/tim/work/my/karaokeplayer/test/", "*.*");
@@ -268,11 +290,13 @@ void MainWindow::menuToggleFullscreen()
     {
         QApplication::restoreOverrideCursor();
         mainMenuBar->show();
+        statusbar->show();
         showNormal();
     }
     else
     {
         mainMenuBar->hide();
+        statusbar->hide();
         showFullScreen();
 
         // In case we run without screen manager
@@ -287,6 +311,38 @@ void MainWindow::menuToggleFullscreen()
 void MainWindow::menuPlayPause()
 {
     pActionHandler->cmdAction( ActionHandler::ACTION_PLAYER_PAUSERESUME );
+}
+
+void MainWindow::menuRescanDatabase()
+{
+    if ( m_songScanner )
+        return;
+
+    if ( QMessageBox::question( 0, tr("Rescab the database?"),
+            tr("Do you want to DELETE ALL EXISTING SONGS and rescan the karaoke database?\n\nThis will take some time. ALL EXISTING SONGS AND INFO WILL BE REMOVED") ) != QMessageBox::Yes )
+        return;
+
+    pSongDatabase->clearDatabase();
+
+    m_songScanner = new SongDatabaseScanner();
+    m_songScanner->startScan();
+
+    collectionScanUpdate();
+}
+
+void MainWindow::menuUpdateDatabase()
+{
+    if ( m_songScanner )
+        return;
+
+    if ( QMessageBox::question( 0, tr("Update the database?"),
+            tr("Do you want to update the karaoke database?\n\nThis will take some time. Existing songs will not be removed") ) != QMessageBox::Yes )
+        return;
+
+    m_songScanner = new SongDatabaseScanner();
+    m_songScanner->startScan();
+
+    collectionScanUpdate();
 }
 
 

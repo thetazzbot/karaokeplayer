@@ -1,3 +1,6 @@
+#include <QDir>
+#include <QApplication>
+
 #include "languagedetector.h"
 
 struct language_map
@@ -192,7 +195,7 @@ bool LanguageDetector::init()
 
     if ( !m_libcld.load() )
     {
-        m_libcld.setFileName( "./libcld2" );
+        m_libcld.setFileName( QApplication::applicationDirPath() + QDir::separator() + "libcld2" );
 
         if ( !m_libcld.load() )
         {
@@ -224,5 +227,5 @@ QString LanguageDetector::languageFromCode(int code)
         if ( l->code == code )
             return QString::fromUtf8( l->name );
 
-    return "";
+    return "Unknown";
 }

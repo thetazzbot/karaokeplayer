@@ -99,6 +99,9 @@ bool PlayerLyricsText::load(QIODevice * file, const QString& filename )
         }
     }
 
+    if ( m_lines.isEmpty() )
+        return false;
+
     m_nextUpdateTime = m_lines.first().startTime();
     m_showTitleTime = 0;
 

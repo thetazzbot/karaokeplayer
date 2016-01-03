@@ -89,6 +89,8 @@ void LyricsParser_LRC::parse( QIODevice * file, LyricsLoader::Container& output,
                     properties[ LyricsLoader::PROP_ARTIST ] = value;
                 else if ( tag == "offset" )
                     offset = value.toInt();
+                else if ( tag == "sr" )
+                    properties[ LyricsLoader::PROP_LYRIC_SOURCE ] = value;
             }
             else
             {

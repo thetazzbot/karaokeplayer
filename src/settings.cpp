@@ -68,7 +68,8 @@ Settings::Settings()
         songPathReplacementFrom.append( QDir::separator() );
 
     Collection col;
-    col.rootPath = "/home/tim/work/my/karaokeplayer/test/testcollection";
+    col.rootPath = "/mnt/karaoke";
+    col.pathFormat = Collection::PATH_FORMAT_ARTIST_SLASH_TITLE;
     songCollection.push_back( col );
 
     //customBackground = m_appDataPath + "background.jpg";

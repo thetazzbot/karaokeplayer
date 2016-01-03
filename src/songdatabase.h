@@ -20,8 +20,11 @@
 #define SONGDATABASE_H
 
 #include <QMap>
+#include <QMutex>
 #include <QObject>
 #include <QStringList>
+
+#include "songdatabasescanner.h"
 
 struct sqlite3;
 
@@ -78,8 +81,13 @@ class SongDatabase : public QObject
         // Language is stored in database as INT with three bytes encoding the country code in big-endian
         static QString languageFromInt( unsigned int value );
 
+        // Add/update database entries from the list in a single transaction
+        bool    updateDatabase( const QList<SongDatabaseScanner::SongDatabaseEntry> entries );
+
+        // Empty the database
+        bool    clearDatabase();
+
     private:
-        bool    pathToArtistTitle( const QString& path, QString& artist, QString& title );
         bool    execute( const QString& sql, const QStringList& args = QStringList() );
 
     private:

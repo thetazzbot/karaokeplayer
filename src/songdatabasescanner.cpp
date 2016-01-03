@@ -9,71 +9,147 @@
 #include "songdatabasescanner.h"
 #include "songdatabase.h"
 #include "playerlyricstext.h"
-#include "settings.h"
 #include "languagedetector.h"
 #include "util.h"
 
 
-class DirectoryScanThread : public QThread
+class SongDatabaseScannerWorkerThread : public QThread
 {
     public:
-        DirectoryScanThread( SongDatabaseScanner * scanner, QObject * obj = 0 ) : QThread( obj )
+        enum Type
         {
+            THREAD_SCANNER,
+            THREAD_PROCESSOR,
+            THREAD_SUBMITTER
+        };
+
+        SongDatabaseScannerWorkerThread( SongDatabaseScanner * scanner, Type type ) : QThread( 0 )
+        {
+            m_type = type;
             m_scanner = scanner;
         }
 
         void run()
         {
-            m_scanner->scanCollectionsThread();
-            m_scanner->processingThread();
+            switch ( m_type )
+            {
+                case THREAD_SCANNER:
+                    m_scanner->scanCollectionsThread();
+                    break;
+
+                case THREAD_PROCESSOR:
+                    m_scanner->processingThread();
+                    break;
+
+                case THREAD_SUBMITTER:
+                    m_scanner->submittingThread();
+                    break;
+            }
         }
 
-    private: SongDatabaseScanner * m_scanner;
+    private:
+        SongDatabaseScanner * m_scanner;
+        Type                  m_type;
 };
+
+
 
 SongDatabaseScanner::SongDatabaseScanner(QObject *parent)
     : QObject(parent)
 {
-    m_threadScanDirs = 0;
 }
 
-void SongDatabaseScanner::startScan()
+SongDatabaseScanner::~SongDatabaseScanner()
 {
-    m_langDetector = new LanguageDetector();
+    if ( !m_threadPool.isEmpty() )
+        stopScan();
+}
 
-    if ( !m_langDetector->init() )
+bool SongDatabaseScanner::startScan()
+{
+    // Make a copy in case the settings change during scanning
+    m_collection = pSettings->songCollection;
+
+    // Do we need the language detector?
+    bool need_lang_detector = false;
+
+    for ( int i = 0; i < m_collection.size(); i++ )
+        if ( m_collection[i].detectLanguage )
+            need_lang_detector = true;
+
+    if ( need_lang_detector )
     {
-        Logger::debug( "Failed to load the language detection library, language detection is not available: %s", qPrintable(m_langDetector->errorString()) );
-        delete m_langDetector;
-        m_langDetector = 0;
+        m_langDetector = new LanguageDetector();
+
+        if ( !m_langDetector->init() )
+        {
+            Logger::debug( "Failed to load the language detection library, language detection is not available: %s", qPrintable(m_langDetector->errorString()) );
+            delete m_langDetector;
+            m_langDetector = 0;
+            return false;
+        }
     }
 
-    m_threadScanDirs = new DirectoryScanThread( this );
-    m_threadScanDirs->start();
+    // Create the directory scanner thread
+    m_threadPool.push_back( new SongDatabaseScannerWorkerThread( this, SongDatabaseScannerWorkerThread::THREAD_SCANNER ) );
+
+    // Create the submitter thread
+    m_threadPool.push_back( new SongDatabaseScannerWorkerThread( this, SongDatabaseScannerWorkerThread::THREAD_SUBMITTER ) );
+
+    // And three processor threads
+    for ( int i = 0; i < 3; i++ )
+    {
+        m_threadPool.push_back( new SongDatabaseScannerWorkerThread( this, SongDatabaseScannerWorkerThread::THREAD_PROCESSOR ) );
+        m_threadsRunning++;
+    }
+
+    scanStarted = QDateTime::currentDateTime();
+    m_abortScanning = 0;
+
+    // And start all them
+    Q_FOREACH( QThread * thread, m_threadPool )
+        thread->start();
+
+    return true;
 }
 
 void SongDatabaseScanner::stopScan()
 {
+    // Signal all running threads to stop
+    m_abortScanning = 1;
 
+    // Wait for all them and clean them up
+    if ( !m_threadPool.isEmpty() )
+    {
+        Q_FOREACH( QThread * thread, m_threadPool )
+        {
+            thread->wait();
+            delete thread;
+        }
+    }
 }
 
 void SongDatabaseScanner::scanCollectionsThread()
 {
-    // Make a copy in case the settings change during scanning
-    QList<Settings::Collection> collection = pSettings->songCollection;
+    Logger::debug( "SongDatabaseScanner: scanCollectionsThread started" );
 
-    Q_FOREACH ( Settings::Collection col, collection )
+    for ( int i = 0; i < m_collection.size(); i++ )
     {
+        if ( m_abortScanning != 0 )
+            break;
+
         // We do not use recursion, and use the queue-like list instead
         QStringList paths;
-        paths << col.rootPath;
+        paths << m_collection[i].rootPath;
 
         // And enumerate all the paths
         while ( !paths.isEmpty() )
         {
             QString current = paths.takeFirst();
-
             QFileInfo finfo( current );
+
+            if ( m_abortScanning != 0 )
+                break;
 
             // Skip non-existing paths (might come from settings)
             if ( !finfo.exists() )
@@ -95,14 +171,14 @@ void SongDatabaseScanner::scanCollectionsThread()
                 if ( KaraokePlayable::isSupportedCompleteFile( fi.fileName()) )
                 {
                     // We only add zip files if enabled for this collection
-                    if ( fi.fileName().endsWith( ".zip", Qt::CaseInsensitive) && !col.scanZips )
+                    if ( fi.fileName().endsWith( ".zip", Qt::CaseInsensitive) && !m_collection[i].scanZips )
                         continue;
 
                     // Schedule for processing right away
                     SongDatabaseEntry entry;
                     entry.filePath = fi.absoluteFilePath();
-                    entry.language = col.defaultLanguage;
-                    entry.detectLang = col.detectLanguage;
+                    entry.collection = i;
+                    entry.language = m_collection[i].defaultLanguage;
 
                     addProcessing( entry );
                 }
@@ -132,8 +208,8 @@ void SongDatabaseScanner::scanCollectionsThread()
                     SongDatabaseEntry entry;
                     entry.filePath = current + QDir::separator() + lyric;
                     entry.musicPath = musicFiles[ lyricbase ];
-                    entry.language = col.defaultLanguage;
-                    entry.detectLang = col.detectLanguage;
+                    entry.collection = i;
+                    entry.language = m_collection[i].defaultLanguage;
 
                     addProcessing( entry );
                 }
@@ -151,10 +227,14 @@ void SongDatabaseScanner::scanCollectionsThread()
 
     // All done - put an entry with an empty path
     addProcessing( SongDatabaseEntry() );
+
+    Logger::debug( "SongDatabaseScanner: scanCollectionsThread finished" );
 }
 
 void SongDatabaseScanner::processingThread()
 {
+    Logger::debug( "SongDatabaseScanner: procesing thread started" );
+
     while ( m_abortScanning == 0 )
     {
         // Wait until there are more entries in processing queue
@@ -164,18 +244,28 @@ void SongDatabaseScanner::processingThread()
         if ( m_processingQueue.isEmpty() )
         {
             m_processingQueueCond.wait( &m_processingQueueMutex );
-            continue;
+
+            // Since we're woken up here, our mutex is now locked
+            if ( m_processingQueue.isEmpty() )
+            {
+                m_processingQueueMutex.unlock();
+                continue;
+            }
         }
 
         // An entry with empty path means no more entries (and we do not take it from queue to let other threads see it)
         if ( m_abortScanning || m_processingQueue.first().filePath.isEmpty() )
+        {
+            m_processingQueueMutex.unlock();
             break;
+        }
 
         // Take our item and let others do work
         SongDatabaseEntry entry = m_processingQueue.takeFirst();
         m_processingQueueMutex.unlock();
 
         qDebug("Processing file %s", qPrintable(entry.filePath));
+        karaokeFilesProcessed++;
 
         // Query the database to see what, if anything we already have for this path
         SongDatabaseInfo info;
@@ -191,6 +281,14 @@ void SongDatabaseScanner::processingThread()
             }
         }
 
+        // Detecting the lyrics type
+        int p = entry.filePath.lastIndexOf( '.' );
+
+        if ( p == -1 )
+            continue;
+
+        entry.type = entry.filePath.mid( p + 1 ).toUpper();
+
         // Read the karaoke file
         QScopedPointer<KaraokePlayable> karaoke( KaraokePlayable::create( entry.filePath ) );
 
@@ -201,7 +299,7 @@ void SongDatabaseScanner::processingThread()
         }
 
         // For non-CDG files we can do the artist/title and language detection from source
-        if ( !karaoke->lyricObject().endsWith( ".cdg", Qt::CaseInsensitive ) && entry.detectLang )
+        if ( !karaoke->lyricObject().endsWith( ".cdg", Qt::CaseInsensitive ) && m_collection[entry.collection].detectLanguage && m_langDetector )
         {
             // Get the pointer to the device the lyrics are stored in (will be deleted after the pointer out-of-scoped)
             QScopedPointer<QIODevice> lyricDevice( karaoke->openObject( karaoke->lyricObject() ) );
@@ -225,16 +323,135 @@ void SongDatabaseScanner::processingThread()
             }
 
             // Detect the language
-            int lang = m_langDetector->detectLanguage( lyrics->exportAsText().toUtf8() );
-            qDebug("lang detected: %d (%s)", lang, qPrintable(m_langDetector->languageFromCode( lang ) ) );
+            entry.language = m_langDetector->detectLanguage( lyrics->exportAsText().toUtf8() );
+
+            // Fill up the artist/title if we detected them
+            if ( lyrics->properties().contains( LyricsLoader::PROP_ARTIST ) )
+                entry.artist = lyrics->properties()[ LyricsLoader::PROP_ARTIST ];
+
+            if ( lyrics->properties().contains( LyricsLoader::PROP_TITLE ) )
+                entry.title = lyrics->properties()[ LyricsLoader::PROP_TITLE ];
+
+            if ( lyrics->properties().contains( LyricsLoader::PROP_LYRIC_SOURCE ) )
+                entry.type += "/" + lyrics->properties()[ LyricsLoader::PROP_LYRIC_SOURCE ];
         }
+
+        // Get the artist/title from path according to settings
+        if ( !guessArtistandTitle( entry ) )
+        {
+            Logger::debug( "SongDatabaseScanner: failed to detect artist/title for file %s, skipped", qPrintable(entry.filePath) );
+            continue;
+        }
+
+        Logger::debug( "SongDatabaseScanner: added/updated song %s by %s, type %s, language %s, file %s",
+                       qPrintable(entry.title),
+                       qPrintable(entry.artist),
+                       qPrintable(entry.type),
+                       qPrintable( LanguageDetector::languageFromCode( entry.language ) ),
+                       qPrintable(entry.filePath) );
+
+        addSubmitting( entry );
+
     }
+
+    // If m_threadsRunning was 1 when this thread finished, this is the last one before the submitting thread
+    if ( m_threadsRunning.fetchAndAddAcquire( -1 ) == 1 )
+    {
+        // Signal that no more data would be submitted - shut down
+        Logger::debug( "SongDatabaseScanner: last procesing thread finished, signaling the submitter to shut down" );
+        m_abortScanning = 1;
+
+        // In case the submitter is waiting in condition
+        m_submittingQueueCond.wakeAll();
+    }
+    else
+        Logger::debug( "SongDatabaseScanner: procesing thread finished" );
+}
+
+void SongDatabaseScanner::submittingThread()
+{
+    const int ENTRIES_TO_UPDATE = 500;
+
+    Logger::debug( "SongDatabaseScanner: submitting thread started" );
+
+    while ( m_abortScanning == 0 )
+    {
+        // Wait until there are more entries in processing queue
+        m_submittingQueueMutex.lock();
+
+        // Someone else might have taken our item
+        if ( m_submittingQueue.size() >= ENTRIES_TO_UPDATE  )
+        {
+            pSongDatabase->updateDatabase( m_submittingQueue );
+            m_submittingQueue.clear();
+        }
+
+        m_submittingQueueCond.wait( &m_submittingQueueMutex );
+        m_submittingQueueMutex.unlock();
+    }
+
+    // Submit the rest, if any
+    if ( !m_submittingQueue.isEmpty() )
+        pSongDatabase->updateDatabase( m_submittingQueue );
+
+    Logger::debug( "SongDatabaseScanner: submitter thread finished, scan completed" );
+    emit finished();
 }
 
 void SongDatabaseScanner::addProcessing(const SongDatabaseScanner::SongDatabaseEntry &entry)
 {
+    karaokeFilesFound++;
     m_processingQueueMutex.lock();
     m_processingQueue.push_back( entry );
     m_processingQueueMutex.unlock();
     m_processingQueueCond.wakeOne();
+}
+
+void SongDatabaseScanner::addSubmitting(const SongDatabaseScanner::SongDatabaseEntry &entry)
+{
+    m_submittingQueueMutex.lock();
+    m_submittingQueue.push_back( entry );
+    m_submittingQueueMutex.unlock();
+    m_submittingQueueCond.wakeOne();
+}
+
+bool SongDatabaseScanner::guessArtistandTitle( SongDatabaseScanner::SongDatabaseEntry &entry )
+{
+    if ( m_collection[entry.collection].pathFormat == Settings::Collection::PATH_FORMAT_ARTIST_DASH_TITLE )
+    {
+        int p = entry.filePath.lastIndexOf( QDir::separator() );
+
+        if ( p != -1 )
+            entry.artist = entry.filePath.mid( p + 1 ); // has path component
+        else
+            entry.artist = entry.filePath; // no path component
+
+        p = entry.artist.indexOf( " - " );
+
+        if ( p == -1 )
+            return false;
+
+        entry.title = entry.artist.mid( p + 3 );
+        entry.artist = entry.artist.left( p );
+    }
+    else
+    {
+        int p = entry.filePath.lastIndexOf( QDir::separator() );
+
+        if ( p == -1 )
+            return false;
+
+        entry.title = entry.filePath.mid( p + 1 );
+        entry.artist = entry.filePath.left( p );
+
+        // Trim down the artist if needed - may not be there (i.e. "Adriano Celentano/Le tempo.mp3")
+        if ( (p = entry.artist.lastIndexOf( QDir::separator() )) != -1 )
+            entry.artist = entry.artist.mid( p + 1 );
+
+        // Trim the extension from title
+        if ( (p = entry.title.lastIndexOf( '.' )) != -1 )
+            entry.title = entry.title.left( p );
+    }
+
+    return true;
 }

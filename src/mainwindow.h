@@ -29,6 +29,7 @@ class KaraokeSong;
 class SongQueue;
 class WebServer;
 class PlayerWidget;
+class SongDatabaseScanner;
 
 class MainWindow : public QMainWindow, public Ui::MainWindow
 {
@@ -47,6 +48,10 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
         void    queueStart();
         void    playCurrentItem();
 
+        // Update collection database information
+        void    collectionScanUpdate();
+        void    collectionScanFinished();
+
         // Menu actions
         void    menuOpenKaraoke();
         void    menuSettings();
@@ -54,6 +59,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
         void    menuAbout();
         void    menuToggleFullscreen();
         void    menuPlayPause();
+        void    menuRescanDatabase();
+        void    menuUpdateDatabase();
 
         // Handling dock window closures
         void    dockWindowClosed( QObject* widget );
@@ -67,6 +74,9 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
     private:
         KaraokeWidget *  m_widget;
         PlayerWidget *  m_playerWindow;
+
+        // Only when the scan is in progress
+        SongDatabaseScanner *   m_songScanner;
 };
 
 

@@ -47,17 +47,20 @@ class Settings
             };
 
             // Root path to the directory
-            QString rootPath;
+            QString     rootPath;
 
             // Force language (if non -1, the language detection is not performed, and all songs will assume
             // the language specified here. 0 is valid and means no language.
-            bool    detectLanguage;
+            bool        detectLanguage;
 
             // Default language (if detection fails or is impossible such as for CD+G or video files)
-            int     defaultLanguage;
+            int         defaultLanguage;
 
             // If true, ZIP archives would be scanned. Otherwise they would be ignored.
-            bool    scanZips;
+            bool        scanZips;
+
+            // Collection path format (to detect artist/title from filenames)
+            PathFormat  pathFormat;
         };
 
         QString cacheDir;

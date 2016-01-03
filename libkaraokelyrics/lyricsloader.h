@@ -65,6 +65,7 @@ class LyricsLoader
             PROP_VIDEO,
             PROP_VIDEO_STARTOFFSET,
             PROP_DETECTED_ENCODING,
+            PROP_LYRIC_SOURCE,  // from [sr: ] lrc tag, contains the lyric source (web, forum, self-made etc)
         };
 
         // Lyrics parameters

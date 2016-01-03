@@ -6,8 +6,12 @@
 #include <QAtomicInt>
 #include <QWaitCondition>
 #include <QMutex>
+#include <QDateTime>
 
-class DirectoryScanThread;
+#include "settings.h"
+
+
+class SongDatabaseScannerWorkerThread;
 class LanguageDetector;
 
 class SongDatabaseScanner : public QObject
@@ -16,27 +20,36 @@ class SongDatabaseScanner : public QObject
 
     public:
         explicit SongDatabaseScanner( QObject *parent = 0 );
-
-    signals:
-
-    public slots:
-        void    startScan();
-        void    stopScan();
-
-    private:
-        friend class DirectoryScanThread;
+        ~SongDatabaseScanner();
 
         class SongDatabaseEntry
         {
             public:
+                int         collection; // to find out the scan options
                 QString     artist;
                 QString     title;
                 QString     filePath;   // main file - the compound file or lyrics
                 QString     musicPath;  // if music file is separate, will be used to get artist/title if not available otherwise
                 QString     type;       // karaoke format such as cdg, avi, or midi; could also be extended such as lrc/minus
                 int         language;   // the language value if unknown/impossible to detect
-                bool        detectLang; // if false, we do not attempt to detect language
         };
+
+        // Scan runtime parameters
+        QDateTime           scanStarted;
+        QAtomicInt          karaokeFilesFound;
+        QAtomicInt          karaokeFilesProcessed;
+
+    signals:
+        // Scan finished
+        void    finished();
+
+    public slots:
+        bool    startScan();
+        void    stopScan();
+
+
+    private:
+        friend class SongDatabaseScannerWorkerThread;
 
         // This thread scans directories and finds out karaoke files. It only performs directory enumeration,
         // and does not read any files nor accesses the database.
@@ -47,18 +60,42 @@ class SongDatabaseScanner : public QObject
         // Those threads access database for reading only.
         void    processingThread();
 
-        // Adding an entry into the processing queue
-        void    addProcessing( const SongDatabaseEntry& entry );
+        // This thread submits the new entries into the database.
+        void    submittingThread();
+
+        // Find out the artist and title from lyrics, music or file path.
+        bool    guessArtistandTitle( SongDatabaseEntry& entry );
+
 
         // Producer-consumer implementation of processing queue
         QMutex                      m_processingQueueMutex;
         QWaitCondition              m_processingQueueCond;
         QQueue<SongDatabaseEntry>   m_processingQueue;
 
+        // Adding an entry into the processing queue
+        void    addProcessing( const SongDatabaseEntry& entry );
+
+        // Producer-consumer implementation of database submitting queue
+        QMutex                      m_submittingQueueMutex;
+        QWaitCondition              m_submittingQueueCond;
+        QList<SongDatabaseEntry>    m_submittingQueue;
+
+        // Adding an entry into the submitting queue
+        void    addSubmitting( const SongDatabaseEntry& entry );
+
         QAtomicInt                  m_abortScanning;
 
-        DirectoryScanThread *       m_threadScanDirs;
+        // Copy of collection for scanning
+        QList<Settings::Collection> m_collection;
+
+        // A module (auto-loaded) to detect the lyric language
         LanguageDetector    *       m_langDetector;
+
+        // Thread pool of scanners
+        QList< QThread * >          m_threadPool;
+
+        // Number of threads completing the task (to send finished)
+        QAtomicInt                  m_threadsRunning;
 };
 
 #endif // SONGDATABASESCANNER_H

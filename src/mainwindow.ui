@@ -20,7 +20,7 @@
      <x>0</x>
      <y>0</y>
      <width>400</width>
-     <height>20</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -47,7 +47,7 @@
    </widget>
    <widget class="QMenu" name="menuPlayer">
     <property name="title">
-     <string>Player</string>
+     <string>&amp;Control</string>
     </property>
     <addaction name="actionStart_playing"/>
     <addaction name="actionPause"/>
@@ -56,8 +56,17 @@
     <addaction name="actionNext_song_in_queue"/>
     <addaction name="actionPrevious_song_in_queue"/>
    </widget>
+   <widget class="QMenu" name="menuDatabase">
+    <property name="title">
+     <string>&amp;Database</string>
+    </property>
+    <addaction name="actionUpdate_the_database"/>
+    <addaction name="separator"/>
+    <addaction name="actionErase_and_rescan_the_database"/>
+   </widget>
    <addaction name="menu_File"/>
    <addaction name="menuPlayer"/>
+   <addaction name="menuDatabase"/>
    <addaction name="menuWindows"/>
    <addaction name="menu_Help"/>
   </widget>
@@ -69,9 +78,10 @@
     <bool>false</bool>
    </attribute>
   </widget>
+  <widget class="QStatusBar" name="statusbar"/>
   <action name="actionPlay_file">
    <property name="text">
-    <string>Play file...</string>
+    <string>&amp;Play file...</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
@@ -103,32 +113,42 @@
   </action>
   <action name="actionSettings">
    <property name="text">
-    <string>Settings</string>
+    <string>&amp;Settings</string>
    </property>
   </action>
   <action name="actionStart_playing">
    <property name="text">
-    <string>Start playing</string>
+    <string>&amp;Start playing</string>
    </property>
   </action>
   <action name="actionPause">
    <property name="text">
-    <string>Pause</string>
+    <string>&amp;Pause</string>
    </property>
   </action>
   <action name="actionStop">
    <property name="text">
-    <string>Stop</string>
+    <string>St&amp;op</string>
    </property>
   </action>
   <action name="actionNext_song_in_queue">
    <property name="text">
-    <string>Next song in queue</string>
+    <string>&amp;Next song in queue</string>
    </property>
   </action>
   <action name="actionPrevious_song_in_queue">
    <property name="text">
-    <string>Previous song in queue</string>
+    <string>Previous song &amp;in queue</string>
+   </property>
+  </action>
+  <action name="actionErase_and_rescan_the_database">
+   <property name="text">
+    <string>Erase and rescan the database</string>
+   </property>
+  </action>
+  <action name="actionUpdate_the_database">
+   <property name="text">
+    <string>Update the database</string>
    </property>
   </action>
  </widget>

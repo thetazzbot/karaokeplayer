@@ -266,11 +266,4 @@ void ActionHandler::keyEvent(QKeyEvent *event)
 
     if ( event->key() == Qt::Key_Z )
         cmdAction( ACTION_QUEUE_CLEAR );
-
-    if ( event->key() == Qt::Key_T )
-    {
-        SongDatabaseScanner * sc = new SongDatabaseScanner();
-        sc->startScan();
-    }
-
 }
