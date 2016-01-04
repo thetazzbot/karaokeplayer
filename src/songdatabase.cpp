@@ -146,10 +146,10 @@ bool SongDatabase::init()
     }
 
     // CREATE TABLE IF NOT EXISTS songs( path TEXT, artist TEXT, title TEXT, type TEXT, search TEXT, played INT, lastplayed INT, lyricdelay INT, added INT, rating INT, language INT
-    if ( !execute( "CREATE TABLE IF NOT EXISTS songs( path TEXT, artist TEXT, title TEXT,"
+    if ( !execute( "CREATE TABLE IF NOT EXISTS songs( path TEXT PRIMARY KEY, artist TEXT, title TEXT,"
                   "type TEXT, search TEXT, played INT, lastplayed INT, lyricdelay INT, added INT, rating INT, language INT )" )
          || !execute( "CREATE INDEX IF NOT EXISTS idxSearch ON songs(search)" )
-         || !execute( "CREATE INDEX IF NOT EXISTS idxPath ON songs(path)" )
+         || !execute( "CREATE INDEX IF NOT EXISTS idxPath ON songs(artist)" )
          || !execute( "CREATE TABLE IF NOT EXISTS settings( version INTEGER, identifier TEXT, lastupdated INT)" ) )
         return false;
 
