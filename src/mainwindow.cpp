@@ -135,6 +135,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    if ( m_songScanner )
+    {
+        m_songScanner->stopScan();
+        delete m_songScanner;
+    }
 }
 
 void MainWindow::queueAdd(QString singer, int id)
