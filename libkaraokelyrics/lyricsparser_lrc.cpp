@@ -84,13 +84,13 @@ void LyricsParser_LRC::parse( QIODevice * file, LyricsLoader::Container& output,
                 QString value = regex.cap( 2 );
 
                 if ( tag == "ti" )
-                    properties[ LyricsLoader::PROP_TITLE ] = value;
+                    properties[ LyricsLoader::PROP_TITLE ] = value.trimmed();
                 else if ( tag == "ar" )
-                    properties[ LyricsLoader::PROP_ARTIST ] = value;
+                    properties[ LyricsLoader::PROP_ARTIST ] = value.trimmed();
                 else if ( tag == "offset" )
                     offset = value.toInt();
                 else if ( tag == "sr" )
-                    properties[ LyricsLoader::PROP_LYRIC_SOURCE ] = value;
+                    properties[ LyricsLoader::PROP_LYRIC_SOURCE ] = value.trimmed();
             }
             else
             {
