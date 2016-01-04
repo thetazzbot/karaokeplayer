@@ -103,7 +103,7 @@ bool SongDatabaseScanner::startScan()
         m_threadsRunning++;
     }
 
-    scanStarted = QDateTime::currentDateTime();
+    stat_scanStarted = QDateTime::currentDateTime();
     m_abortScanning = 0;
 
     // And start all them
@@ -131,7 +131,10 @@ void SongDatabaseScanner::stopScan()
 
 void SongDatabaseScanner::scanCollectionsThread()
 {
-    Logger::debug( "SongDatabaseScanner: scanCollectionsThread started" );
+    qint64 lastupdate = pSongDatabase->lastDatabaseUpdate() * 1000;
+
+    Logger::debug( "SongDatabaseScanner: scanCollectionsThread started, ignoring the timestamps earlier than %s",
+                   qPrintable( QDateTime::fromMSecsSinceEpoch( lastupdate ).toString( "yyyy-mm-dd hh:mm:ss") ) );
 
     for ( int i = 0; i < m_collection.size(); i++ )
     {
@@ -145,6 +148,7 @@ void SongDatabaseScanner::scanCollectionsThread()
         // And enumerate all the paths
         while ( !paths.isEmpty() )
         {
+            stat_directoriesScanned++;
             QString current = paths.takeFirst();
             QFileInfo finfo( current );
 
@@ -157,6 +161,7 @@ void SongDatabaseScanner::scanCollectionsThread()
 
             // We assume the situation where we have several lyrics for a single music is more prevalent
             QMap< QString, QString > musicFiles, lyricFiles;
+            bool modtime_checked = false;
 
             Q_FOREACH( QFileInfo fi, QDir( current ).entryInfoList( QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot, QDir::DirsFirst ) )
             {
@@ -165,6 +170,16 @@ void SongDatabaseScanner::scanCollectionsThread()
                 {
                     paths.push_back( fi.absoluteFilePath() );
                     continue;
+                }
+
+                // If we're here this means the directory also has files. Those we will only check for if the parent directory
+                // has been modified after the last update
+                if ( !modtime_checked )
+                {
+                    if ( QFileInfo( current ).lastModified().toMSecsSinceEpoch() < lastupdate )
+                        break;
+
+                    modtime_checked = true;
                 }
 
                 // No more directories in this dir, but we have files
@@ -214,19 +229,14 @@ void SongDatabaseScanner::scanCollectionsThread()
                     addProcessing( entry );
                 }
                 else
-                    Logger::debug( "SongDatabaseScanner: WARNING no music found for lyric file %s", qPrintable( lyric) );
+                    Logger::debug( "SongDatabaseScanner: WARNING no music found for lyric file %s", qPrintable( current + QDir::separator() + lyric) );
             }
-/*
-        // Now see if there are music files left without lyrics
-        for ( QMap< QString, QString >::iterator it = musicFiles.begin(); it != musicFiles.end(); ++it )
-            if ( !it.value().isEmpty() )
-                Logger::debug( "SongDatabaseScanner: WARNING no lyrics found for music file %s", qPrintable( it.key() ) );
-*/
         }
     }
 
-    // All done - put an entry with an empty path
+    // All done - put an entry with an empty path and wake all threads
     addProcessing( SongDatabaseEntry() );
+    m_processingQueueCond.wakeAll();
 
     Logger::debug( "SongDatabaseScanner: scanCollectionsThread finished" );
 }
@@ -264,8 +274,7 @@ void SongDatabaseScanner::processingThread()
         SongDatabaseEntry entry = m_processingQueue.takeFirst();
         m_processingQueueMutex.unlock();
 
-        qDebug("Processing file %s", qPrintable(entry.filePath));
-        karaokeFilesProcessed++;
+        stat_karaokeFilesProcessed++;
 
         // Query the database to see what, if anything we already have for this path
         SongDatabaseInfo info;
@@ -398,13 +407,15 @@ void SongDatabaseScanner::submittingThread()
     if ( !m_submittingQueue.isEmpty() )
         pSongDatabase->updateDatabase( m_submittingQueue );
 
+    pSongDatabase->updateLastScan();
+
     Logger::debug( "SongDatabaseScanner: submitter thread finished, scan completed" );
     emit finished();
 }
 
 void SongDatabaseScanner::addProcessing(const SongDatabaseScanner::SongDatabaseEntry &entry)
 {
-    karaokeFilesFound++;
+    stat_karaokeFilesFound++;
     m_processingQueueMutex.lock();
     m_processingQueue.push_back( entry );
     m_processingQueueMutex.unlock();
@@ -413,6 +424,7 @@ void SongDatabaseScanner::addProcessing(const SongDatabaseScanner::SongDatabaseE
 
 void SongDatabaseScanner::addSubmitting(const SongDatabaseScanner::SongDatabaseEntry &entry)
 {
+    stat_karaokeFilesSubmitted++;
     m_submittingQueueMutex.lock();
     m_submittingQueue.push_back( entry );
     m_submittingQueueMutex.unlock();

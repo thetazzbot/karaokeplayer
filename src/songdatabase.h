@@ -83,22 +83,27 @@ class SongDatabase : public QObject
 
         // Add/update database entries from the list in a single transaction
         bool    updateDatabase( const QList<SongDatabaseScanner::SongDatabaseEntry> entries );
+        bool    updateLastScan();
 
         // Empty the database
         bool    clearDatabase();
 
+        // Get last update timestamp
+        qint64  lastDatabaseUpdate() const;
+
+        // Returns the song count
+        unsigned int getSongCount() const;
+
     private:
+        bool    verifyDatabaseVersion();
         bool    execute( const QString& sql, const QStringList& args = QStringList() );
 
     private:
-        // Database intentifier (to recognize if the database changed)
-        QString         m_identifier;
-
-        // Current version of the database (to check for updates)
-        int             m_currentVersion;
-
-        // Last update time_t
+        // Last update time
         qint64          m_lastUpdate;
+
+        // Total number of songs in the database
+        unsigned int    m_totalSongCount;
 
         // Database handle
         sqlite3 *       m_sqlitedb;

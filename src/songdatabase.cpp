@@ -29,6 +29,8 @@
 #include "sqlite3.h"
 #include "logger.h"
 
+static const int CURRENT_DB_SCHEMA_VERSION = 1;
+
 SongDatabase * pSongDatabase;
 
 // A simple statement wrapper ensuring finalize() is called
@@ -119,9 +121,9 @@ SongDatabaseInfo::SongDatabaseInfo()
 SongDatabase::SongDatabase(QObject *parent)
     : QObject( parent )
 {
-    m_currentVersion = 1;
     m_lastUpdate = 0;
     m_sqlitedb = 0;
+    m_totalSongCount = 0;
 }
 
 SongDatabase::~SongDatabase()
@@ -151,30 +153,9 @@ bool SongDatabase::init()
         return false;
 
     // Verify/update version
-    SQLiteStatement stmt;
+    if ( verifyDatabaseVersion() )
+        return false;
 
-    if ( !stmt.prepare( m_sqlitedb, "SELECT version,identifier,lastupdated FROM settings" ) || stmt.step() != SQLITE_ROW )
-    {
-        m_identifier = QUuid::createUuid().toString().mid( 1, 36 );
-        m_currentVersion = 1;
-        m_lastUpdate = time( 0 );
-
-        // Set the settings
-        if ( !execute( QString("INSERT INTO settings VALUES( %1, ?, %2)") .arg( m_currentVersion) .arg(m_lastUpdate), QStringList() << m_identifier ) )
-            return false;
-
-        Logger::debug( "Initialized new karaoke song database at %s", qPrintable(pSettings->songdbFilename) );
-    }
-    else
-    {
-        m_currentVersion = stmt.columnInt64( 0 );
-        m_identifier = stmt.columnText( 1 );
-        m_lastUpdate = stmt.columnInt64( 2 );
-
-        Logger::debug( "Loaded existing karaoke song database at %s", qPrintable(pSettings->songdbFilename) );
-    }
-
-    //importFromText( "karaoke.text", "/mnt/karaoke" );
     return true;
 }
 
@@ -288,9 +269,63 @@ bool SongDatabase::updateDatabase(const QList<SongDatabaseScanner::SongDatabaseE
     return execute( "COMMIT TRANSACTION" );
 }
 
+bool SongDatabase::updateLastScan()
+{
+    execute( "UPDATE settings SET lastupdated=DATETIME()" );
+}
+
 bool SongDatabase::clearDatabase()
 {
     return execute( "DELETE FROM songs");
+}
+
+qint64 SongDatabase::lastDatabaseUpdate() const
+{
+    return m_lastUpdate;
+}
+
+unsigned int SongDatabase::getSongCount() const
+{
+    return m_totalSongCount;
+}
+
+bool SongDatabase::verifyDatabaseVersion()
+{
+    SQLiteStatement stmt;
+
+    if ( !stmt.prepare( m_sqlitedb, "SELECT version,identifier,strftime('%s', lastupdated) FROM settings" ) || stmt.step() != SQLITE_ROW )
+    {
+        QString identifier = QUuid::createUuid().toString().mid( 1, 36 );
+        m_lastUpdate = 0;
+
+        // Set the settings
+        if ( !execute( QString("INSERT INTO settings VALUES( %1, ?, 0)") .arg( CURRENT_DB_SCHEMA_VERSION ), QStringList() << identifier ) )
+            return false;
+
+        Logger::debug( "Initialized new karaoke song database at %s", qPrintable(pSettings->songdbFilename) );
+    }
+    else
+    {
+        //int currentVersion = stmt.columnInt64( 0 );
+        // m_identifier = stmt.columnText( 1 );
+
+        m_lastUpdate = stmt.columnInt64( 2 );
+        Logger::debug( "Loaded existing karaoke song database from %s", qPrintable(pSettings->songdbFilename) );
+
+        SQLiteStatement songstmt;
+
+        if ( !songstmt.prepare( m_sqlitedb, "SELECT COUNT(rowid) FROM songs" ) )
+        {
+            pActionHandler->error( QString("Error calculating song count: %1").arg( sqlite3_errmsg( m_sqlitedb ) ) );
+            return false;
+        }
+
+        // Eat all the results
+        if ( songstmt.step() == SQLITE_ROW )
+            m_totalSongCount = songstmt.columnInt( 0 );
+    }
+
+    return true;
 }
 
 bool SongDatabase::execute( const QString &sql, const QStringList& args )
@@ -317,6 +352,7 @@ bool SongDatabase::execute( const QString &sql, const QStringList& args )
         return false;
     }
 }
+
 
 bool SongDatabase::search(const QString &substr, QList<SongDatabaseInfo> &results, unsigned int limit)
 {

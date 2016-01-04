@@ -91,6 +91,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Load the song database
     pSongDatabase->init();
+    statusbar->showMessage( tr("Song database: %1 songs, last updated %2")
+                            .arg( pSongDatabase->getSongCount() )
+                            .arg( QDateTime::fromMSecsSinceEpoch( pSongDatabase->lastDatabaseUpdate() * 1000).toString( "yyyy-MM-dd hh:mm:ss") ),
+                            20000 );
 
     // Initialize the controller
     pActionHandler->start();
@@ -223,8 +227,14 @@ void MainWindow::collectionScanUpdate()
 {
     if ( m_songScanner )
     {
-        statusbar->showMessage( tr("Collection scan: %1 found, %2 processed") .arg( m_songScanner->karaokeFilesFound ) .arg( m_songScanner->karaokeFilesProcessed), 5000 );
-        QTimer::singleShot( 500, this, SLOT(collectionScanUpdate()) );
+        statusbar->showMessage( tr("Collection scan: %1 directories scanned, %2 karaoke files found, %3 processed, %4 submitted")
+                                .arg( m_songScanner->stat_directoriesScanned )
+                                .arg( m_songScanner->stat_karaokeFilesFound )
+                                .arg( m_songScanner->stat_karaokeFilesProcessed)
+                                .arg( m_songScanner->stat_karaokeFilesSubmitted),
+                                1000 );
+
+        QTimer::singleShot( 900, this, SLOT(collectionScanUpdate()) );
     }
 }
 
@@ -245,7 +255,7 @@ void MainWindow::menuOpenKaraoke()
     if ( pCurrentState->playerState == CurrentState::PLAYERSTATE_STOPPED )
         pSongQueue->clear();
 
-    queueAdd( "Console", file );
+    queueAdd( "", file );
 }
 
 void MainWindow::menuSettings()
@@ -337,7 +347,8 @@ void MainWindow::menuUpdateDatabase()
         return;
 
     if ( QMessageBox::question( 0, tr("Update the database?"),
-            tr("Do you want to update the karaoke database?\n\nThis will take some time. Existing songs will not be removed") ) != QMessageBox::Yes )
+            tr("Do you want to update the karaoke database?\n\nThis will take some time. "
+               "Existing songs will not be removed, nor would be the songs which have been deleted from disk.") ) != QMessageBox::Yes )
         return;
 
     m_songScanner = new SongDatabaseScanner();

@@ -34,10 +34,12 @@ class SongDatabaseScanner : public QObject
                 int         language;   // the language value if unknown/impossible to detect
         };
 
-        // Scan runtime parameters
-        QDateTime           scanStarted;
-        QAtomicInt          karaokeFilesFound;
-        QAtomicInt          karaokeFilesProcessed;
+        // Scan runtime statistics
+        QDateTime           stat_scanStarted;
+        QAtomicInt          stat_directoriesScanned;
+        QAtomicInt          stat_karaokeFilesFound;
+        QAtomicInt          stat_karaokeFilesProcessed;
+        QAtomicInt          stat_karaokeFilesSubmitted;
 
     signals:
         // Scan finished
