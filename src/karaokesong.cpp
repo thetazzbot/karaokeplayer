@@ -26,9 +26,7 @@
 #include "karaokewidget.h"
 #include "playerlyricscdg.h"
 #include "playerlyricstext.h"
-#include "playerbackgroundcolor.h"
-#include "playerbackgroundvideo.h"
-#include "playerbackgroundimage.h"
+#include "backgroundimage.h"
 #include "karaokepainter.h"
 #include "actionhandler.h"
 #include "songdatabase.h"
@@ -109,7 +107,7 @@ bool KaraokeSong::open()
             throw QString( "Cannot load video file %1: %2") .arg( m_musicFileName ) .arg( m_player.errorMsg() );
 
         // And we use empty background
-        m_background = new PlayerBackgroundNone();
+        m_background = new BackgroundNone();
     }
     else
     {
@@ -198,7 +196,7 @@ bool KaraokeSong::open()
             if ( iod != 0 )
             {
                 // Load the background from this buffer
-                m_background = new PlayerBackgroundImage();
+                m_background = new BackgroundImage();
 
                 if ( !m_background->initFromFile( iod.data(), filename ) )
                 {
@@ -215,24 +213,7 @@ bool KaraokeSong::open()
     // If not set already, which background should we use?
     if ( !m_background )
     {
-        switch ( pSettings->playerBackgroundType )
-        {
-            case Settings::BACKGROUND_TYPE_NONE:
-                m_background = new PlayerBackgroundNone();
-                break;
-
-            case Settings::BACKGROUND_TYPE_IMAGE:
-                m_background = new PlayerBackgroundImage();
-                break;
-
-            case Settings::BACKGROUND_TYPE_VIDEO:
-                m_background = new PlayerBackgroundVideo();
-                break;
-
-            case Settings::BACKGROUND_TYPE_COLOR:
-                m_background = new PlayerBackgroundColor();
-                break;
-        }
+        m_background = Background::create();
 
         // Initialize
         m_background->initFromSettings();

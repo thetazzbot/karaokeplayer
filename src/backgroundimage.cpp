@@ -23,9 +23,9 @@
 #include "actionhandler.h"
 #include "settings.h"
 #include "currentstate.h"
-#include "playerbackgroundimage.h"
+#include "backgroundimage.h"
 
-PlayerBackgroundImage::PlayerBackgroundImage()
+BackgroundImage::BackgroundImage()
 {
     m_percentage = 0;
     m_customBackground = false;
@@ -34,7 +34,7 @@ PlayerBackgroundImage::PlayerBackgroundImage()
     m_animationSpeed = 5;
 }
 
-bool PlayerBackgroundImage::initFromSettings()
+bool BackgroundImage::initFromSettings()
 {
     // Do we have a directory path or file?
     if ( pCurrentState->currentBackgroundObject().isEmpty() )
@@ -45,7 +45,7 @@ bool PlayerBackgroundImage::initFromSettings()
     return true;
 }
 
-bool PlayerBackgroundImage::initFromFile( QIODevice * file, const QString& filename )
+bool BackgroundImage::initFromFile( QIODevice * file, const QString& filename )
 {
     // Find the file extension
     int p = filename.lastIndexOf( '.' );
@@ -60,12 +60,12 @@ bool PlayerBackgroundImage::initFromFile( QIODevice * file, const QString& filen
     return true;
 }
 
-void PlayerBackgroundImage::pause(bool pausing)
+void BackgroundImage::pause(bool pausing)
 {
     m_playbackPaused = pausing ? 1 : 0;
 }
 
-qint64 PlayerBackgroundImage::draw(KaraokePainter &p)
+qint64 BackgroundImage::draw(KaraokePainter &p)
 {
     // Transition
     if ( !m_newImage.isNull() )
@@ -104,7 +104,7 @@ qint64 PlayerBackgroundImage::draw(KaraokePainter &p)
     return -1;
 }
 
-void PlayerBackgroundImage::loadNewImage()
+void BackgroundImage::loadNewImage()
 {
     if ( m_customBackground )
     {
@@ -165,7 +165,7 @@ void PlayerBackgroundImage::loadNewImage()
     m_zoomFactor = 0;
 }
 
-bool PlayerBackgroundImage::performTransition(KaraokePainter &p)
+bool BackgroundImage::performTransition(KaraokePainter &p)
 {
     // We want the whole transition to be done in 1.5 sec
     static const int TRANSITION = 500;
@@ -208,7 +208,7 @@ bool PlayerBackgroundImage::performTransition(KaraokePainter &p)
     return true;
 }
 
-void PlayerBackgroundImage::animateMove( KaraokePainter &p )
+void BackgroundImage::animateMove( KaraokePainter &p )
 {
     QRect srcrect = p.rect();
     QPoint neworigin = m_movementOrigin + m_movementVelocity;
@@ -228,7 +228,7 @@ void PlayerBackgroundImage::animateMove( KaraokePainter &p )
     p.drawImage( p.rect(), m_currentImage, srcrect );
 }
 
-void PlayerBackgroundImage::animateZoom(KaraokePainter &p)
+void BackgroundImage::animateZoom(KaraokePainter &p)
 {
     QRect destrect = m_currentImage.rect();
 

@@ -24,11 +24,14 @@
 class KaraokePainter;
 
 // An abstract background renderer class
-class PlayerBackground
+class Background
 {
     public:
-        PlayerBackground();
-        virtual ~PlayerBackground();
+        Background();
+        virtual ~Background();
+
+        // Creates background according to settings
+        static Background * create();
 
         // Background could be initialized either from the settings (by callign initFromSettings() or from
         // a specific file/QIODevice - for example for KFN files (the file name needs to be passed to know which type
@@ -47,11 +50,11 @@ class PlayerBackground
 };
 
 // An empty background
-class PlayerBackgroundNone : public PlayerBackground
+class BackgroundNone : public Background
 {
     public:
-        PlayerBackgroundNone() : PlayerBackground() { }
-        virtual ~PlayerBackgroundNone() { }
+        BackgroundNone() : Background() { }
+        virtual ~BackgroundNone() { }
 
         // Background could be initialized either from the settings (by callign initFromSettings() or from
         // a specific file/QIODevice - for example for KFN files. If the background cannot be initialized

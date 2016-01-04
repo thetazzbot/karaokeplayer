@@ -16,28 +16,28 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  **************************************************************************/
 
-#include "playerbackgroundcolor.h"
+#include "backgroundcolor.h"
 #include "settings.h"
 #include "karaokepainter.h"
 
-PlayerBackgroundColor::PlayerBackgroundColor()
-    : PlayerBackground()
+BackgroundColor::BackgroundColor()
+    : Background()
 {
 }
 
-bool PlayerBackgroundColor::initFromSettings()
+bool BackgroundColor::initFromSettings()
 {
     m_color = pSettings->playerBackgroundColor;
     return m_color.isValid();
 }
 
-bool PlayerBackgroundColor::initFromFile(QIODevice *, const QString &)
+bool BackgroundColor::initFromFile(QIODevice *, const QString &)
 {
     // Unused in real apps
     return false;
 }
 
-qint64 PlayerBackgroundColor::draw(KaraokePainter &p)
+qint64 BackgroundColor::draw(KaraokePainter &p)
 {
     p.fillRect( p.rect(), m_color );
     return -1;

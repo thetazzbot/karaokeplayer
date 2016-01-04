@@ -25,7 +25,7 @@
 
 #include "universalplayer.h"
 #include "playerlyrics.h"
-#include "playerbackground.h"
+#include "background.h"
 #include "songqueue.h"
 
 class SongDatabaseInfo;
@@ -74,7 +74,7 @@ class KaraokeSong : public QObject
 
         QString             m_musicFileName;
         PlayerLyrics     *  m_lyrics;
-        PlayerBackground *  m_background;
+        Background *  m_background;
 
         // Player and rendering widget
         UniversalPlayer     m_player;

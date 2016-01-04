@@ -17,6 +17,8 @@
  **************************************************************************/
 
 #include <QDir>
+#include <QString>
+#include <QStringList>
 #include <QFileInfo>
 #include <QSettings>
 #include <QStandardPaths>
@@ -31,6 +33,29 @@ Settings::Collection::Collection()
     detectLanguage = true;
     defaultLanguage = 0;
     scanZips = true;
+}
+
+Settings::Collection::Collection(const QString &parsed)
+{
+    // This assumes path doesn't contain | - probably a reasonable assumption
+    QStringList info = parsed.split( '|' );
+
+    detectLanguage = info[1] == "1";
+    defaultLanguage = info[2].toInt();
+    scanZips = info[3] == "1";
+    pathFormat = (PathFormat) info[4].toInt();
+    rootPath = info[5];
+}
+
+QString Settings::Collection::toString()
+{
+    // First 1 here is version
+    return QString("1|%1|%2|%3|%4|%5")
+            .arg( detectLanguage ? 1 : 0 )
+            .arg( defaultLanguage )
+            .arg( scanZips ? 1 : 0 )
+            .arg( (int) pathFormat )
+            .arg( rootPath );
 }
 
 
@@ -66,11 +91,6 @@ Settings::Settings()
     // songPathPrefix should follow directory separator
     if ( !songPathReplacementFrom.isEmpty() && !songPathReplacementFrom.endsWith( QDir::separator() ) )
         songPathReplacementFrom.append( QDir::separator() );
-
-    Collection col;
-    col.rootPath = "/mnt/karaoke";
-    col.pathFormat = Collection::PATH_FORMAT_ARTIST_SLASH_TITLE;
-    songCollection.push_back( col );
 
     //customBackground = m_appDataPath + "background.jpg";
     //httpDocumentRoot = m_appDataPath + "wwwroot";
@@ -151,6 +171,15 @@ void Settings::load()
     startInFullscreen = settings.value( "mainmenu/StartInFullscreen", false ).toBool();
 
     cacheDir = settings.value( "player/cacheDir", QStandardPaths::writableLocation( QStandardPaths::CacheLocation ) ).toString();
+
+    // Collections
+    for ( int i = 0; i < settings.value( "collections/totalCount", 0 ).toInt(); i++ )
+    {
+        QString value = settings.value( QString("collections/col%1").arg(i), "" ).toString();
+
+        if ( !value.isEmpty() )
+            songCollection.push_back( Collection( value ) );
+    }
 }
 
 void Settings::save()
@@ -190,5 +219,10 @@ void Settings::save()
     // Store the cache dir only if the location is changed (i.e. not standard)
     if ( QStandardPaths::writableLocation( QStandardPaths::CacheLocation ) != cacheDir )
         settings.setValue( "player/cacheDir", cacheDir );
-}
 
+    // Store collections
+    settings.setValue( "collections/totalCount", songCollection.size() );
+
+    for ( int i = 0; i < songCollection.size(); i++ )
+        settings.setValue( QString("collections/col%1").arg(i), songCollection[i].toString() );
+}

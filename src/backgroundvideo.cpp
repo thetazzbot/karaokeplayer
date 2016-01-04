@@ -23,30 +23,30 @@
 #include "karaokepainter.h"
 #include "actionhandler.h"
 #include "currentstate.h"
-#include "playerbackgroundvideo.h"
+#include "backgroundvideo.h"
 
 
-PlayerBackgroundVideo::PlayerBackgroundVideo()
-    : QObject(), PlayerBackground()
+BackgroundVideo::BackgroundVideo()
+    : QObject(), Background()
 {
     connect( &m_player, SIGNAL(finished()), this, SLOT(finished()) );
 }
 
-PlayerBackgroundVideo::~PlayerBackgroundVideo()
+BackgroundVideo::~BackgroundVideo()
 {
 }
 
-void PlayerBackgroundVideo::start()
+void BackgroundVideo::start()
 {
     m_player.play();
 }
 
-void PlayerBackgroundVideo::pause(bool pausing)
+void BackgroundVideo::pause(bool pausing)
 {
     m_player.pauseOrResume( pausing );
 }
 
-void PlayerBackgroundVideo::stop()
+void BackgroundVideo::stop()
 {
     // Store the current video position so next song could resume video
     if ( m_player.position() > 0 )
@@ -56,7 +56,7 @@ void PlayerBackgroundVideo::stop()
 }
 
 
-void PlayerBackgroundVideo::finished()
+void BackgroundVideo::finished()
 {
     Logger::debug("Background video: current video ended, switching to new video" );
     pCurrentState->nextBackgroundObject();
@@ -64,7 +64,7 @@ void PlayerBackgroundVideo::finished()
     initFromSettings();
 }
 
-bool PlayerBackgroundVideo::initFromSettings()
+bool BackgroundVideo::initFromSettings()
 {
     QString videofile = pCurrentState->currentBackgroundObject();
 
@@ -80,13 +80,13 @@ bool PlayerBackgroundVideo::initFromSettings()
     return true;
 }
 
-bool PlayerBackgroundVideo::initFromFile(QIODevice *, const QString &)
+bool BackgroundVideo::initFromFile(QIODevice *, const QString &)
 {
     // FIXME: This is not unused (i.e. UltraStart and KFN use it), but not currently implemented
     return false;
 }
 
-qint64 PlayerBackgroundVideo::draw(KaraokePainter &p)
+qint64 BackgroundVideo::draw(KaraokePainter &p)
 {
     m_player.draw( p );
 

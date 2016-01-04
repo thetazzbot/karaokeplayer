@@ -14,8 +14,6 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    playerbackground.cpp \
-    playerbackgroundcolor.cpp \
     settings.cpp \
     playerlyrics.cpp \
     playerlyricscdg.cpp \
@@ -24,12 +22,10 @@ SOURCES += main.cpp\
     playerlyricstext.cpp \
     playerlyrictext_line.cpp \
     karaokepainter.cpp \
-    playerbackgroundvideo.cpp \
     playernotification.cpp \
     playerrenderer.cpp \
     songsearchdialog.cpp \
     logger.cpp \
-    playerbackgroundimage.cpp \
     convertermidi.cpp \
     karaokewidget.cpp \
     karaokesong.cpp \
@@ -48,11 +44,13 @@ SOURCES += main.cpp\
     karaokeplayable_kfn.cpp \
     util.cpp \
     songdatabasescanner.cpp \
-    languagedetector.cpp
+    languagedetector.cpp \
+    background.cpp \
+    backgroundcolor.cpp \
+    backgroundimage.cpp \
+    backgroundvideo.cpp
 
 HEADERS  += mainwindow.h \
-    playerbackground.h \
-    playerbackgroundcolor.h \
     settings.h \
     playerlyrics.h \
     playerlyricscdg.h \
@@ -61,13 +59,11 @@ HEADERS  += mainwindow.h \
     playerlyricstext.h \
     playerlyrictext_line.h \
     karaokepainter.h \
-    playerbackgroundvideo.h \
     playernotification.h \
     playerrenderer.h \
     songsearchdialog.h \
     logger.h \
     util.h \
-    playerbackgroundimage.h \
     convertermidi.h \
     karaokewidget.h \
     karaokesong.h \
@@ -87,7 +83,11 @@ HEADERS  += mainwindow.h \
     karaokeplayable_kfn.h \
     aes.h \
     songdatabasescanner.h \
-    languagedetector.h
+    languagedetector.h \
+    background.h \
+    backgroundcolor.h \
+    backgroundimage.h \
+    backgroundvideo.h
 
 FORMS    += mainwindow.ui \
     songsearchdialog.ui \

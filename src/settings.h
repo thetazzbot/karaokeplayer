@@ -40,6 +40,10 @@ class Settings
         public:
             Collection();
 
+            // This is used in load/save collection
+            Collection( const QString& parsed );
+            QString toString();
+
             enum PathFormat
             {
                 PATH_FORMAT_ARTIST_SLASH_TITLE, // artist is the directory name, title is the file name

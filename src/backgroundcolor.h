@@ -16,20 +16,17 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  **************************************************************************/
 
-#ifndef PLAYERBACKGROUNDVIDEO_H
-#define PLAYERBACKGROUNDVIDEO_H
+#ifndef BACKGROUNDCOLOR_H
+#define BACKGROUNDCOLOR_H
 
-#include "universalplayer.h"
-#include "playerbackground.h"
+#include <QColor>
 
+#include "background.h"
 
-class PlayerBackgroundVideo : public QObject, public PlayerBackground
+class BackgroundColor : public Background
 {
-    Q_OBJECT
-
     public:
-        PlayerBackgroundVideo();
-        virtual ~PlayerBackgroundVideo();
+        BackgroundColor();
 
         // Background could be initialized either from the settings (by callign initFromSettings() or from
         // a specific file/QIODevice - for example for KFN files (the file name needs to be passed to know which type
@@ -39,18 +36,10 @@ class PlayerBackgroundVideo : public QObject, public PlayerBackground
 
         // Draws the background on the image; the prior content of the image is undefined. If false is returned,
         // it is considered an error, and the whole playing process is aborted - use wisely
-        virtual qint64  draw( KaraokePainter& p );
-
-        // Current state notifications, may be reimplemented. Default implementation does nothing.
-        virtual void    start();
-        virtual void    pause( bool pausing );
-        virtual void    stop();
-
-    private slots:
-        void    finished();
+        qint64   draw( KaraokePainter& p );
 
     private:
-        UniversalPlayer     m_player;
+        QColor  m_color;
 };
 
-#endif // PLAYERBACKGROUNDVIDEO_H
+#endif // PLAYERBACKGROUNDCOLOR_H

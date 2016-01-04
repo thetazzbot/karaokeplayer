@@ -16,21 +16,21 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  **************************************************************************/
 
-#ifndef PLAYERBACKGROUNDIMAGE_H
-#define PLAYERBACKGROUNDIMAGE_H
+#ifndef BACKGROUNDIMAGE_H
+#define BACKGROUNDIMAGE_H
 
 #include <QTime>
 #include <QImage>
 #include <QAtomicInt>
 
 #include "karaokepainter.h"
-#include "playerbackground.h"
+#include "background.h"
 
 // Background for image or slideshow
-class PlayerBackgroundImage : public PlayerBackground
+class BackgroundImage : public Background
 {
     public:
-        PlayerBackgroundImage();
+        BackgroundImage();
 
         // Background could be initialized either from the settings (by callign initFromSettings() or from
         // a specific file/QIODevice - for example for KFN files (the file name needs to be passed to know which type
@@ -78,4 +78,4 @@ class PlayerBackgroundImage : public PlayerBackground
         QAtomicInt  m_playbackPaused;
 };
 
-#endif // PLAYERBACKGROUNDIMAGE_H
+#endif // BACKGROUNDIMAGE_H

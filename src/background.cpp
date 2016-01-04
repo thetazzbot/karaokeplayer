@@ -16,26 +16,50 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  **************************************************************************/
 
-#include "playerbackground.h"
+#include "settings.h"
+#include "background.h"
+#include "backgroundcolor.h"
+#include "backgroundvideo.h"
+#include "backgroundimage.h"
 
 
-PlayerBackground::PlayerBackground()
+Background::Background()
 {
 }
 
-PlayerBackground::~PlayerBackground()
+Background::~Background()
 {
 }
 
-void PlayerBackground::start()
+void Background::start()
 {
 }
 
-void PlayerBackground::pause(bool )
+void Background::pause(bool )
 {
 }
 
-void PlayerBackground::stop()
+void Background::stop()
 {
 }
 
+
+Background * Background::create()
+{
+    switch ( pSettings->playerBackgroundType )
+    {
+        case Settings::BACKGROUND_TYPE_NONE:
+            return new BackgroundNone();
+
+        case Settings::BACKGROUND_TYPE_IMAGE:
+            return new BackgroundImage();
+
+        case Settings::BACKGROUND_TYPE_VIDEO:
+            return new BackgroundVideo();
+
+        case Settings::BACKGROUND_TYPE_COLOR:
+            return new BackgroundColor();
+    }
+
+    return 0;
+}
