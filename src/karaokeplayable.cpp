@@ -79,6 +79,10 @@ bool KaraokePlayable::parse()
 
         foreach ( const QString& obj, objects )
         {
+            // We do not want to match a complete file (i.e. LRC with MP4) so we ignore them
+            if ( isSupportedCompleteFile(obj) )
+                continue;
+
             if ( m_lyricObject.isEmpty() && isSupportedLyricFile( obj ) )
                 m_lyricObject = obj;
 
