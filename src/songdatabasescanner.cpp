@@ -282,11 +282,16 @@ void SongDatabaseScanner::processingThread()
         if ( pSongDatabase->songByPath( entry.filePath, info ) )
         {
             // We have the song, does it have all the information?
-            if ( !info.artist.isEmpty() && info.title.isEmpty() && !info.type.isEmpty() && info.language != 0 )
+            if ( !info.artist.isEmpty() && !info.title.isEmpty() && !info.type.isEmpty() && info.language != 0 )
             {
                 // Is it up-to-date?
                 if ( QFileInfo(entry.filePath).lastModified() <= QDateTime::fromMSecsSinceEpoch( info.added * 1000LL ) )
+                {
+                    Logger::debug( "SongDatabaseScanner: file %s has all the info and is up-to-date, skipped", qPrintable(entry.filePath) );
                     continue;
+                }
+
+                Logger::debug( "SongDatabaseScanner: file %s has all the info but is not up-to-date", qPrintable(entry.filePath) );
             }
         }
 
@@ -383,7 +388,7 @@ void SongDatabaseScanner::processingThread()
 
 void SongDatabaseScanner::submittingThread()
 {
-    const int ENTRIES_TO_UPDATE = 500;
+    const int ENTRIES_TO_UPDATE = 200;
 
     Logger::debug( "SongDatabaseScanner: submitting thread started" );
 
@@ -395,8 +400,18 @@ void SongDatabaseScanner::submittingThread()
         // Someone else might have taken our item
         if ( m_submittingQueue.size() >= ENTRIES_TO_UPDATE  )
         {
-            pSongDatabase->updateDatabase( m_submittingQueue );
+            // We make a copy of current queue (still locked), clear and unlock it - this ensures
+            // all processing threads do not stop while we're updating the database.
+            // Due to Qt's copy-on-write this doesn't result in such huge waste of memory
+            QList<SongDatabaseEntry> copy = m_submittingQueue;
             m_submittingQueue.clear();
+            m_submittingQueueMutex.unlock();
+
+            // Now update at our own pace
+            pSongDatabase->updateDatabase( copy );
+
+            // and straight away into the loop (no falling through into wait, mutex is not locked)
+            continue;
         }
 
         m_submittingQueueCond.wait( &m_submittingQueueMutex );
