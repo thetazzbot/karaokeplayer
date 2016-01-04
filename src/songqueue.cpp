@@ -38,6 +38,12 @@ SongQueue::SongQueue(QObject *parent)
     m_nextQueueId = 1;
 }
 
+SongQueue::~SongQueue()
+{
+    if ( !pSettings->queueFilename.isEmpty() )
+        QFile::remove( pSettings->queueFilename );
+}
+
 void SongQueue::init()
 {
     if ( !pSettings->queueFilename.isEmpty() )

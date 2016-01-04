@@ -61,6 +61,7 @@ class SongQueue : public QObject
         };
 
         SongQueue( QObject * parent );
+        ~SongQueue();
 
         // Initializes the queue, loading it (and emitting the queueChanged) if necessary
         void    init();
