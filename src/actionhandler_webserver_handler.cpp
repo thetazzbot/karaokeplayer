@@ -147,24 +147,24 @@ bool ActionHandler_WebServer_Handler::search( QHttpSocket *socket, QJsonDocument
 {
     QJsonObject obj = document.object();
 
-    if ( !obj.contains( "q" ) )
+    if ( !obj.contains( "query" ) )
         return false;
 
     QList< SongDatabaseInfo > results;
     QJsonArray out;
 
-    if ( pSongDatabase->search( obj["q"].toString(), results ) )
+    if ( pSongDatabase->search( obj["query"].toString(), results ) )
     {
         Q_FOREACH( const SongDatabaseInfo& res, results )
         {
             QJsonObject rec;
 
-            rec[ "i" ] = res.id;
-            rec[ "a" ] = res.artist;
-            rec[ "t"] = res.title;
-            rec[ "y"] = res.type;
-            rec[ "r"] = res.rating;
-            rec[ "l"] = res.language;
+            rec[ "id" ] = res.id;
+            rec[ "artist" ] = res.artist;
+            rec[ "title"] = res.title;
+            rec[ "type"] = res.type;
+            rec[ "rating"] = res.rating;
+            rec[ "language"] = res.language;
 
             out.append( rec );
         }
@@ -179,11 +179,11 @@ bool ActionHandler_WebServer_Handler::addsong( QHttpSocket *socket, QJsonDocumen
 {
     QJsonObject obj = document.object();
 
-    if ( !obj.contains( "i" ) || !obj.contains( "s" ) )
+    if ( !obj.contains( "id" ) || !obj.contains( "singer" ) )
         return false;
 
-    int id = obj["i"].toInt();
-    QString singer = obj["s"].toString();
+    int id = obj["id"].toInt();
+    QString singer = obj["singer"].toString();
 
     SongDatabaseInfo info;
 
@@ -204,8 +204,8 @@ bool ActionHandler_WebServer_Handler::addsong( QHttpSocket *socket, QJsonDocumen
 
     QJsonObject out;
     out["result"] = 1;
-    out["t"] = info.title;
-    out["a"] = info.artist;
+    out["title"] = info.title;
+    out["artist"] = info.artist;
 
     sendData( socket, QJsonDocument( out ).toJson() );
     socket->close();
@@ -225,10 +225,10 @@ bool ActionHandler_WebServer_Handler::listqueue(QHttpSocket *socket, QJsonDocume
     {
         QJsonObject rec;
 
-        rec[ "i" ] = s.id;
-        rec[ "p" ] = s.singer;
-        rec[ "t"] = s.title;
-        rec[ "s"] = s.stateText();
+        rec[ "id" ] = s.id;
+        rec[ "singer" ] = s.singer;
+        rec[ "title"] = s.title;
+        rec[ "state"] = s.stateText();
 
         out.append( rec );
     }
@@ -244,9 +244,9 @@ bool ActionHandler_WebServer_Handler::listDatabase(QHttpSocket *socket, QJsonDoc
     QJsonArray out;
     QString type;
 
-    if ( obj.contains( "a" ) )
+    if ( obj.contains( "artist" ) )
     {
-        QString artist = obj["a"].toString();
+        QString artist = obj["artist"].toString();
 
         // List songs by artist or by letter
         if ( artist.length() == 1 )
@@ -272,12 +272,12 @@ bool ActionHandler_WebServer_Handler::listDatabase(QHttpSocket *socket, QJsonDoc
             {
                 QJsonObject rec;
 
-                rec[ "i" ] = res.id;
-                rec[ "a" ] = res.artist;
-                rec[ "t"] = res.title;
-                rec[ "y"] = res.type;
-                rec[ "r"] = res.rating;
-                rec[ "l"] = res.language;
+                rec[ "id" ] = res.id;
+                rec[ "artist" ] = res.artist;
+                rec[ "title"] = res.title;
+                rec[ "type"] = res.type;
+                rec[ "rating"] = res.rating;
+                rec[ "language"] = res.language;
 
                 out.append( rec );
             }

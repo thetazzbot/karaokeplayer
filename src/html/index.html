@@ -14,6 +14,7 @@
 
         ul { list-style-type: none; margin: 0; padding: 0; }
         li {  font: 200 30px/1.5 Helvetica, Verdana, sans-serif;  border-bottom: 1px solid #ccc; }
+        .info {  font: 200 20px/1.5 Helvetica, Verdana, sans-serif;  }
         li:last-child { border: none; }
 
     </style>
@@ -51,8 +52,13 @@
                 
                 for ( var i = 0; i < obj.length; i++ )
                 {
-                    var item = obj[i].a + " - " + obj[i].t;
-                    list += "<li><a href='#' onclick=\"addsong( " + obj[i].i + ");\">" + item + "</a>" + "  [" + obj[i].y + "]" + "</li>";
+                    var item = obj[i].artist + " - " + obj[i].title;
+                    list += "<li><a href='#' onclick=\"addsong( " + obj[i].id + ");\">" + item + "</a>" + "<span class=\"info\">    " + obj[i].type;
+                    
+                    if ( obj[i].language != "Unknown" )
+		      list += " in " +  obj[i].language;
+		      
+		    list += "</span></li>";
                 }
                 
                 list += "</ul>"
@@ -66,7 +72,7 @@
 
         function search()
         {
-            runAPI( '/api/search', { q : document.getElementById("song").value }, searchSucceed );
+            runAPI( '/api/search', { query : document.getElementById("song").value }, searchSucceed );
         }
 
         function browseSucceed( xhttp )
@@ -98,7 +104,7 @@
      
         function browseArtist( artist, callback )
         {
-            runAPI( '/api/browse', { a: artist }, callback );
+            runAPI( '/api/browse', { artist: artist }, callback );
         }        
         
         function browse()
@@ -111,7 +117,7 @@
             var data = JSON.parse( xhttp.responseText );
 
             if ( data["result"] == 1 )
-                document.getElementById("songlist").innerHTML = "<b>" + data["t"] + "</b> by <b>" + data["a"] + "</b> is successfully enqueued";
+                document.getElementById("songlist").innerHTML = "<b>" + data["title"] + "</b> by <b>" + data["artist"] + "</b> is successfully enqueued";
             else
                 document.getElementById("songlist").innerHTML = "Failed to add to queue";
 
@@ -121,7 +127,7 @@
         function addsong( id )
         {
             name = document.cookie.substring( 5 );
-            runAPI( '/api/addsong', { i : id, s: name }, addsongSucceed );
+            runAPI( '/api/addsong', { id : id, singer: name }, addsongSucceed );
         }
 
         function nameEntered()
