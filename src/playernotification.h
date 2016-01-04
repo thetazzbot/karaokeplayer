@@ -21,6 +21,7 @@
 
 #include <QList>
 #include <QMutex>
+#include <QTime>
 #include <QString>
 
 #include "karaokepainter.h"
@@ -43,7 +44,6 @@ class PlayerNotification : public QObject
         // Draw the regular notification
         qint64  drawRegular( KaraokePainter& p );
 
-
     public slots:
         void    queueUpdated();
 
@@ -54,7 +54,7 @@ class PlayerNotification : public QObject
         void    setOnScreenMessage( const QString& message );
         void    clearOnScreenMessage();
 
-        void    setMessage( const QString& message, int show = 2000 );
+        void    showMessage( const QString& message, int show = 5000 );
 
     private:
         void    reset();
@@ -75,6 +75,9 @@ class PlayerNotification : public QObject
         QMutex          m_mutex;
         QFont           m_customFont;
         QString         m_customMessage;
+
+        QString         m_smallMessage;
+        QTime           m_smallMessageExpires;
 };
 
 extern PlayerNotification * pNotification;

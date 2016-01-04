@@ -266,7 +266,6 @@ qint64 KaraokeSong::draw(KaraokePainter &p)
     // Update position
     pCurrentState->playerPosition = m_player.position();
 
-    // Background is always on
     qint64 time = pCurrentState->playerDuration;
 
     if ( m_background )
@@ -317,7 +316,7 @@ void KaraokeSong::lyricEarlier()
     int newdelay = m_lyrics->delay() + 200;
     m_lyrics->setDelay( newdelay );
 
-    pNotification->setMessage( tr("Lyrics show %1 by %2ms") .arg( newdelay < 0 ? "earlier" : "later") .arg(newdelay));
+    pNotification->showMessage( tr("Lyrics show %1 by %2ms") .arg( newdelay < 0 ? "earlier" : "later") .arg(newdelay));
 }
 
 void KaraokeSong::lyricLater()
@@ -328,15 +327,17 @@ void KaraokeSong::lyricLater()
     int newdelay = m_lyrics->delay() - 200;
     m_lyrics->setDelay( newdelay );
 
-    pNotification->setMessage( tr("Lyrics show %1 by %2ms") .arg( newdelay < 0 ? "earlier" : "later") .arg(newdelay));
+    pNotification->showMessage( tr("Lyrics show %1 by %2ms") .arg( newdelay < 0 ? "earlier" : "later") .arg(newdelay));
 }
 
 void KaraokeSong::ratingDown()
 {
     m_rating--;
+    pNotification->showMessage( tr("Song rating decreased to %1") .arg(m_rating) );
 }
 
 void KaraokeSong::ratingUp()
 {
     m_rating++;
+    pNotification->showMessage( tr("Song rating increased to %1") .arg(m_rating) );
 }

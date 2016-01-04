@@ -82,12 +82,39 @@ qint64 PlayerNotification::drawTop( KaraokePainter &p )
 
 qint64 PlayerNotification::drawRegular(KaraokePainter &p)
 {
+    QTime now = QTime::currentTime();
+
+    QMutexLocker m( &m_mutex );
+
     if ( !m_customMessage.isEmpty() )
     {
         m_customFont.setPointSize( p.largestFontSize( m_customFont, 512, p.textRect().width(), m_customMessage ));
 
         p.setFont( m_customFont );
         p.drawCenteredOutlineText( 50, Qt::white, m_customMessage );
+    }
+
+    if ( !m_smallMessage.isEmpty() )
+    {
+        // Expires?
+        int msleft = now.msecsTo( m_smallMessageExpires );
+
+        if ( msleft > 0 )
+        {
+            // We will only take 5% of screen space for the message, but no less than 10px
+            p.tallestFontSize( m_customFont, qMax( 10, p.textRect().height() / 20 ) );
+
+            QColor color( Qt::white );
+
+            // If less than 0.5 sec left - we fade it out
+            if ( msleft <= 500 )
+                color.setAlpha( (msleft * 255) / 500 );
+
+            p.setFont( m_customFont );
+            p.drawOutlineText( p.textRect().x(), p.textRect().y() + p.fontMetrics().height(), color, m_smallMessage );
+        }
+        else
+            m_smallMessage.clear();
     }
 
     return 0;
@@ -149,9 +176,11 @@ void PlayerNotification::clearOnScreenMessage()
     m_customMessage.clear();
 }
 
-void PlayerNotification::setMessage(const QString &message, int show)
+void PlayerNotification::showMessage(const QString &message, int show)
 {
-
+    QMutexLocker m( &m_mutex );
+    m_smallMessage = message;
+    m_smallMessageExpires = QTime::currentTime().addMSecs( show );
 }
 
 void PlayerNotification::reset()
