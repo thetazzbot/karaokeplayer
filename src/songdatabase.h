@@ -78,9 +78,6 @@ class SongDatabase : public QObject
         bool    browseArtists( const QChar& artistInitial, QStringList& artists );
         bool    browseSongs( const QString& artist, QList<SongDatabaseInfo>& results );
 
-        // Language is stored in database as INT with three bytes encoding the country code in big-endian
-        static QString languageFromInt( unsigned int value );
-
         // Add/update database entries from the list in a single transaction
         bool    updateDatabase( const QList<SongDatabaseScanner::SongDatabaseEntry> entries );
         bool    updateLastScan();

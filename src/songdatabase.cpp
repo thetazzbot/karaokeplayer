@@ -27,6 +27,7 @@
 #include "songdatabase.h"
 #include "util.h"
 #include "sqlite3.h"
+#include "languagedetector.h"
 #include "logger.h"
 
 static const int CURRENT_DB_SCHEMA_VERSION = 1;
@@ -77,7 +78,7 @@ class SQLiteStatement
         // Two functions below must be in sync regarding the column order
         bool prepareSongQuery( sqlite3 * db, const QString& wheresql, const QStringList& args = QStringList() )
         {
-            QString query = "SELECT rowid, path, artist, title, type, played, strftime('%s', lastplayed), lyricdelay, strftime('%s', added), rating FROM songs ";
+            QString query = "SELECT rowid, path, artist, title, type, played, strftime('%s', lastplayed), lyricdelay, strftime('%s', added), rating, language FROM songs ";
             return prepare( db, query + wheresql, args );
         }
 
@@ -95,7 +96,7 @@ class SQLiteStatement
             info.lyricDelay = columnInt( 7 );
             info.added = columnInt64( 8 );
             info.rating = columnInt( 9 );
-            info.language = SongDatabase::languageFromInt( columnInt( 10 ) );
+            info.language =LanguageDetector::languageFromCode( columnInt( 10 ) );
 
             return info;
         }
@@ -237,14 +238,6 @@ bool SongDatabase::browseSongs(const QString &artist, QList<SongDatabaseInfo> &r
     return !results.empty();
 }
 
-QString SongDatabase::languageFromInt(unsigned int value)
-{
-    char buf[8];
-    sprintf( buf, "%c%c%c", (value >> 16) & 0xFF, (value >> 8) & 0xFF, value & 0xFF );
-
-    return QString(buf);
-}
-
 bool SongDatabase::updateDatabase(const QList<SongDatabaseScanner::SongDatabaseEntry> entries)
 {
     if ( !execute( "BEGIN TRANSACTION" ) )
@@ -271,7 +264,7 @@ bool SongDatabase::updateDatabase(const QList<SongDatabaseScanner::SongDatabaseE
 
 bool SongDatabase::updateLastScan()
 {
-    execute( "UPDATE settings SET lastupdated=DATETIME()" );
+    return execute( "UPDATE settings SET lastupdated=DATETIME()" );
 }
 
 bool SongDatabase::clearDatabase()
