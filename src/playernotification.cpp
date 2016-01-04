@@ -19,6 +19,8 @@
 #include "settings.h"
 #include "currentstate.h"
 #include "songqueue.h"
+#include "background.h"
+#include "actionhandler.h"
 #include "playernotification.h"
 
 PlayerNotification * pNotification;
@@ -30,15 +32,14 @@ PlayerNotification::PlayerNotification(QObject *parent)
     m_lastScreenHeight = 0;
     m_notificationLine = m_firstItem = tr("Queue is empty");
 
-    if ( !pSettings->customBackground.isEmpty() )
-        m_customBackground.load( pSettings->customBackground );
+    connect( pActionHandler, SIGNAL(songStarted()), this, SLOT(songStarted()) );
+    connect( pActionHandler, SIGNAL(songStopped()), this, SLOT(songStopped()) );
 
     reset();
 }
 
-void PlayerNotification::showStopped()
+PlayerNotification::~PlayerNotification()
 {
-    m_customMessage = pCurrentState->webserverURL.isEmpty() ? "Please select a song" : pCurrentState->webserverURL;
 }
 
 qint64 PlayerNotification::drawTop( KaraokePainter &p )
@@ -83,9 +84,6 @@ qint64 PlayerNotification::drawRegular(KaraokePainter &p)
 {
     if ( !m_customMessage.isEmpty() )
     {
-        if ( !m_customBackground.isNull() )
-            p.drawImage( p.rect(), m_customBackground, m_customBackground.rect() );
-
         m_customFont.setPointSize( p.largestFontSize( m_customFont, 512, p.textRect().width(), m_customMessage ));
 
         p.setFont( m_customFont );
@@ -128,6 +126,15 @@ void PlayerNotification::queueUpdated()
     }
 
     reset();
+}
+
+void PlayerNotification::songStarted()
+{
+}
+
+void PlayerNotification::songStopped()
+{
+    m_customMessage = pCurrentState->webserverURL.isEmpty() ? "Please select a song" : pCurrentState->webserverURL;
 }
 
 void PlayerNotification::setOnScreenMessage(const QString &message)

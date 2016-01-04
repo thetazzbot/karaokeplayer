@@ -105,9 +105,6 @@ bool KaraokeSong::open()
 
         if ( !m_player.loadVideo( m_musicFileName, false ) )
             throw QString( "Cannot load video file %1: %2") .arg( m_musicFileName ) .arg( m_player.errorMsg() );
-
-        // And we use empty background
-        m_background = new BackgroundNone();
     }
     else
     {
@@ -210,15 +207,6 @@ bool KaraokeSong::open()
         }
     }
 
-    // If not set already, which background should we use?
-    if ( !m_background )
-    {
-        m_background = Background::create();
-
-        // Initialize
-        m_background->initFromSettings();
-    }
-
     // Set the song state
     pCurrentState->playerSong = m_song;
 
@@ -227,6 +215,9 @@ bool KaraokeSong::open()
 
 void KaraokeSong::start()
 {
+    // Notify the action handler
+    pActionHandler->playerSongStarted();
+
     pCurrentState->playerDuration = m_player.duration();
     pCurrentState->playerState = CurrentState::PLAYERSTATE_PLAYING;
 
@@ -294,11 +285,22 @@ qint64 KaraokeSong::draw(KaraokePainter &p)
     return time;
 }
 
+bool KaraokeSong::hasCustomBackground() const
+{
+    return m_background != 0;
+}
+
 void KaraokeSong::stop()
 {
     pCurrentState->playerState = CurrentState::PLAYERSTATE_STOPPED;
+    pActionHandler->playerSongStopped();
 
-    m_background->stop();
+    if ( m_background )
+    {
+        m_background->stop();
+        m_background = 0;
+    }
+
     m_player.stop();
 
     pSongQueue->statusChanged( m_song.id, false );

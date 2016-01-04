@@ -28,6 +28,7 @@
 //
 // It also stores a copy of the rendered image and provides it to the recorder
 
+class Background;
 class KaraokeSong;
 class PlayerRenderer;
 class PlayerNotification;
@@ -39,6 +40,9 @@ class KaraokeWidget : public QWidget
     public:
         explicit KaraokeWidget( QWidget *parent = 0 );
         ~KaraokeWidget();
+
+        // Init or reinit (if settings change) background
+        bool    initBackground();
 
         // Set current karaoke song
         void    startKaraoke( KaraokeSong * k );
@@ -70,6 +74,9 @@ class KaraokeWidget : public QWidget
         // Player widget renderer, runs in a dedicated thread
         // and renders everything into image
         PlayerRenderer* m_renderer;
+
+        // Current background, always rendered unless karaoke has a custom one
+        Background      *   m_background;
 
         // Current karaoke file
         KaraokeSong     *   m_karaoke;

@@ -113,8 +113,19 @@ int ActionHandler::actionByName(const char *eventname)
     return (int) m_actionNameMap[eventname];
 }
 
+void ActionHandler::playerSongStarted()
+{
+    emit songStarted();
+}
+
+void ActionHandler::playerSongStopped()
+{
+    emit songStopped();
+}
+
 void ActionHandler::playerSongFinished()
 {
+    emit songStopped();
     emit queueNext();
 }
 

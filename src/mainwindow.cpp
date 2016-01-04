@@ -99,9 +99,6 @@ MainWindow::MainWindow(QWidget *parent) :
     // Initialize the controller
     pActionHandler->start();
 
-    // Init the notification
-    pNotification->showStopped();
-
     // Connect slots
     connect( pActionHandler, SIGNAL(playerStart()), this, SLOT(queueStart()) );
     connect( pActionHandler, SIGNAL(playerStop()), this, SLOT(queueStop()) );
@@ -128,6 +125,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect( actionNext_song_in_queue, SIGNAL(triggered()), this, SLOT(queueNext()) );
     connect( actionErase_and_rescan_the_database, SIGNAL(triggered()), this, SLOT(menuRescanDatabase()) );
     connect( actionUpdate_the_database, SIGNAL(triggered()), this, SLOT(menuUpdateDatabase()) );
+
+    // Init the proper notification
+    pNotification->songStopped();
+
+    // And load the background
+    m_widget->initBackground();
 
     // Currently unused
     mainToolBar->hide();
@@ -157,7 +160,6 @@ void MainWindow::queueAdd(QString singer, QString file)
 void MainWindow::queueStop()
 {
     m_widget->stopKaraoke();
-    pNotification->showStopped();
 }
 
 void MainWindow::queueNext()

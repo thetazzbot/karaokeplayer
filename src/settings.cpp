@@ -167,7 +167,6 @@ void Settings::load()
     httpListenPort = settings.value( "http/ListenPort", 0 ).toInt();
     httpDocumentRoot = settings.value( "http/DocumentRoot", "" ).toString();
 
-    customBackground = settings.value( "mainmenu/CustomBackground", "" ).toString();
     startInFullscreen = settings.value( "mainmenu/StartInFullscreen", false ).toBool();
 
     cacheDir = settings.value( "player/cacheDir", QStandardPaths::writableLocation( QStandardPaths::CacheLocation ) ).toString();
@@ -213,7 +212,6 @@ void Settings::save()
     settings.setValue( "http/ListenPort", httpListenPort );
     settings.setValue( "http/DocumentRoot", httpDocumentRoot );
 
-    settings.setValue( "mainmenu/CustomBackground", customBackground );
     settings.setValue( "mainmenu/StartInFullscreen", startInFullscreen );
 
     // Store the cache dir only if the location is changed (i.e. not standard)

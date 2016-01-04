@@ -32,6 +32,7 @@ KaraokeWidget::KaraokeWidget(QWidget *parent )
     : QWidget(parent)
 {
     m_karaoke = 0;
+    m_background = 0;
 
     // 0 is set as draw image
     m_images[0] = new QImage(100, 100, QImage::Format_ARGB32);
@@ -46,12 +47,29 @@ KaraokeWidget::KaraokeWidget(QWidget *parent )
 
 KaraokeWidget::~KaraokeWidget()
 {
+    delete m_background;
     delete m_images[0];
     delete m_images[1];
 }
 
+bool KaraokeWidget::initBackground()
+{
+    QMutexLocker m( &m_karaokeMutex );
+
+    // If not set already, which background should we use?
+    if ( m_background )
+        delete m_background;
+
+    m_background = Background::create();
+    return m_background->initFromSettings();
+}
+
 void KaraokeWidget::startKaraoke(KaraokeSong *k)
 {
+    // Stop custom background
+    if ( k->hasCustomBackground() )
+        m_background->pause( true );
+
     m_karaokeMutex.lock();
     m_karaoke = k;
     m_karaokeMutex.unlock();
@@ -66,8 +84,14 @@ void KaraokeWidget::stopKaraoke()
     m_karaoke = 0;
     m_karaokeMutex.unlock();
 
+    // If we stopped our background, start it
     if ( k )
+    {
+        if ( k->hasCustomBackground() )
+            m_background->pause( false );
+
         k->stop();
+    }
 
     delete k;
 

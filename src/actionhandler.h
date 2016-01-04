@@ -96,9 +96,15 @@ class ActionHandler : public QObject
         // Generic actions
         void    actionQuit();
 
+        // Informational
+        void    songStarted();
+        void    songStopped();
+
     public slots:
         // Events from player
-        void    playerSongFinished();
+        void    playerSongStarted();
+        void    playerSongStopped();    // manually
+        void    playerSongFinished();   // naturally
         void    playerSongFailed();
 
         // Reports an error or warning

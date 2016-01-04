@@ -56,6 +56,9 @@ class KaraokeSong : public QObject
         // Draws current song in its current state
         qint64  draw( KaraokePainter& p );
 
+        // Does it have custom background?
+        bool    hasCustomBackground() const;
+
     public slots:
         void    start();
         void    pause();
@@ -74,7 +77,9 @@ class KaraokeSong : public QObject
 
         QString             m_musicFileName;
         PlayerLyrics     *  m_lyrics;
-        Background *  m_background;
+
+        // This is only set when the song has custom background (such as KFN/Ustar)
+        Background      *   m_background;
 
         // Player and rendering widget
         UniversalPlayer     m_player;

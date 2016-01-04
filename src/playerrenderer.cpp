@@ -73,14 +73,17 @@ void PlayerRenderer::run()
         // Switch the painter to main area
         p.setClipAreaMain();
 
-        if ( pCurrentState->playerState != CurrentState::PLAYERSTATE_STOPPED )
-        {
-            m_widget->m_karaokeMutex.lock();
+        m_widget->m_karaokeMutex.lock();
 
-            // Draw background and lyrics
+        // Draw background if we're not playing
+        if ( pCurrentState->playerState == CurrentState::PLAYERSTATE_STOPPED || !m_widget->m_karaoke->hasCustomBackground() )
+            m_widget->m_background->draw( p );
+
+        // Draw background (possibly) and lyrics if we are
+        if ( pCurrentState->playerState != CurrentState::PLAYERSTATE_STOPPED )
             m_widget->m_karaoke->draw( p );
-            m_widget->m_karaokeMutex.unlock();
-        }
+
+        m_widget->m_karaokeMutex.unlock();
 
         // And subsequent notifications, if any (they must go on top of lyrics)
         m_notification->drawRegular( p );
