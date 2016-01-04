@@ -55,6 +55,7 @@ class PlayerNotification : public QObject
         void    clearOnScreenMessage();
 
         void    showMessage( const QString& message, int show = 5000 );
+        void    showMessage( int percentage, const QString& message, int show = 5000 );
 
     private:
         void    reset();
@@ -71,12 +72,13 @@ class PlayerNotification : public QObject
         int             m_scrollOffset;
         int             m_scrollStep;
 
-        // Custom message
+        // Custom messages
         QMutex          m_mutex;
         QFont           m_customFont;
         QString         m_customMessage;
 
         QString         m_smallMessage;
+        int             m_smallPercentage;
         QTime           m_smallMessageExpires;
 };
 

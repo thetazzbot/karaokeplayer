@@ -111,7 +111,30 @@ qint64 PlayerNotification::drawRegular(KaraokePainter &p)
                 color.setAlpha( (msleft * 255) / 500 );
 
             p.setFont( m_customFont );
-            p.drawOutlineText( p.textRect().x(), p.textRect().y() + p.fontMetrics().height(), color, m_smallMessage );
+            int height = p.fontMetrics().height();
+            p.drawOutlineText( p.textRect().x(), p.textRect().y() + height, color, m_smallMessage );
+
+            // Do we need to draw the percentage box as well?
+            if ( m_smallPercentage != -1 )
+            {
+                QColor black( Qt::black );
+                black.setAlpha( color.alpha() );
+
+                // First draw it without filling
+                unsigned int boxwidth = p.textRect().width() / 4;
+                int startx = p.textRect().x() + p.fontMetrics().width( m_smallMessage + "aaa" );
+
+                QPen pen( black );
+                pen.setWidth( 3 );
+
+                p.setPen( pen );
+                p.setBrush( QBrush() );
+                p.drawRect( startx, p.textRect().y(), boxwidth, height + p.fontMetrics().descent() );
+
+                // Now filled according to percentage
+                p.setBrush( color );
+                p.drawRect( startx, p.textRect().y(), (m_smallPercentage * boxwidth) / 100, height + p.fontMetrics().descent() );
+            }
         }
         else
             m_smallMessage.clear();
@@ -180,6 +203,15 @@ void PlayerNotification::showMessage(const QString &message, int show)
 {
     QMutexLocker m( &m_mutex );
     m_smallMessage = message;
+    m_smallPercentage = -1;
+    m_smallMessageExpires = QTime::currentTime().addMSecs( show );
+}
+
+void PlayerNotification::showMessage(int percentage, const QString &message, int show)
+{
+    QMutexLocker m( &m_mutex );
+    m_smallMessage = message;
+    m_smallPercentage = percentage;
     m_smallMessageExpires = QTime::currentTime().addMSecs( show );
 }
 

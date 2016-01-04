@@ -31,6 +31,7 @@
 #include "currentstate.h"
 #include "karaokepainter.h"
 #include "universalplayer.h"
+#include "playernotification.h"
 
 
 // Background video surface implementation
@@ -237,6 +238,7 @@ void UniversalPlayer::volumeDown()
     int newvolume = qMax( m_player->volume() - 10, 0 );
     m_player->setVolume( newvolume );
     pCurrentState->playerVolume = newvolume;
+    pNotification->showMessage( newvolume, "Volume" );
 }
 
 void UniversalPlayer::volumeUp()
@@ -244,6 +246,7 @@ void UniversalPlayer::volumeUp()
     int newvolume = qMin( m_player->volume() + 10, 100 );
     m_player->setVolume( newvolume );
     pCurrentState->playerVolume = newvolume;
+    pNotification->showMessage( newvolume, "Volume" );
 }
 
 qint64 UniversalPlayer::duration()

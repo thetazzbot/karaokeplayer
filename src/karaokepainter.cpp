@@ -121,7 +121,10 @@ void KaraokePainter::drawOutlineText(int x, int y, const QColor &color, const QS
     QPainterPath path;
     path.addText( x, y, font(), text );
 
-    QPen pen( Qt::black );
+    QColor black( Qt::black );
+    black.setAlpha( color.alpha() );
+
+    QPen pen( black );
     pen.setWidth( qMax( 1, font().pointSize() / 30 ) );
 
     setPen( pen );
