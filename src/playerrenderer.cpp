@@ -77,7 +77,10 @@ void PlayerRenderer::run()
 
         // Draw background if we're not playing
         if ( pCurrentState->playerState == CurrentState::PLAYERSTATE_STOPPED || !m_widget->m_karaoke->hasCustomBackground() )
-            m_widget->m_background->draw( p );
+        {
+            if ( m_widget->m_background )
+                m_widget->m_background->draw( p );
+        }
 
         // Draw background (possibly) and lyrics if we are
         if ( pCurrentState->playerState != CurrentState::PLAYERSTATE_STOPPED )

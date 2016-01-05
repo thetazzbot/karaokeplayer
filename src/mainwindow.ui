@@ -20,7 +20,7 @@
      <x>0</x>
      <y>0</y>
      <width>400</width>
-     <height>27</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -37,7 +37,6 @@
     </property>
     <addaction name="action_Player_window"/>
     <addaction name="separator"/>
-    <addaction name="actionSettings"/>
    </widget>
    <widget class="QMenu" name="menu_Help">
     <property name="title">
@@ -58,16 +57,17 @@
    </widget>
    <widget class="QMenu" name="menuDatabase">
     <property name="title">
-     <string>&amp;Database</string>
+     <string>Settin&amp;gs</string>
     </property>
+    <addaction name="actionSettings"/>
     <addaction name="actionUpdate_the_database"/>
     <addaction name="separator"/>
     <addaction name="actionErase_and_rescan_the_database"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menuPlayer"/>
-   <addaction name="menuDatabase"/>
    <addaction name="menuWindows"/>
+   <addaction name="menuDatabase"/>
    <addaction name="menu_Help"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
@@ -111,11 +111,6 @@
     <string>&amp;About</string>
    </property>
   </action>
-  <action name="actionSettings">
-   <property name="text">
-    <string>&amp;Settings</string>
-   </property>
-  </action>
   <action name="actionStart_playing">
    <property name="text">
     <string>&amp;Start playing</string>
@@ -143,12 +138,17 @@
   </action>
   <action name="actionErase_and_rescan_the_database">
    <property name="text">
-    <string>Erase and rescan the database</string>
+    <string>&amp;Erase and rescan the database</string>
    </property>
   </action>
   <action name="actionUpdate_the_database">
    <property name="text">
-    <string>Update the database</string>
+    <string>&amp;Update the database</string>
+   </property>
+  </action>
+  <action name="actionSettings">
+   <property name="text">
+    <string>&amp;Settings</string>
    </property>
   </action>
  </widget>

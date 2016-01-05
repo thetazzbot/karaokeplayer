@@ -113,12 +113,11 @@ class Settings
         QString         replacePath( const QString& origpath );
 
     public:
-        void    load();
-        void    save();
+        // Load and save settings
+        void            load();
+        void            save();
 
     private:
-        void    loadBackgroundObjects();
-
         QString         m_appDataPath;
 
         // If the song path replacement is set (songPathReplacementFrom is not empty), this would replace '^from' to '^to'

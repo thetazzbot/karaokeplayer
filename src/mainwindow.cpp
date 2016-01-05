@@ -39,6 +39,7 @@
 #include "version.h"
 #include "playerwidget.h"
 #include "songdatabasescanner.h"
+#include "settingsdialog.h"
 
 #include "ui_dialog_about.h"
 
@@ -125,6 +126,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect( actionNext_song_in_queue, SIGNAL(triggered()), this, SLOT(queueNext()) );
     connect( actionErase_and_rescan_the_database, SIGNAL(triggered()), this, SLOT(menuRescanDatabase()) );
     connect( actionUpdate_the_database, SIGNAL(triggered()), this, SLOT(menuUpdateDatabase()) );
+    connect( actionSettings, SIGNAL(triggered()), this, SLOT(menuSettings()) );
 
     // Init the proper notification
     pNotification->songStopped();
@@ -267,7 +269,15 @@ void MainWindow::menuOpenKaraoke()
 
 void MainWindow::menuSettings()
 {
+    if ( m_settings )
+    {
+        m_settings->show();
+        return;
+    }
 
+    m_settings = new SettingsDialog();
+    connect( m_settings, SIGNAL(destroyed(QObject*)), this, SLOT(windowClosed(QObject*)) );
+    m_settings->show();
 }
 
 void MainWindow::menuToggleWindowPlayer()
@@ -280,7 +290,7 @@ void MainWindow::menuToggleWindowPlayer()
     else
     {
         m_playerWindow = new PlayerWidget( this );
-        connect( m_playerWindow, SIGNAL(destroyed(QObject*)), this, SLOT(dockWindowClosed(QObject*)) );
+        connect( m_playerWindow, SIGNAL(destroyed(QObject*)), this, SLOT(windowClosed(QObject*)) );
         m_playerWindow->show();
     }
 }
@@ -366,13 +376,17 @@ void MainWindow::menuUpdateDatabase()
 }
 
 
-void MainWindow::dockWindowClosed(QObject *widget)
+void MainWindow::windowClosed(QObject *widget)
 {
     if ( widget == m_playerWindow )
     {
         // Player dock window closed, and is already destroyed (no need to delete it)
         m_playerWindow = 0;
         action_Player_window->setChecked( false );
+    }
+    else if ( widget == m_settings )
+    {
+        m_settings = 0;
     }
     else
         abort();

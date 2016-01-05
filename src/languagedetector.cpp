@@ -229,3 +229,22 @@ QString LanguageDetector::languageFromCode(int code)
 
     return "Unknown";
 }
+
+int LanguageDetector::codeFromLanguage(const QString &language)
+{
+    for ( const struct language_map * l = languageMap; l->name; l++ )
+        if ( language == QString::fromUtf8( l->name ) )
+            return l->code;
+
+    return 0;
+}
+
+QStringList LanguageDetector::languages()
+{
+    QStringList langs;
+
+    for ( const struct language_map * l = languageMap; l->name; l++ )
+        langs.push_back( QString::fromUtf8( l->name ) );
+
+    return langs;
+}

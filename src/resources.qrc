@@ -6,5 +6,6 @@
         <file>images/dryicons_rewind.png</file>
         <file>images/dryicons_stop.png</file>
         <file>html/index.html</file>
+        <file>images/icon_open_file.png</file>
     </qresource>
 </RCC>

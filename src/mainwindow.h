@@ -28,6 +28,7 @@ class KaraokeWidget;
 class KaraokeSong;
 class SongQueue;
 class WebServer;
+class SettingsDialog;
 class PlayerWidget;
 class SongDatabaseScanner;
 
@@ -62,8 +63,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
         void    menuRescanDatabase();
         void    menuUpdateDatabase();
 
-        // Handling dock window closures
-        void    dockWindowClosed( QObject* widget );
+        // Handling window closures
+        void    windowClosed( QObject* widget );
 
     private:
         void    keyPressEvent(QKeyEvent * event);
@@ -77,6 +78,9 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 
         // Only when the scan is in progress
         SongDatabaseScanner *   m_songScanner;
+
+        // TO make sure we only have one Settings dialog
+        SettingsDialog      *   m_settings;
 };
 
 

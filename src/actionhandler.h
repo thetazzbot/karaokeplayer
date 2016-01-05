@@ -99,6 +99,7 @@ class ActionHandler : public QObject
         // Informational
         void    songStarted();
         void    songStopped();
+        void    settingsChanged();
 
     public slots:
         // Events from player

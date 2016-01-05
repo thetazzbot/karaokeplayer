@@ -48,7 +48,10 @@ SOURCES += main.cpp\
     background.cpp \
     backgroundcolor.cpp \
     backgroundimage.cpp \
-    backgroundvideo.cpp
+    backgroundvideo.cpp \
+    settingsdialog.cpp \
+    colorbutton.cpp \
+    labelshowhelp.cpp
 
 HEADERS  += mainwindow.h \
     settings.h \
@@ -87,12 +90,16 @@ HEADERS  += mainwindow.h \
     background.h \
     backgroundcolor.h \
     backgroundimage.h \
-    backgroundvideo.h
+    backgroundvideo.h \
+    settingsdialog.h \
+    colorbutton.h \
+    labelshowhelp.h
 
 FORMS    += mainwindow.ui \
     songsearchdialog.ui \
     playerwidget.ui \
-    dialog_about.ui
+    dialog_about.ui \
+    settingsdialog.ui
 RESOURCES += resources.qrc
 INCLUDEPATH += .. ../libqhttpengine/QHttpEngine ../libqhttpengine
 LIBS += -L ../libkaraokelyrics/ -lkaraokelyrics -L../libqhttpengine/ -lqhttpengine -L../libuchardet/ -luchardet -lsqlite3 -lzip

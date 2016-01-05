@@ -22,6 +22,10 @@ class LanguageDetector
 
         // This returns UTF-8 string
         static QString  languageFromCode( int code );
+        static int      codeFromLanguage( const QString& language );
+
+        // This returns all languages
+        static QStringList  languages();
 
     private:
         QLibrary    m_libcld;
