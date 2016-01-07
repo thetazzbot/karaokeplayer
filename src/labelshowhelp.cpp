@@ -16,5 +16,5 @@ void LabelShowHelp::clicked()
     // Link is clicked - do we have a buddy?
     QString text = buddy()->whatsThis();
 
-    QWhatsThis::showText ( mapToParent( pos() ), text );
+    QWhatsThis::showText ( ((QWidget*)parent())->mapToGlobal( buddy()->pos() ), text, this );
 }

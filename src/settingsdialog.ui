@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>3</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -271,6 +271,9 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="whatsThis">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can specify one of three kinds of background for the player:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;A plain color, meaning the whole screen will be colored in a specific color;&lt;li&gt;An image or set of images. You will specify a directory containing one or more image files, which could be animated and transition to different images (slideshow);&lt;li&gt;A video or set of videos. You will specify a directory containing one or more video files.&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
            <item>
             <property name="text">
              <string>Plain color</string>
@@ -289,9 +292,12 @@
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_2">
+          <widget class="LabelShowHelp" name="label_2">
            <property name="text">
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;background&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;Help&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="buddy">
+            <cstring>boxBackgroundType</cstring>
            </property>
           </widget>
          </item>
@@ -311,15 +317,18 @@
          </item>
          <item>
           <widget class="QRadioButton" name="rbBackgroundIgnoreCustom">
+           <property name="whatsThis">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Certain formats such as KaraFun, UltraStar and MP3+LRC allow the creator to specify a different background image, which is embedded into a file. This option controls which background would be shown when those karaoke files are played:&lt;/p&gt;&lt;p&gt;- If you set it to &amp;quot;&lt;span style=&quot; font-weight:600;&quot;&gt;Ignore it&lt;/span&gt;&amp;quot;, your background will always show on those songs, even if the creator embedded a background image into the Karaoke file.&lt;/p&gt;&lt;p&gt;- If you set it to &amp;quot;&lt;span style=&quot; font-weight:600;&quot;&gt;Use it&lt;/span&gt;&amp;quot;, and the Karaoke file contains a background, it will be shown instead of yours when this song is played.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
            <property name="text">
             <string>Ignore it</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QRadioButton" name="radioButton_2">
+          <widget class="QRadioButton" name="rbBackgroundUseCustom">
            <property name="text">
-            <string>Use it</string>
+            <string>&amp;Use it</string>
            </property>
           </widget>
          </item>
@@ -337,7 +346,7 @@
           </spacer>
          </item>
          <item>
-          <widget class="QLabel" name="label_19">
+          <widget class="LabelShowHelp" name="label_19">
            <property name="text">
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;background&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;Help&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
@@ -351,7 +360,10 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_5">
          <item>
-          <widget class="QCheckBox" name="boxCDGtransparent_2">
+          <widget class="QCheckBox" name="boxCDGtransparent">
+           <property name="whatsThis">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;CD+G files come with its own background, which is typically black and fills up the whole screen. Therefore your background images or videos are not shown when CD+G files are played.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Enabling this option &amp;quot;hacks&amp;quot; the CD+G format by making its background color transparent. This allows your background to be shown even when CD+G files are being played. However some CD+G formats might become difficult to read when this option is enabled.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
            <property name="text">
             <string>Make CD+G background transparent</string>
            </property>
@@ -371,12 +383,12 @@
           </spacer>
          </item>
          <item>
-          <widget class="QLabel" name="label_20">
+          <widget class="LabelShowHelp" name="label_20">
            <property name="text">
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;background&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;Help&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="buddy">
-            <cstring>boxCDGtransparent_2</cstring>
+            <cstring>boxCDGtransparent</cstring>
            </property>
           </widget>
          </item>
@@ -394,12 +406,12 @@
              <string>Use the following color as background:</string>
             </property>
             <property name="buddy">
-             <cstring>btnLyricColor</cstring>
+             <cstring>btnBackgroundColor</cstring>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="ColorButton" name="btnLyricColor">
+           <widget class="ColorButton" name="btnBackgroundColor">
             <property name="whatsThis">
              <string>Preview window text color for the text which has been sung.</string>
             </property>
@@ -430,7 +442,11 @@
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="lePathImages"/>
+             <widget class="QLineEdit" name="lePathImages">
+              <property name="whatsThis">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Please specify the directory containing one or more images (or image directories) in JPG or PNG formats. All those images will be read, and if more than one image is present, they will be shown in a sequence.&lt;/p&gt;&lt;p&gt;Please choose the images carefully - a background image with many different details and bright colors distracts the singer and makes it hard to read the words.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+             </widget>
             </item>
             <item>
              <widget class="QToolButton" name="btnBrowseImages">
@@ -444,7 +460,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="label_21">
+             <widget class="LabelShowHelp" name="label_21">
               <property name="text">
                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;background&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;Help&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
@@ -465,7 +481,20 @@
              </widget>
             </item>
             <item>
-             <widget class="QSpinBox" name="spinBackgroundDelay"/>
+             <widget class="QSpinBox" name="spinBackgroundDelay">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="whatsThis">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The background image shown is typically only changed when the animation sequence ends. This option will also force to change the background image every specified number of seconds. Choose the large number if you have only few images, and a smaller number if you have a lot of images.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="minimum">
+               <number>5</number>
+              </property>
+              <property name="maximum">
+               <number>600</number>
+              </property>
+             </widget>
             </item>
             <item>
              <widget class="QLabel" name="label_3">
@@ -488,7 +517,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QLabel" name="label_22">
+             <widget class="LabelShowHelp" name="label_22">
               <property name="text">
                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;background&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;Help&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
@@ -521,7 +550,11 @@
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="lePathVideos"/>
+             <widget class="QLineEdit" name="lePathVideos">
+              <property name="whatsThis">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Please specify the directory containing one or more video files (or directories with video files) in AVI, MP4 or MKV formats. All those videos will be read, and if more than one video is present, they will be shown in an order.&lt;/p&gt;&lt;p&gt;Please choose the videos carefully - a fast-pacing background video with a lot of actions and bright colors distracts the singer and makes it hard to read the words.&lt;/p&gt;&lt;p&gt;The background video may have sound, but it will be muted by the Player.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+             </widget>
             </item>
             <item>
              <widget class="QToolButton" name="btnBrowseVideos">
@@ -535,7 +568,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="label_23">
+             <widget class="LabelShowHelp" name="label_23">
               <property name="text">
                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;background&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;Help&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>

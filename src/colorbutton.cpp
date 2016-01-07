@@ -23,7 +23,7 @@
 #include "colorbutton.h"
 
 ColorButton::ColorButton( QWidget * parent )
-    : QPushButton( parent ), m_selectedColor(Qt::black )
+    : QPushButton( parent ), m_selectedColor( Qt::black )
 {
 	connect( this, SIGNAL(clicked()), this, SLOT(btnClicked()) );
 }
